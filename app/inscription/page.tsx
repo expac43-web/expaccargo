@@ -3,7 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { Eye, EyeOff, ArrowRight, Lock, Mail, User, Phone, Building2, UserCircle } from "lucide-react";
+import { Eye, EyeOff, ArrowRight, Lock, Mail, User, Phone, Building2, UserCircle, AlertCircle, CheckCircle } from "lucide-react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 type AccountType = "particulier" | "entreprise";
 
@@ -19,11 +21,61 @@ export default function InscriptionPage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [accountType, setAccountType] = useState<AccountType>("particulier");
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setError(null);
+
+    const form = e.currentTarget;
+    const get = (name: string) => (form.elements.namedItem(name) as HTMLInputElement)?.value ?? "";
+
+    const password = get("password");
+    const confirm = get("confirm");
+
+    if (password !== confirm) {
+      setError("Les mots de passe ne correspondent pas.");
+      return;
+    }
+    if (password.length < 8) {
+      setError("Le mot de passe doit contenir au moins 8 caractères.");
+      return;
+    }
+
     setLoading(true);
-    setTimeout(() => setLoading(false), 1500);
+
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: get("name"),
+        email: get("email"),
+        password,
+        phone: get("phone") || undefined,
+        whatsapp: get("whatsapp") || undefined,
+        accountType,
+        companyName: get("companyName") || undefined,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.error ?? "Une erreur est survenue.");
+      setLoading(false);
+      return;
+    }
+
+    // Connexion automatique après inscription
+    await signIn("credentials", {
+      email: get("email"),
+      password,
+      redirect: false,
+    });
+
+    router.push("/dashboard");
+    router.refresh();
   }
 
   return (
@@ -133,6 +185,13 @@ export default function InscriptionPage() {
                   <strong className="text-gray-700">Client</strong>.
                 </p>
               </div>
+
+              {error && (
+                <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-100 mb-4">
+                  <AlertCircle size={15} className="text-red-500 shrink-0" />
+                  <p className="text-xs text-red-600" style={{ fontFamily: "var(--font-lato)" }}>{error}</p>
+                </div>
+              )}
 
               <form onSubmit={handleSubmit} className="space-y-4">
 

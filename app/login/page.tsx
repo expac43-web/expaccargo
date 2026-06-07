@@ -3,7 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { Eye, EyeOff, ArrowRight, Lock, Mail } from "lucide-react";
+import { Eye, EyeOff, ArrowRight, Lock, Mail, AlertCircle } from "lucide-react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const navLinks = [
   { label: "Services", href: "/services" },
@@ -15,12 +17,31 @@ const navLinks = [
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
-    // NextAuth signIn câblé ici
-    setTimeout(() => setLoading(false), 1500);
+    setError(null);
+
+    const form = e.currentTarget;
+    const email = (form.elements.namedItem("email") as HTMLInputElement).value;
+    const password = (form.elements.namedItem("password") as HTMLInputElement).value;
+
+    const result = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+
+    if (result?.error) {
+      setError("Identifiants incorrects. Vérifiez votre email et mot de passe.");
+      setLoading(false);
+    } else {
+      router.push("/dashboard");
+      router.refresh();
+    }
   }
 
   return (
@@ -123,6 +144,13 @@ export default function LoginPage() {
                   Utilisez vos identifiants EXPAC pour vous connecter.
                 </p>
               </div>
+
+              {error && (
+                <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-100 mb-5">
+                  <AlertCircle size={15} className="text-red-500 shrink-0" />
+                  <p className="text-xs text-red-600" style={{ fontFamily: "var(--font-lato)" }}>{error}</p>
+                </div>
+              )}
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 {/* Email */}
