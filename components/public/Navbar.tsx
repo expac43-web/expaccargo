@@ -7,10 +7,10 @@ import { Menu, X, LayoutDashboard } from "lucide-react";
 import { useSession } from "next-auth/react";
 
 const links = [
+  { label: "Accueil", href: "/" },
   { label: "Services", href: "/services" },
   { label: "Suivi", href: "/tracking" },
   { label: "Devis", href: "/devis" },
-  { label: "Partenaires", href: "/partenaires" },
   { label: "Actualités", href: "/actualites" },
   { label: "Contact", href: "/contact" },
 ];

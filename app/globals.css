@@ -167,3 +167,22 @@ html {
     @apply font-sans;
   }
 }
+
+@keyframes partnerScroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-33.333%); }
+}
+
+.partner-scroll {
+  animation: partnerScroll 28s linear infinite;
+}
+
+.partner-scroll:hover {
+  animation-play-state: paused;
+}
+
+.container-custom {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}

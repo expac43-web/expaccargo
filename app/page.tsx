@@ -1,6 +1,7 @@
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
 import HeroSlider from "@/components/public/HeroSlider";
+import PartnersCarousel from "@/components/public/PartnersCarousel";
 import Link from "next/link";
 import {
   Plane,
@@ -28,7 +29,7 @@ const services = [
     title: "Transit",
     description:
       "Gestion complète des formalités douanières et acheminement de vos marchandises sur l'ensemble du territoire africain.",
-    href: "/services/transit",
+    href: "/services#transit",
     color: "#1A3A6B",
   },
   {
@@ -36,7 +37,7 @@ const services = [
     title: "Transport Multimodal",
     description:
       "Combinaison optimale des modes de transport — aérien, maritime, routier — pour une livraison efficace et économique.",
-    href: "/services/transport",
+    href: "/services#transport",
     color: "#E8520A",
   },
   {
@@ -44,7 +45,7 @@ const services = [
     title: "Stockage",
     description:
       "Entrepôts sécurisés et gestion logistique de vos stocks avec suivi en temps réel de vos inventaires.",
-    href: "/services/stockage",
+    href: "/services#stockage",
     color: "#1A3A6B",
   },
   {
@@ -52,7 +53,7 @@ const services = [
     title: "Consignation Maritime",
     description:
       "Représentation et gestion de vos intérêts dans les ports africains, de l'accostage à la livraison.",
-    href: "/services/consignation",
+    href: "/services#consignation",
     color: "#E8520A",
   },
   {
@@ -60,7 +61,7 @@ const services = [
     title: "Groupage",
     description:
       "Optimisation des coûts par regroupement de vos expéditions avec d'autres marchandises vers la même destination.",
-    href: "/services/groupage",
+    href: "/services#groupage",
     color: "#1A3A6B",
   },
 ];
@@ -101,7 +102,29 @@ const atouts = [
 
 /* ─────────────────────────────────────────────────────────── */
 
-export default function HomePage() {
+type Partner = { id: string; name: string; logoUrl: string; website?: string | null };
+
+async function fetchPartners(): Promise<Partner[]> {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Partner?isActive=eq.true&order=order.asc`,
+      {
+        headers: {
+          apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
+        },
+        next: { revalidate: 300 },
+      }
+    );
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    return [];
+  }
+}
+
+export default async function HomePage() {
+  const partners = await fetchPartners();
   return (
     <>
       <Navbar />
@@ -581,6 +604,26 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+        {/* ── PARTENAIRES ───────────────────────────────────── */}
+        {partners.length > 0 && (
+          <section className="bg-white py-16 border-t border-gray-100">
+            <div className="container-custom mb-10 text-center">
+              <p
+                className="text-xs font-black uppercase tracking-[0.2em] mb-3"
+                style={{ color: "#E8520A", fontFamily: "var(--font-montserrat)" }}
+              >
+                ▪ Ils nous font confiance
+              </p>
+              <h2
+                className="text-2xl md:text-3xl font-black uppercase"
+                style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}
+              >
+                Nos partenaires
+              </h2>
+            </div>
+            <PartnersCarousel partners={partners} />
+          </section>
+        )}
       </main>
 
       <Footer />

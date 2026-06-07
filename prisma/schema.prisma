@@ -181,3 +181,13 @@ model Post {
   published Boolean  @default(false)
   createdAt DateTime @default(now())
 }
+
+model Partner {
+  id        String   @id @default(cuid())
+  name      String
+  logoUrl   String
+  website   String?
+  isActive  Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+}
