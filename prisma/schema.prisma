@@ -1,0 +1,183 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  SUPER_ADMIN
+  MANAGER
+  AGENCY
+  CLIENT
+}
+
+enum ShipmentStatus {
+  PENDING
+  PICKED_UP
+  CUSTOMS_EXPORT
+  IN_TRANSIT
+  CUSTOMS_IMPORT
+  OUT_DELIVERY
+  DELIVERED
+  INCIDENT
+  CANCELLED
+}
+
+enum ServiceType {
+  TRANSIT
+  MULTIMODAL
+  STORAGE
+  MARITIME_CONSIGNMENT
+  GROUPAGE
+}
+
+enum DocumentType {
+  INVOICE
+  PRO_FORMA
+  BILL_OF_LADING
+  CUSTOMS_DECL
+  CERTIFICATE
+  PACKING_LIST
+  OTHER
+}
+
+enum QuoteStatus {
+  NEW
+  IN_REVIEW
+  QUOTED
+  ACCEPTED
+  REJECTED
+}
+
+model User {
+  id               String         @id @default(cuid())
+  name             String
+  email            String         @unique
+  password         String
+  phone            String?
+  whatsapp         String?
+  role             Role           @default(CLIENT)
+  agencyId         String?
+  agency           Agency?        @relation(fields: [agencyId], references: [id])
+  shipments        Shipment[]
+  sentMessages     Message[]      @relation("SentMessages")
+  receivedMessages Message[]      @relation("ReceivedMessages")
+  notifications    Notification[]
+  documents        Document[]
+  isActive         Boolean        @default(true)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
+model Agency {
+  id        String     @id @default(cuid())
+  name      String
+  city      String
+  country   String
+  phone     String?
+  email     String?
+  users     User[]
+  shipments Shipment[]
+  createdAt DateTime   @default(now())
+}
+
+model Shipment {
+  id             String         @id @default(cuid())
+  reference      String         @unique
+  trackingNumber String?
+  status         ShipmentStatus @default(PENDING)
+  serviceType    ServiceType
+  origin         String
+  destination    String
+  weight         Float?
+  volume         Float?
+  description    String?
+  eta            DateTime?
+  deliveredAt    DateTime?
+  clientId       String
+  client         User           @relation(fields: [clientId], references: [id])
+  agencyId       String?
+  agency         Agency?        @relation(fields: [agencyId], references: [id])
+  milestones     Milestone[]
+  documents      Document[]
+  messages       Message[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model Milestone {
+  id         String         @id @default(cuid())
+  shipmentId String
+  shipment   Shipment       @relation(fields: [shipmentId], references: [id])
+  label      String
+  location   String?
+  status     ShipmentStatus
+  occurredAt DateTime       @default(now())
+  note       String?
+}
+
+model Message {
+  id         String    @id @default(cuid())
+  content    String
+  senderId   String
+  sender     User      @relation("SentMessages", fields: [senderId], references: [id])
+  receiverId String
+  receiver   User      @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  shipmentId String?
+  shipment   Shipment? @relation(fields: [shipmentId], references: [id])
+  isRead     Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+}
+
+model Document {
+  id           String       @id @default(cuid())
+  name         String
+  type         DocumentType
+  url          String
+  shipmentId   String?
+  shipment     Shipment?    @relation(fields: [shipmentId], references: [id])
+  uploadedById String
+  uploadedBy   User         @relation(fields: [uploadedById], references: [id])
+  createdAt    DateTime     @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  body      String
+  isRead    Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+}
+
+model QuoteRequest {
+  id          String      @id @default(cuid())
+  name        String
+  email       String
+  phone       String
+  serviceType ServiceType
+  origin      String
+  destination String
+  cargoType   String
+  weight      Float?
+  volume      Float?
+  notes       String?
+  status      QuoteStatus @default(NEW)
+  createdAt   DateTime    @default(now())
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  excerpt   String
+  content   String   @db.Text
+  category  String
+  lang      String   @default("fr")
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
