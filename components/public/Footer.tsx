@@ -5,11 +5,14 @@ import { MapPin, Phone, Mail, Globe } from "lucide-react";
 export default function Footer() {
   return (
     <footer style={{ backgroundColor: "#1A3A6B" }} className="text-white">
-      <div className="container-custom py-14">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+      {/* Top accent line */}
+      <div style={{ backgroundColor: "#E8520A" }} className="h-1 w-full" />
+
+      <div className="container-custom pt-16 pb-10">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-blue-800">
           {/* Brand */}
           <div className="md:col-span-1">
-            <div className="inline-block bg-white rounded-xl px-3 py-2 mb-4">
+            <div className="inline-block bg-white rounded-xl px-3 py-2 mb-5">
               <Image
                 src="/images/logo.jpeg"
                 alt="EXPAC"
@@ -18,7 +21,10 @@ export default function Footer() {
                 className="h-10 w-auto object-contain"
               />
             </div>
-            <p className="text-sm text-blue-200 leading-relaxed">
+            <p
+              className="text-sm text-blue-200 leading-relaxed"
+              style={{ fontFamily: "var(--font-lato)" }}
+            >
               Votre partenaire en logistique internationale, transit et transport
               multimodal en Afrique.
             </p>
@@ -26,21 +32,25 @@ export default function Footer() {
 
           {/* Services */}
           <div>
-            <h3 className="font-semibold text-sm uppercase tracking-wider text-blue-300 mb-4">
+            <h3
+              className="text-xs font-black uppercase tracking-[0.15em] text-blue-300 mb-5"
+              style={{ fontFamily: "var(--font-montserrat)" }}
+            >
               Services
             </h3>
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               {[
-                { label: "Transit", href: "/services/transit" },
-                { label: "Transport Multimodal", href: "/services/transport" },
-                { label: "Stockage", href: "/services/stockage" },
-                { label: "Consignation Maritime", href: "/services/consignation" },
-                { label: "Groupage", href: "/services/groupage" },
+                { label: "Transit", href: "/services#transit" },
+                { label: "Transport Multimodal", href: "/services#transport" },
+                { label: "Stockage", href: "/services#stockage" },
+                { label: "Consignation Maritime", href: "/services#consignation" },
+                { label: "Groupage", href: "/services#groupage" },
               ].map((s) => (
                 <li key={s.href}>
                   <Link
                     href={s.href}
                     className="text-sm text-blue-200 hover:text-white transition-colors"
+                    style={{ fontFamily: "var(--font-lato)" }}
                   >
                     {s.label}
                   </Link>
@@ -51,10 +61,13 @@ export default function Footer() {
 
           {/* Liens */}
           <div>
-            <h3 className="font-semibold text-sm uppercase tracking-wider text-blue-300 mb-4">
+            <h3
+              className="text-xs font-black uppercase tracking-[0.15em] text-blue-300 mb-5"
+              style={{ fontFamily: "var(--font-montserrat)" }}
+            >
               Liens utiles
             </h3>
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               {[
                 { label: "Suivre une expédition", href: "/tracking" },
                 { label: "Demander un devis", href: "/devis" },
@@ -66,6 +79,7 @@ export default function Footer() {
                   <Link
                     href={l.href}
                     className="text-sm text-blue-200 hover:text-white transition-colors"
+                    style={{ fontFamily: "var(--font-lato)" }}
                   >
                     {l.label}
                   </Link>
@@ -76,29 +90,48 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h3 className="font-semibold text-sm uppercase tracking-wider text-blue-300 mb-4">
+            <h3
+              className="text-xs font-black uppercase tracking-[0.15em] text-blue-300 mb-5"
+              style={{ fontFamily: "var(--font-montserrat)" }}
+            >
               Contact
             </h3>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-2 text-sm text-blue-200">
+            <ul className="space-y-4">
+              <li className="flex items-start gap-2.5 text-sm text-blue-200">
                 <MapPin size={15} className="mt-0.5 shrink-0 text-[#E8520A]" />
-                <span>Express Africa Cargo Ltd, Afrique</span>
+                <span style={{ fontFamily: "var(--font-lato)" }}>
+                  Express Africa Cargo Ltd, Afrique
+                </span>
               </li>
-              <li className="flex items-center gap-2 text-sm text-blue-200">
+              <li className="flex items-center gap-2.5 text-sm text-blue-200">
                 <Phone size={15} className="shrink-0 text-[#E8520A]" />
-                <a href="tel:+221000000000" className="hover:text-white transition-colors">
+                <a
+                  href="tel:+221000000000"
+                  className="hover:text-white transition-colors"
+                  style={{ fontFamily: "var(--font-lato)" }}
+                >
                   +221 00 000 00 00
                 </a>
               </li>
-              <li className="flex items-center gap-2 text-sm text-blue-200">
+              <li className="flex items-center gap-2.5 text-sm text-blue-200">
                 <Mail size={15} className="shrink-0 text-[#E8520A]" />
-                <a href="mailto:contact@expaccargoltd.com" className="hover:text-white transition-colors">
+                <a
+                  href="mailto:contact@expaccargoltd.com"
+                  className="hover:text-white transition-colors"
+                  style={{ fontFamily: "var(--font-lato)" }}
+                >
                   contact@expaccargoltd.com
                 </a>
               </li>
-              <li className="flex items-center gap-2 text-sm text-blue-200">
+              <li className="flex items-center gap-2.5 text-sm text-blue-200">
                 <Globe size={15} className="shrink-0 text-[#E8520A]" />
-                <a href="http://expaccargoltd.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
+                <a
+                  href="http://expaccargoltd.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-white transition-colors"
+                  style={{ fontFamily: "var(--font-lato)" }}
+                >
                   expaccargoltd.com
                 </a>
               </li>
@@ -107,9 +140,16 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-12 pt-6 border-t border-blue-800 flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-blue-300">
-          <p>© {new Date().getFullYear()} Express Africa Cargo Ltd. Tous droits réservés.</p>
-          <p>Conçu avec expertise pour l&apos;Afrique</p>
+        <div className="pt-6 flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-blue-400">
+          <p style={{ fontFamily: "var(--font-lato)" }}>
+            © {new Date().getFullYear()} Express Africa Cargo Ltd. Tous droits réservés.
+          </p>
+          <p
+            className="font-black uppercase tracking-wider text-blue-400"
+            style={{ fontFamily: "var(--font-montserrat)" }}
+          >
+            Sûr et Rapide
+          </p>
         </div>
       </div>
     </footer>

@@ -46,8 +46,15 @@ export default function Navbar() {
           ))}
         </nav>
 
-        {/* CTA + mobile toggle */}
-        <div className="flex items-center gap-3">
+        {/* CTAs + mobile toggle */}
+        <div className="flex items-center gap-2">
+          <Link
+            href="/inscription"
+            className="hidden md:inline-flex items-center px-4 py-2 rounded-lg text-xs font-black text-white uppercase tracking-wide transition-all hover:opacity-90"
+            style={{ backgroundColor: "#E8520A", fontFamily: "var(--font-montserrat)" }}
+          >
+            Inscription
+          </Link>
           <Link
             href="/login"
             className="hidden md:inline-flex items-center px-4 py-2 rounded-lg text-xs font-black text-white uppercase tracking-wide transition-colors hover:opacity-90"
@@ -79,14 +86,24 @@ export default function Navbar() {
               {l.label}
             </Link>
           ))}
-          <Link
-            href="/login"
-            onClick={() => setOpen(false)}
-            className="inline-flex justify-center items-center px-4 py-3 rounded-lg text-xs font-black text-white uppercase tracking-wide"
-            style={{ backgroundColor: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}
-          >
-            Connexion
-          </Link>
+          <div className="flex gap-2 pt-2">
+            <Link
+              href="/inscription"
+              onClick={() => setOpen(false)}
+              className="flex-1 inline-flex justify-center items-center px-4 py-3 rounded-lg text-xs font-black text-white uppercase tracking-wide"
+              style={{ backgroundColor: "#E8520A", fontFamily: "var(--font-montserrat)" }}
+            >
+              Inscription
+            </Link>
+            <Link
+              href="/login"
+              onClick={() => setOpen(false)}
+              className="flex-1 inline-flex justify-center items-center px-4 py-3 rounded-lg text-xs font-black text-white uppercase tracking-wide"
+              style={{ backgroundColor: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}
+            >
+              Connexion
+            </Link>
+          </div>
         </div>
       )}
     </header>

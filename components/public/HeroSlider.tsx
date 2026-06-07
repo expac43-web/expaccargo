@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 
 const slides = [
   {
-    src: "https://images.unsplash.com/photo-1494412574643-ff4b924a73df?auto=format&fit=crop&w=1920&q=80",
+    src: "https://images.unsplash.com/photo-1566576912321-d58ddd7a6088?auto=format&fit=crop&w=1920&q=80",
     alt: "Port de conteneurs maritimes",
   },
   {
@@ -65,7 +65,7 @@ export default function HeroSlider({ children }: HeroSliderProps) {
       {/* Content */}
       <div className="relative z-20 w-full">{children}</div>
 
-      {/* Slide indicators */}
+      {/* Slide indicators only */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2">
         {slides.map((_, i) => (
           <button
@@ -81,12 +81,6 @@ export default function HeroSlider({ children }: HeroSliderProps) {
             }}
           />
         ))}
-      </div>
-
-      {/* Slide counter */}
-      <div className="absolute bottom-8 right-8 z-20 text-white/60 text-sm font-medium tabular-nums"
-        style={{ fontFamily: "var(--font-montserrat)" }}>
-        {String(current + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
       </div>
     </section>
   );
