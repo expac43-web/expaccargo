@@ -8,8 +8,8 @@ export default function Footer() {
       {/* Top accent line */}
       <div style={{ backgroundColor: "#E8520A" }} className="h-1 w-full" />
 
-      <div className="container-custom pt-16 pb-10">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-blue-800">
+      <div className="container-custom pt-24 pb-10">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-14 border-b border-blue-800">
           {/* Brand */}
           <div className="md:col-span-1">
             <div className="inline-block bg-white rounded-xl px-3 py-2 mb-5">
