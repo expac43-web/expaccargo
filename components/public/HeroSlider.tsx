@@ -5,8 +5,8 @@ import { useState, useEffect } from "react";
 
 const slides = [
   {
-    src: "https://images.unsplash.com/photo-1769752803898-e7e9a843a120?auto=format&fit=crop&w=1920&q=80",
-    alt: "Port cargo africain",
+    src: "https://images.unsplash.com/photo-1759216373394-91146ca977c7?auto=format&fit=crop&w=1920&q=80",
+    alt: "Port cargo avec grues et conteneurs",
   },
   {
     src: "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=1920&q=80",
