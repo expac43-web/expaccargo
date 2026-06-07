@@ -1,10 +1,16 @@
 "use client";
 
-import Navbar from "@/components/public/Navbar";
-import Footer from "@/components/public/Footer";
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { Eye, EyeOff, ArrowRight, Lock, Mail } from "lucide-react";
+
+const navLinks = [
+  { label: "Services", href: "/services" },
+  { label: "Suivi", href: "/tracking" },
+  { label: "Devis", href: "/devis" },
+  { label: "Contact", href: "/contact" },
+];
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -18,49 +24,102 @@ export default function LoginPage() {
   }
 
   return (
-    <>
-      <Navbar />
-
-      {/* Page header */}
-      <div
-        className="pt-16"
-        style={{
-          background: "linear-gradient(135deg, #0e2248 0%, #1A3A6B 100%)",
-        }}
-      >
-        <div className="container-custom py-12 text-center">
-          <p
-            className="text-xs font-black uppercase tracking-[0.2em] mb-3"
-            style={{ color: "#fba563", fontFamily: "var(--font-montserrat)" }}
-          >
-            ▪ Espace sécurisé
-          </p>
-          <h1
-            className="text-3xl md:text-4xl font-black text-white uppercase"
-            style={{ fontFamily: "var(--font-montserrat)" }}
-          >
-            Connexion
-          </h1>
-        </div>
+    <div className="min-h-screen flex flex-col">
+      {/* ── Barre de navigation minimale ─────────────────── */}
+      <div className="bg-white border-b border-gray-100 h-14 flex items-center px-6 shrink-0 z-10">
+        <Link href="/" className="shrink-0">
+          <Image
+            src="/images/logo.jpeg"
+            alt="EXPAC"
+            width={110}
+            height={38}
+            className="h-9 w-auto object-contain"
+          />
+        </Link>
+        <nav className="hidden sm:flex items-center gap-6 ml-8">
+          {navLinks.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="text-xs font-black uppercase tracking-wider text-gray-500 hover:text-[#1A3A6B] transition-colors"
+              style={{ fontFamily: "var(--font-montserrat)" }}
+            >
+              {l.label}
+            </Link>
+          ))}
+        </nav>
+        <Link
+          href="/inscription"
+          className="ml-auto text-xs font-black uppercase tracking-wide transition-all hover:opacity-80"
+          style={{ color: "#E8520A", fontFamily: "var(--font-montserrat)" }}
+        >
+          Pas encore de compte ? →
+        </Link>
       </div>
 
-      {/* Form section */}
-      <main className="bg-gray-50 py-16 flex-1">
-        <div className="container-custom flex justify-center">
+      {/* ── Split layout ──────────────────────────────────── */}
+      <div className="flex flex-1">
+        {/* Left panel */}
+        <div
+          className="hidden lg:flex lg:w-5/12 relative flex-col justify-between p-12 overflow-hidden"
+          style={{
+            background: "linear-gradient(135deg, #0e2248 0%, #1A3A6B 60%, #2a5298 100%)",
+          }}
+        >
+          <div className="absolute -right-16 -top-16 w-72 h-72 rounded-full opacity-10" style={{ backgroundColor: "#E8520A" }} />
+          <div className="absolute -left-8 bottom-24 w-48 h-48 rounded-full opacity-10" style={{ backgroundColor: "#E8520A" }} />
+
+          <div className="relative z-10">
+            <p
+              className="text-xs font-black uppercase tracking-[0.2em] mb-5"
+              style={{ color: "#fba563", fontFamily: "var(--font-montserrat)" }}
+            >
+              ▪ Espace client sécurisé
+            </p>
+            <h1
+              className="text-4xl font-black text-white uppercase leading-tight mb-6"
+              style={{ fontFamily: "var(--font-montserrat)" }}
+            >
+              Accédez à votre<br />
+              <span style={{ color: "#E8520A" }}>tableau de bord</span>
+            </h1>
+            <p className="text-blue-200 leading-relaxed max-w-sm" style={{ fontFamily: "var(--font-lato)" }}>
+              Suivez vos expéditions, consultez vos documents et communiquez
+              avec votre agence directement depuis votre espace personnel.
+            </p>
+
+            <ul className="mt-8 space-y-3">
+              {[
+                "Suivi en temps réel de vos expéditions",
+                "Accès à tous vos documents",
+                "Messagerie avec votre agence",
+                "Demandes de devis en ligne",
+              ].map((f) => (
+                <li key={f} className="flex items-center gap-3 text-sm text-blue-100" style={{ fontFamily: "var(--font-lato)" }}>
+                  <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: "#E8520A" }} />
+                  {f}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <p className="relative z-10 text-xs text-blue-400" style={{ fontFamily: "var(--font-lato)" }}>
+            © {new Date().getFullYear()} Express Africa Cargo Ltd
+          </p>
+        </div>
+
+        {/* Right panel — form */}
+        <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 bg-gray-50">
           <div className="w-full max-w-md">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-              {/* Header */}
               <div className="mb-7">
                 <h2
                   className="text-xl font-black uppercase mb-1"
                   style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}
                 >
-                  Accédez à votre espace
+                  Connexion
                 </h2>
-                <p
-                  className="text-gray-500 text-sm"
-                  style={{ fontFamily: "var(--font-lato)" }}
-                >
+                <p className="text-gray-500 text-sm" style={{ fontFamily: "var(--font-lato)" }}>
                   Utilisez vos identifiants EXPAC pour vous connecter.
                 </p>
               </div>
@@ -131,10 +190,7 @@ export default function LoginPage() {
 
                 {/* Remember me */}
                 <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 rounded border-gray-300 accent-[#1A3A6B]"
-                  />
+                  <input type="checkbox" className="w-4 h-4 rounded border-gray-300 accent-[#1A3A6B]" />
                   <span className="text-sm text-gray-500" style={{ fontFamily: "var(--font-lato)" }}>
                     Se souvenir de moi
                   </span>
@@ -172,7 +228,7 @@ export default function LoginPage() {
               </Link>
 
               <p className="text-center text-xs text-gray-400 mt-5" style={{ fontFamily: "var(--font-lato)" }}>
-                Pour un accès agence ou gérant, contactez{" "}
+                Accès agence / gérant :{" "}
                 <a href="mailto:contact@expaccargoltd.com" className="underline hover:text-gray-600">
                   contact@expaccargoltd.com
                 </a>
@@ -180,9 +236,7 @@ export default function LoginPage() {
             </div>
           </div>
         </div>
-      </main>
-
-      <Footer />
-    </>
+      </div>
+    </div>
   );
 }

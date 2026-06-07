@@ -8,7 +8,7 @@ export default function Footer() {
       {/* Top accent line */}
       <div style={{ backgroundColor: "#E8520A" }} className="h-1 w-full" />
 
-      <div className="container-custom pt-24 pb-10">
+      <div className="container-custom pb-10" style={{ paddingTop: "5rem" }}>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-14 border-b border-blue-800">
           {/* Brand */}
           <div className="md:col-span-1">

@@ -1,12 +1,18 @@
 "use client";
 
-import Navbar from "@/components/public/Navbar";
-import Footer from "@/components/public/Footer";
+import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { Eye, EyeOff, ArrowRight, Lock, Mail, User, Phone, Building2, UserCircle } from "lucide-react";
 
 type AccountType = "particulier" | "entreprise";
+
+const navLinks = [
+  { label: "Services", href: "/services" },
+  { label: "Suivi", href: "/tracking" },
+  { label: "Devis", href: "/devis" },
+  { label: "Contact", href: "/contact" },
+];
 
 export default function InscriptionPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -17,49 +23,110 @@ export default function InscriptionPage() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
-    // API /api/auth/register câblé ici
     setTimeout(() => setLoading(false), 1500);
   }
 
   return (
-    <>
-      <Navbar />
-
-      {/* Page header */}
-      <div
-        className="pt-16"
-        style={{
-          background: "linear-gradient(135deg, #c44408 0%, #E8520A 100%)",
-        }}
-      >
-        <div className="container-custom py-12 text-center">
-          <p
-            className="text-xs font-black uppercase tracking-[0.2em] mb-3 text-orange-100"
-            style={{ fontFamily: "var(--font-montserrat)" }}
-          >
-            ▪ Compte gratuit
-          </p>
-          <h1
-            className="text-3xl md:text-4xl font-black text-white uppercase"
-            style={{ fontFamily: "var(--font-montserrat)" }}
-          >
-            Créer un compte
-          </h1>
-        </div>
+    <div className="min-h-screen flex flex-col">
+      {/* ── Barre de navigation minimale ─────────────────── */}
+      <div className="bg-white border-b border-gray-100 h-14 flex items-center px-6 shrink-0 z-10">
+        <Link href="/" className="shrink-0">
+          <Image
+            src="/images/logo.jpeg"
+            alt="EXPAC"
+            width={110}
+            height={38}
+            className="h-9 w-auto object-contain"
+          />
+        </Link>
+        <nav className="hidden sm:flex items-center gap-6 ml-8">
+          {navLinks.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className="text-xs font-black uppercase tracking-wider text-gray-500 hover:text-[#1A3A6B] transition-colors"
+              style={{ fontFamily: "var(--font-montserrat)" }}
+            >
+              {l.label}
+            </Link>
+          ))}
+        </nav>
+        <Link
+          href="/login"
+          className="ml-auto text-xs font-black uppercase tracking-wide transition-all hover:opacity-80"
+          style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}
+        >
+          Déjà un compte ? →
+        </Link>
       </div>
 
-      {/* Form section */}
-      <main className="bg-gray-50 py-16 flex-1">
-        <div className="container-custom flex justify-center">
+      {/* ── Split layout ──────────────────────────────────── */}
+      <div className="flex flex-1">
+        {/* Left panel */}
+        <div
+          className="hidden lg:flex lg:w-5/12 relative flex-col justify-between p-12 overflow-hidden"
+          style={{
+            background: "linear-gradient(135deg, #c44408 0%, #E8520A 60%, #f97316 100%)",
+          }}
+        >
+          <div className="absolute -right-16 -top-16 w-72 h-72 rounded-full opacity-10 bg-white" />
+          <div className="absolute -left-8 bottom-24 w-48 h-48 rounded-full opacity-10 bg-white" />
+
+          <div className="relative z-10">
+            <p
+              className="text-xs font-black uppercase tracking-[0.2em] mb-5 text-orange-100"
+              style={{ fontFamily: "var(--font-montserrat)" }}
+            >
+              ▪ Compte gratuit
+            </p>
+            <h1
+              className="text-4xl font-black text-white uppercase leading-tight mb-6"
+              style={{ fontFamily: "var(--font-montserrat)" }}
+            >
+              Rejoignez<br />
+              <span style={{ color: "#1A3A6B" }}>EXPAC</span>
+            </h1>
+            <p className="text-orange-100 leading-relaxed max-w-sm" style={{ fontFamily: "var(--font-lato)" }}>
+              Créez votre compte en quelques secondes et accédez à votre espace
+              logistique personnalisé.
+            </p>
+
+            <ul className="mt-8 space-y-4">
+              {[
+                { step: "01", label: "Remplissez le formulaire" },
+                { step: "02", label: "Confirmez votre email" },
+                { step: "03", label: "Accédez à votre espace client" },
+              ].map((s) => (
+                <li key={s.step} className="flex items-center gap-4">
+                  <span
+                    className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black shrink-0 text-white"
+                    style={{ backgroundColor: "rgba(255,255,255,0.2)", fontFamily: "var(--font-montserrat)" }}
+                  >
+                    {s.step}
+                  </span>
+                  <span className="text-sm text-orange-100" style={{ fontFamily: "var(--font-lato)" }}>
+                    {s.label}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <p className="relative z-10 text-xs text-orange-200" style={{ fontFamily: "var(--font-lato)" }}>
+            © {new Date().getFullYear()} Express Africa Cargo Ltd
+          </p>
+        </div>
+
+        {/* Right panel — form */}
+        <div className="flex-1 flex flex-col items-center justify-center px-6 py-10 bg-gray-50 overflow-y-auto">
           <div className="w-full max-w-lg">
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-              {/* Header */}
               <div className="mb-7">
                 <h2
                   className="text-xl font-black uppercase mb-1"
                   style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}
                 >
-                  Vos informations
+                  Créer un compte
                 </h2>
                 <p className="text-gray-500 text-sm" style={{ fontFamily: "var(--font-lato)" }}>
                   Votre compte sera créé avec le rôle{" "}
@@ -67,9 +134,9 @@ export default function InscriptionPage() {
                 </p>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-5">
+              <form onSubmit={handleSubmit} className="space-y-4">
 
-                {/* ── Type de compte ───────────────────────── */}
+                {/* Type de compte */}
                 <div>
                   <label
                     className="block text-xs font-black uppercase tracking-wider mb-3"
@@ -87,23 +154,15 @@ export default function InscriptionPage() {
                         backgroundColor: accountType === "particulier" ? "rgba(26,58,107,0.05)" : "white",
                       }}
                     >
-                      <UserCircle
-                        size={20}
-                        style={{ color: accountType === "particulier" ? "#1A3A6B" : "#9ca3af" }}
-                      />
+                      <UserCircle size={20} style={{ color: accountType === "particulier" ? "#1A3A6B" : "#9ca3af" }} />
                       <div>
                         <p
                           className="text-sm font-black uppercase"
-                          style={{
-                            color: accountType === "particulier" ? "#1A3A6B" : "#6b7280",
-                            fontFamily: "var(--font-montserrat)",
-                          }}
+                          style={{ color: accountType === "particulier" ? "#1A3A6B" : "#6b7280", fontFamily: "var(--font-montserrat)" }}
                         >
                           Particulier
                         </p>
-                        <p className="text-xs text-gray-400" style={{ fontFamily: "var(--font-lato)" }}>
-                          Personne physique
-                        </p>
+                        <p className="text-xs text-gray-400" style={{ fontFamily: "var(--font-lato)" }}>Personne physique</p>
                       </div>
                     </button>
 
@@ -116,23 +175,15 @@ export default function InscriptionPage() {
                         backgroundColor: accountType === "entreprise" ? "rgba(232,82,10,0.05)" : "white",
                       }}
                     >
-                      <Building2
-                        size={20}
-                        style={{ color: accountType === "entreprise" ? "#E8520A" : "#9ca3af" }}
-                      />
+                      <Building2 size={20} style={{ color: accountType === "entreprise" ? "#E8520A" : "#9ca3af" }} />
                       <div>
                         <p
                           className="text-sm font-black uppercase"
-                          style={{
-                            color: accountType === "entreprise" ? "#E8520A" : "#6b7280",
-                            fontFamily: "var(--font-montserrat)",
-                          }}
+                          style={{ color: accountType === "entreprise" ? "#E8520A" : "#6b7280", fontFamily: "var(--font-montserrat)" }}
                         >
                           Entreprise
                         </p>
-                        <p className="text-xs text-gray-400" style={{ fontFamily: "var(--font-lato)" }}>
-                          Personne morale
-                        </p>
+                        <p className="text-xs text-gray-400" style={{ fontFamily: "var(--font-lato)" }}>Personne morale</p>
                       </div>
                     </button>
                   </div>
@@ -146,15 +197,15 @@ export default function InscriptionPage() {
                       className="block text-xs font-black uppercase tracking-wider mb-2"
                       style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}
                     >
-                      Nom de l&apos;entreprise *
+                      Raison sociale *
                     </label>
                     <div className="relative">
                       <Building2 size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                       <input
                         id="company"
                         type="text"
-                        required={accountType === "entreprise"}
-                        placeholder="Raison sociale"
+                        required
+                        placeholder="Nom de l'entreprise"
                         className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#1A3A6B] focus:ring-2 focus:ring-[#1A3A6B]/10 transition-all bg-white"
                         style={{ fontFamily: "var(--font-lato)" }}
                       />
@@ -162,7 +213,7 @@ export default function InscriptionPage() {
                   </div>
                 )}
 
-                {/* Nom complet */}
+                {/* Nom */}
                 <div>
                   <label
                     htmlFor="name"
@@ -272,12 +323,7 @@ export default function InscriptionPage() {
                       className="w-full pl-11 pr-12 py-3.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#1A3A6B] focus:ring-2 focus:ring-[#1A3A6B]/10 transition-all bg-white"
                       style={{ fontFamily: "var(--font-lato)" }}
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                      tabIndex={-1}
-                    >
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" tabIndex={-1}>
                       {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
@@ -303,12 +349,7 @@ export default function InscriptionPage() {
                       className="w-full pl-11 pr-12 py-3.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#1A3A6B] focus:ring-2 focus:ring-[#1A3A6B]/10 transition-all bg-white"
                       style={{ fontFamily: "var(--font-lato)" }}
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirm(!showConfirm)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                      tabIndex={-1}
-                    >
+                    <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" tabIndex={-1}>
                       {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
                     </button>
                   </div>
@@ -316,11 +357,7 @@ export default function InscriptionPage() {
 
                 {/* Terms */}
                 <label className="flex items-start gap-3 cursor-pointer pt-1">
-                  <input
-                    type="checkbox"
-                    required
-                    className="w-4 h-4 rounded border-gray-300 accent-[#E8520A] mt-0.5 shrink-0"
-                  />
+                  <input type="checkbox" required className="w-4 h-4 rounded border-gray-300 accent-[#E8520A] mt-0.5 shrink-0" />
                   <span className="text-sm text-gray-500 leading-relaxed" style={{ fontFamily: "var(--font-lato)" }}>
                     J&apos;accepte les{" "}
                     <Link href="/mentions-legales" className="underline hover:text-[#E8520A]">
@@ -361,9 +398,7 @@ export default function InscriptionPage() {
             </div>
           </div>
         </div>
-      </main>
-
-      <Footer />
-    </>
+      </div>
+    </div>
   );
 }
