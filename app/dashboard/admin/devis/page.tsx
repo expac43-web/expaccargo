@@ -1,17 +1,14 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import Link from "next/link";
 import AdminHeader from "@/components/admin/AdminHeader";
 import Modal from "@/components/admin/Modal";
-import { FileText, Search, Trash2, ChevronDown, Package, MapPin, Weight, Phone, Mail, StickyNote, Download } from "lucide-react";
-import { exportDevisPDF } from "@/lib/pdf";
+import Pagination from "@/components/admin/Pagination";
+import { DevisQuote } from "@/components/admin/DevisProcessPanel";
+import { FileText, Search, Trash2 } from "lucide-react";
 
-type Quote = {
-  id: string; name: string; email: string; phone: string;
-  serviceType: string; origin: string; destination: string;
-  cargoType: string; weight: number | null; volume: number | null;
-  notes: string | null; status: string; createdAt: string;
-};
+const PAGE_SIZE = 15;
 
 const STATUS_META: Record<string, { label: string; color: string; bg: string }> = {
   NEW:       { label: "Nouveau",    color: "#2563eb", bg: "rgba(37,99,235,0.1)" },
@@ -26,22 +23,14 @@ const SERVICE_LABELS: Record<string, string> = {
   STORAGE: "Stockage", MARITIME_CONSIGNMENT: "Consignation", GROUPAGE: "Groupage",
 };
 
-const NEXT_STATUS: Record<string, string[]> = {
-  NEW:       ["IN_REVIEW", "REJECTED"],
-  IN_REVIEW: ["QUOTED", "REJECTED"],
-  QUOTED:    ["ACCEPTED", "REJECTED"],
-  ACCEPTED:  [],
-  REJECTED:  [],
-};
-
 export default function DevisPage() {
-  const [quotes, setQuotes] = useState<Quote[]>([]);
+  const [quotes, setQuotes] = useState<DevisQuote[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
-  const [detail, setDetail] = useState<Quote | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     fetch("/api/admin/devis")
@@ -59,19 +48,9 @@ export default function DevisPage() {
     return matchSearch && matchStatus;
   }), [quotes, search, filterStatus]);
 
-  async function updateStatus(id: string, status: string) {
-    setSaving(true);
-    const r = await fetch(`/api/admin/devis/${id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status }),
-    });
-    if (r.ok) {
-      setQuotes(prev => prev.map(q => q.id === id ? { ...q, status } : q));
-      if (detail?.id === id) setDetail(d => d ? { ...d, status } : d);
-    }
-    setSaving(false);
-  }
+  // Revenir en page 1 quand la recherche / le filtre change.
+  useEffect(() => { setPage(1); }, [search, filterStatus]);
+  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   async function deleteQuote() {
     if (!deleteId) return;
@@ -79,7 +58,6 @@ export default function DevisPage() {
     const r = await fetch(`/api/admin/devis/${deleteId}`, { method: "DELETE" });
     if (r.ok) {
       setQuotes(prev => prev.filter(q => q.id !== deleteId));
-      if (detail?.id === deleteId) setDetail(null);
     }
     setDeleteId(null);
     setSaving(false);
@@ -146,9 +124,8 @@ export default function DevisPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((q) => {
+                  {paged.map((q) => {
                     const m = STATUS_META[q.status] ?? STATUS_META.NEW;
-                    const next = NEXT_STATUS[q.status] ?? [];
                     return (
                       <tr key={q.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                         <td className="px-4 py-3">
@@ -167,44 +144,22 @@ export default function DevisPage() {
                             style={{ backgroundColor: m.bg, color: m.color, fontFamily: "var(--font-montserrat)" }}>
                             {m.label}
                           </span>
+                          {q.handledByName && (
+                            <p className="text-[10px] text-gray-400 mt-1 truncate max-w-[120px]" style={{ fontFamily: "var(--font-lato)" }}>par {q.handledByName}</p>
+                          )}
                         </td>
                         <td className="px-4 py-3 text-xs text-gray-400" style={{ fontFamily: "var(--font-lato)" }}>
                           {new Date(q.createdAt).toLocaleDateString("fr-FR")}
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-1">
-                            <button
-                              onClick={() => setDetail(q)}
-                              className="px-2.5 py-1.5 rounded-lg text-xs font-black border border-gray-200 hover:bg-gray-50 text-gray-600"
-                              style={{ fontFamily: "var(--font-montserrat)" }}
+                            <Link
+                              href={`/dashboard/admin/devis/${q.id}`}
+                              className="px-3 py-1.5 rounded-lg text-xs font-black text-white hover:opacity-90"
+                              style={{ backgroundColor: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}
                             >
-                              Détails
-                            </button>
-                            {next.length > 0 && (
-                              <div className="relative group">
-                                <button className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-black text-white hover:opacity-90"
-                                  style={{ backgroundColor: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>
-                                  Avancer <ChevronDown size={11} />
-                                </button>
-                                <div className="absolute right-0 top-full mt-1 bg-white rounded-xl border border-gray-200 shadow-lg overflow-hidden z-10 hidden group-hover:block min-w-[130px]">
-                                  {next.map(s => {
-                                    const sm = STATUS_META[s];
-                                    return (
-                                      <button
-                                        key={s}
-                                        onClick={() => updateStatus(q.id, s)}
-                                        disabled={saving}
-                                        className="flex items-center gap-2 w-full px-3 py-2 text-xs font-black hover:bg-gray-50 text-left"
-                                        style={{ color: sm.color, fontFamily: "var(--font-montserrat)" }}
-                                      >
-                                        <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: sm.color }} />
-                                        {sm.label}
-                                      </button>
-                                    );
-                                  })}
-                                </div>
-                              </div>
-                            )}
+                              Traiter
+                            </Link>
                             <button onClick={() => setDeleteId(q.id)} className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50">
                               <Trash2 size={13} />
                             </button>
@@ -218,103 +173,9 @@ export default function DevisPage() {
             </div>
           </div>
         )}
+
+        <Pagination page={page} total={filtered.length} pageSize={PAGE_SIZE} onChange={setPage} />
       </div>
-
-      {/* Detail modal */}
-      <Modal open={!!detail} onClose={() => setDetail(null)} title="Détail de la demande" width="max-w-xl">
-        {detail && (() => {
-          const m = STATUS_META[detail.status] ?? STATUS_META.NEW;
-          const next = NEXT_STATUS[detail.status] ?? [];
-          return (
-            <div className="space-y-5">
-              {/* Status */}
-              <div className="flex items-center justify-between flex-wrap gap-3">
-                <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-sm font-black uppercase"
-                  style={{ backgroundColor: m.bg, color: m.color, fontFamily: "var(--font-montserrat)" }}>
-                  {m.label}
-                </span>
-                {next.length > 0 && (
-                  <div className="flex gap-2">
-                    {next.map(s => {
-                      const sm = STATUS_META[s];
-                      return (
-                        <button key={s} onClick={() => updateStatus(detail.id, s)} disabled={saving}
-                          className="px-3 py-1.5 rounded-xl text-xs font-black border transition-all"
-                          style={{ borderColor: sm.color, color: sm.color, fontFamily: "var(--font-montserrat)" }}>
-                          → {sm.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              {/* Contact */}
-              <div className="bg-gray-50 rounded-xl p-4 space-y-2">
-                <p className="text-xs font-black uppercase tracking-wider text-gray-400 mb-3" style={{ fontFamily: "var(--font-montserrat)" }}>Contact</p>
-                <p className="text-sm font-black" style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>{detail.name}</p>
-                <p className="text-xs text-gray-500 flex items-center gap-2" style={{ fontFamily: "var(--font-lato)" }}><Mail size={12} /> {detail.email}</p>
-                <p className="text-xs text-gray-500 flex items-center gap-2" style={{ fontFamily: "var(--font-lato)" }}><Phone size={12} /> {detail.phone}</p>
-              </div>
-
-              {/* Shipment details */}
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { icon: Package, label: "Service", value: SERVICE_LABELS[detail.serviceType] ?? detail.serviceType },
-                  { icon: MapPin, label: "Origine", value: detail.origin },
-                  { icon: MapPin, label: "Destination", value: detail.destination },
-                  { icon: Package, label: "Type de cargaison", value: detail.cargoType },
-                  ...(detail.weight ? [{ icon: Weight, label: "Poids", value: `${detail.weight} kg` }] : []),
-                  ...(detail.volume ? [{ icon: Weight, label: "Volume", value: `${detail.volume} m³` }] : []),
-                ].map(({ icon: Icon, label, value }) => (
-                  <div key={label} className="bg-gray-50 rounded-xl p-3">
-                    <p className="text-xs font-black uppercase tracking-wider text-gray-400 mb-1 flex items-center gap-1" style={{ fontFamily: "var(--font-montserrat)" }}>
-                      <Icon size={11} /> {label}
-                    </p>
-                    <p className="text-sm text-gray-700" style={{ fontFamily: "var(--font-lato)" }}>{value}</p>
-                  </div>
-                ))}
-              </div>
-
-              {detail.notes && (
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <p className="text-xs font-black uppercase tracking-wider text-gray-400 mb-2 flex items-center gap-1" style={{ fontFamily: "var(--font-montserrat)" }}>
-                    <StickyNote size={11} /> Notes
-                  </p>
-                  <p className="text-sm text-gray-600" style={{ fontFamily: "var(--font-lato)" }}>{detail.notes}</p>
-                </div>
-              )}
-
-              <div className="flex items-center justify-between gap-3 flex-wrap">
-                <button
-                  onClick={() => exportDevisPDF({
-                    reference: detail.id.slice(0, 8).toUpperCase(),
-                    name: detail.name,
-                    email: detail.email,
-                    phone: detail.phone,
-                    serviceType: detail.serviceType,
-                    origin: detail.origin,
-                    destination: detail.destination,
-                    cargoType: detail.cargoType,
-                    weight: detail.weight,
-                    volume: detail.volume,
-                    notes: detail.notes,
-                    status: m.label,
-                    createdAt: detail.createdAt,
-                  })}
-                  className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-black uppercase text-white hover:opacity-90 transition-opacity"
-                  style={{ backgroundColor: "#E8520A", fontFamily: "var(--font-montserrat)" }}
-                >
-                  <Download size={13} /> Exporter en PDF
-                </button>
-                <p className="text-xs text-gray-400 text-right" style={{ fontFamily: "var(--font-lato)" }}>
-                  Reçu le {new Date(detail.createdAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit" })}
-                </p>
-              </div>
-            </div>
-          );
-        })()}
-      </Modal>
 
       {/* Delete confirm */}
       <Modal open={!!deleteId} onClose={() => setDeleteId(null)} title="Supprimer la demande">

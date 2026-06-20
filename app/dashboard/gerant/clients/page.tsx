@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react";
 import { Users, Search, MessageSquare, FolderOpen, Package, Eye } from "lucide-react";
 import Link from "next/link";
+import Pagination from "@/components/admin/Pagination";
+
+const PAGE_SIZE = 15; // 5 lignes × 3 colonnes
 
 type Client = {
   id: string; name: string; email: string; phone: string | null;
@@ -13,6 +16,7 @@ export default function GerantClientsPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     fetch("/api/gerant/clients").then((r) => r.ok ? r.json() : [])
@@ -25,6 +29,9 @@ export default function GerantClientsPage() {
         c.email.toLowerCase().includes(search.toLowerCase())
       )
     : clients;
+
+  useEffect(() => { setPage(1); }, [search]);
+  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <div className="p-6 lg:p-8 max-w-7xl">
@@ -51,7 +58,7 @@ export default function GerantClientsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-          {filtered.map((c) => {
+          {paged.map((c) => {
             const initials = c.name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
             return (
               <div key={c.id} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-shadow">
@@ -105,6 +112,8 @@ export default function GerantClientsPage() {
           })}
         </div>
       )}
+
+      {!loading && <Pagination page={page} total={filtered.length} pageSize={PAGE_SIZE} onChange={setPage} />}
     </div>
   );
 }

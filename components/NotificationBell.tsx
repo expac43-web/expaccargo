@@ -86,7 +86,7 @@ export default function NotificationBell({ accent = "#1A3A6B", tone = "light" }:
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden">
+        <div className="absolute right-0 lg:right-auto lg:left-0 mt-2 w-80 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden">
           <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
             <p className="font-black text-sm" style={{ color: accent, fontFamily: "var(--font-montserrat)" }}>Notifications</p>
             {items.some((n) => n.isRead === false) ? null : (
@@ -105,8 +105,8 @@ export default function NotificationBell({ accent = "#1A3A6B", tone = "light" }:
                 >
                   <span className="w-2 h-2 rounded-full mt-1.5 shrink-0" style={{ backgroundColor: n.isRead ? "transparent" : "#E8520A" }} />
                   <span className="flex-1 min-w-0">
-                    <span className="block text-xs font-black truncate" style={{ color: accent, fontFamily: "var(--font-montserrat)" }}>{n.title}</span>
-                    {n.body && <span className="block text-xs text-gray-500 truncate" style={{ fontFamily: "var(--font-lato)" }}>{n.body}</span>}
+                    <span className="block text-xs font-black line-clamp-1" style={{ color: accent, fontFamily: "var(--font-montserrat)" }}>{n.title}</span>
+                    {n.body && <span className="block text-xs text-gray-500 line-clamp-2 break-words" style={{ fontFamily: "var(--font-lato)" }}>{n.body}</span>}
                     <span className="block text-[10px] text-gray-400 mt-0.5" style={{ fontFamily: "var(--font-lato)" }}>{timeAgo(n.createdAt)}</span>
                   </span>
                 </button>

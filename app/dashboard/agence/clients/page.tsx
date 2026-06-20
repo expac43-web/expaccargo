@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react";
 import { Users, Search, Package, MessageSquare, FolderOpen, Eye, Phone, Mail } from "lucide-react";
 import Link from "next/link";
+import Pagination from "@/components/admin/Pagination";
+
+const PAGE_SIZE = 15; // 5 lignes × 3 colonnes
 
 type Client = {
   id: string; name: string; email: string; phone: string | null;
@@ -15,6 +18,7 @@ export default function AgenceClientsPage() {
   const [filtered, setFiltered] = useState<Client[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     fetch("/api/agence/clients")
@@ -26,7 +30,10 @@ export default function AgenceClientsPage() {
   useEffect(() => {
     const q = search.toLowerCase();
     setFiltered(q ? clients.filter((c) => c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q)) : clients);
+    setPage(1);
   }, [search, clients]);
+
+  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <div className="p-6 lg:p-8 max-w-7xl">
@@ -61,7 +68,7 @@ export default function AgenceClientsPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((client) => {
+          {paged.map((client) => {
             const initials = client.name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
             return (
               <div key={client.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all overflow-hidden">
@@ -114,6 +121,8 @@ export default function AgenceClientsPage() {
           })}
         </div>
       )}
+
+      {!loading && <Pagination page={page} total={filtered.length} pageSize={PAGE_SIZE} onChange={setPage} />}
     </div>
   );
 }

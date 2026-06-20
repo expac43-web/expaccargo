@@ -114,10 +114,7 @@ export default function DevisForm() {
     const form = e.currentTarget;
     const g = (n: string) => (form.elements.namedItem(n) as HTMLInputElement | HTMLTextAreaElement)?.value ?? "";
     const extras: string[] = [];
-    if (selectedMode) extras.push(`Mode de transport : ${selectedMode}`);
-    if (g("preferredDate")) extras.push(`Date souhaitée : ${g("preferredDate")}`);
     if (urgency === "urgent") extras.push("⚡ Demande urgente");
-    if (isDangerous) extras.push("⚠️ Marchandises dangereuses");
     const userNotes = g("notes");
     if (userNotes) extras.push(userNotes);
     const payload = {
@@ -127,6 +124,9 @@ export default function DevisForm() {
       cargoType: g("cargoType"),
       weight: g("weight") ? Number(g("weight")) : null,
       volume: g("volume") ? Number(g("volume")) : null,
+      transportMode: selectedMode,
+      preferredDate: g("preferredDate") || null,
+      dangerous: isDangerous,
       notes: extras.join(" | ") || null,
     };
     setLoading(true);

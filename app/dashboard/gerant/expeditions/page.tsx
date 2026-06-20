@@ -2,6 +2,9 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Package, Search, ChevronDown, Check } from "lucide-react";
+import Pagination from "@/components/admin/Pagination";
+
+const PAGE_SIZE = 15;
 
 type Shipment = {
   id: string; reference: string; status: string; origin: string;
@@ -83,6 +86,7 @@ export default function GerantExpeditionsPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
 
   // Lire clientId depuis URL
   useEffect(() => {
@@ -124,6 +128,9 @@ export default function GerantExpeditionsPage() {
   function handleStatusChange(id: string, newStatus: string) {
     setShipments((prev) => prev.map((s) => s.id === id ? { ...s, status: newStatus } : s));
   }
+
+  useEffect(() => { setPage(1); }, [search, status]);
+  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <div className="p-6 lg:p-8 max-w-7xl">
@@ -179,7 +186,7 @@ export default function GerantExpeditionsPage() {
                 <tr><td colSpan={6} className="px-5 py-16 text-center text-sm text-gray-400" style={{ fontFamily: "var(--font-lato)" }}>
                   Aucune expédition trouvée.
                 </td></tr>
-              ) : filtered.map((s) => (
+              ) : paged.map((s) => (
                 <tr key={s.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-5 py-4">
                     <span className="font-black text-xs" style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>{s.reference}</span>
@@ -209,6 +216,8 @@ export default function GerantExpeditionsPage() {
           </table>
         </div>
       </div>
+
+      {!loading && <Pagination page={page} total={filtered.length} pageSize={PAGE_SIZE} onChange={setPage} />}
     </div>
   );
 }

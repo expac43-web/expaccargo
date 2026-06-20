@@ -25,7 +25,7 @@ const SERVICE_LABEL: Record<string, string> = {
 
 type Quote = DevisQuote;
 
-export default function GerantDevisPage() {
+export default function AgenceDevisPage() {
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("ALL");
@@ -85,6 +85,8 @@ export default function GerantDevisPage() {
         <div className="flex flex-wrap gap-2 mb-5">
           {[
             { v: "ALL", l: "Tous" },
+            { v: "NEW", l: "Nouveau" },
+            { v: "IN_REVIEW", l: "En étude" },
             { v: "QUOTED", l: "Devis envoyé" },
             { v: "ACCEPTED", l: "Accepté" },
             { v: "SIGNED", l: "Signés" },
@@ -127,6 +129,11 @@ export default function GerantDevisPage() {
                         <span className="px-2.5 py-1 rounded-full text-xs font-black" style={{ backgroundColor: `${sm.color}15`, color: sm.color, fontFamily: "var(--font-montserrat)" }}>
                           {sm.label}
                         </span>
+                        {q.quotedPrice != null && (
+                          <span className="px-2.5 py-1 rounded-full text-xs font-black" style={{ backgroundColor: "rgba(124,58,237,0.12)", color: "#7c3aed", fontFamily: "var(--font-montserrat)" }}>
+                            {new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(Math.round(q.quotedPrice))} {q.quotedCurrency === "XAF" || !q.quotedCurrency ? "FCFA" : q.quotedCurrency}
+                          </span>
+                        )}
                         {q.signature && (
                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black" style={{ backgroundColor: "rgba(22,163,74,0.12)", color: "#16a34a", fontFamily: "var(--font-montserrat)" }}>
                             <ShieldCheck size={11} /> Signé
@@ -151,7 +158,7 @@ export default function GerantDevisPage() {
                       )}
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
-                      <Link href={`/dashboard/gerant/devis/${q.id}`} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-black uppercase text-white hover:opacity-90 transition-opacity" style={{ backgroundColor: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>
+                      <Link href={`/dashboard/agence/devis/${q.id}`} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-black uppercase text-white hover:opacity-90 transition-opacity" style={{ backgroundColor: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>
                         <FileSignature size={13} /> Traiter
                       </Link>
                       {q.signature && (

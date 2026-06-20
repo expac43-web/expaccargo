@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AdminHeader from "@/components/admin/AdminHeader";
 import Modal from "@/components/admin/Modal";
+import Pagination from "@/components/admin/Pagination";
 import { Newspaper, Plus, Pencil, Trash2, Eye, EyeOff, ExternalLink } from "lucide-react";
+
+const PAGE_SIZE = 15;
 
 type Post = {
   id: string; title: string; slug: string; excerpt: string;
@@ -23,7 +26,15 @@ export default function PostsClient({
   const [posts, setPosts] = useState(initialPosts);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
   const router = useRouter();
+
+  // Rester sur une page valide après suppression.
+  useEffect(() => {
+    const pc = Math.max(1, Math.ceil(posts.length / PAGE_SIZE));
+    if (page > pc) setPage(pc);
+  }, [posts.length, page]);
+  const paged = posts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   async function togglePublish(p: Post) {
     const r = await fetch(`/api/admin/posts/${p.id}`, {
@@ -78,7 +89,7 @@ export default function PostsClient({
                   </tr>
                 </thead>
                 <tbody>
-                  {posts.map((p) => (
+                  {paged.map((p) => (
                     <tr key={p.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                       <td className="px-4 py-3">
                         <p className="font-black text-xs truncate max-w-xs" style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>{p.title}</p>
@@ -129,6 +140,8 @@ export default function PostsClient({
             </div>
           </div>
         )}
+
+        <Pagination page={page} total={posts.length} pageSize={PAGE_SIZE} onChange={setPage} />
       </div>
 
       <Modal open={!!deleteId} onClose={() => setDeleteId(null)} title="Supprimer l'article">

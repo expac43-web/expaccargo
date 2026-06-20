@@ -253,6 +253,46 @@ export async function sendQuoteResponseEmail(opts: {
   return sendEmail({ to: opts.email, subject, html, replyTo: opts.replyTo });
 }
 
+// ───────────────────────────── 4 bis. Devis chiffré (offre de prix) ─────────────────────────────
+
+function fmtMoney(amount: number, currency: string): string {
+  const n = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(Math.round(amount));
+  return `${n} ${currency === "XAF" ? "FCFA" : currency}`;
+}
+
+/** Envoyé au client quand la société établit le devis (prix fixé). */
+export async function sendQuoteOfferEmail(opts: {
+  name: string; email: string; reference: string;
+  serviceType: string; origin: string; destination: string;
+  price: number; currency: string; message?: string | null;
+  items?: { label: string; amount: number }[] | null; replyTo?: string;
+}): Promise<boolean> {
+  const accent = ORANGE;
+  const rows: [string, string][] = [
+    ["Référence", opts.reference],
+    ["Service", SERVICE_LABELS[opts.serviceType] ?? opts.serviceType],
+    ["Trajet", `${opts.origin} → ${opts.destination}`],
+  ];
+  if (opts.items && opts.items.length) {
+    for (const it of opts.items) rows.push([it.label, fmtMoney(it.amount, opts.currency)]);
+  }
+  rows.push(["Montant total", `<strong>${fmtMoney(opts.price, opts.currency)}</strong>`]);
+  const inner =
+    heading("Votre devis est prêt") +
+    paragraph(`Bonjour ${opts.name}, suite à votre demande, voici notre proposition de devis.`) +
+    infoBox(rows, accent) +
+    (opts.message ? paragraph(opts.message) : "") +
+    paragraph("Connectez-vous à votre espace pour <strong>accepter et signer</strong> votre devis en ligne.") +
+    button("Voir & accepter mon devis", `${SITE}/dashboard/devis`, accent);
+  const html = shell({ accent, preheader: `Votre devis : ${fmtMoney(opts.price, opts.currency)}`, inner });
+  return sendEmail({
+    to: opts.email,
+    subject: `Votre devis EXPAC ${opts.reference} — ${fmtMoney(opts.price, opts.currency)}`,
+    html,
+    replyTo: opts.replyTo,
+  });
+}
+
 // ───────────────────────────── 5. Mise à jour de statut d'expédition ─────────────────────────────
 // Couvre notamment « colis arrivé à l'agence », « en transit », « livré », etc.
 

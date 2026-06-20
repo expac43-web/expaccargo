@@ -117,11 +117,23 @@ export type DevisPDF = {
   notes?: string | null;
   status?: string;
   createdAt: string;
+  // Devis chiffré établi par la société — optionnel.
+  quotedPrice?: number | null;
+  quotedCurrency?: string | null;
+  quoteMessage?: string | null;
+  quoteItems?: { label: string; amount: number }[] | null;
+  transportMode?: string | null;
+  preferredDate?: string | null;
   // Signature électronique (devis accepté) — optionnelle.
   signatureDataUrl?: string | null;
   signerName?: string;
   signedAt?: string;
 };
+
+function devisMoney(amount: number, currency?: string | null): string {
+  const n = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(Math.round(amount));
+  return `${n} ${!currency || currency === "XAF" ? "FCFA" : currency}`;
+}
 
 const SERVICE_LABELS: Record<string, string> = {
   TRANSIT: "Transit",
@@ -133,8 +145,10 @@ const SERVICE_LABELS: Record<string, string> = {
 
 export function exportDevisPDF(d: DevisPDF) {
   const doc = new jsPDF() as Doc;
+  const w = doc.internal.pageSize.getWidth();
   const ref = d.reference ?? "—";
-  let y = header(doc, "Demande de devis", `Réf : ${ref}`);
+  const priced = d.quotedPrice != null;
+  let y = header(doc, priced ? "Devis" : "Demande de devis", `Réf : ${ref}`);
 
   y = sectionTitle(doc, "Demandeur", y);
   y = keyValueTable(
@@ -157,11 +171,40 @@ export function exportDevisPDF(d: DevisPDF) {
       ["Origine", d.origin],
       ["Destination", d.destination],
       ["Type de marchandise", d.cargoType],
+      ...(d.transportMode ? [["Mode de transport", d.transportMode] as [string, string]] : []),
+      ...(d.preferredDate ? [["Date souhaitée", d.preferredDate] as [string, string]] : []),
       ["Poids", d.weight != null ? `${d.weight} kg` : "—"],
       ["Volume", d.volume != null ? `${d.volume} m³` : "—"],
     ],
     y
   );
+
+  // Devis chiffré établi par la société (postes : transport, douane, etc.).
+  if (priced) {
+    y = sectionTitle(doc, "Devis proposé", y);
+    const body: [string, string][] =
+      d.quoteItems && d.quoteItems.length
+        ? d.quoteItems.map((it) => [it.label, devisMoney(it.amount, d.quotedCurrency)] as [string, string])
+        : [["Montant", devisMoney(d.quotedPrice as number, d.quotedCurrency)]];
+    autoTable(doc, {
+      startY: y,
+      head: [["Poste", "Montant"]],
+      body,
+      foot: [["Total", devisMoney(d.quotedPrice as number, d.quotedCurrency)]],
+      headStyles: { fillColor: NAVY, fontSize: 9 },
+      footStyles: { fillColor: ORANGE, fontSize: 11, textColor: [255, 255, 255] },
+      styles: { fontSize: 9, cellPadding: 2.5 },
+    });
+    y = (doc.lastAutoTable?.finalY ?? y) + 6;
+    if (d.quoteMessage) {
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(8);
+      doc.setTextColor(...GREY);
+      const lines = doc.splitTextToSize(`Note : ${d.quoteMessage}`, w - MARGIN * 2);
+      doc.text(lines, MARGIN, y);
+      y += lines.length * 4 + 4;
+    }
+  }
 
   if (d.notes) {
     y = sectionTitle(doc, "Notes", y);

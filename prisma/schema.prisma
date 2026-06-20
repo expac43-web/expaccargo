@@ -198,7 +198,18 @@ model QuoteRequest {
   weight      Float?
   volume      Float?
   notes       String?
+  transportMode String?
+  preferredDate String?
+  dangerous     Boolean   @default(false)
   status      QuoteStatus @default(NEW)
+  quotedPrice    Float?
+  quotedCurrency String    @default("XAF")
+  quoteMessage   String?
+  quoteItems     Json?
+  quotedAt       DateTime?
+  handledById    String?
+  handledByName  String?
+  handledAt      DateTime?
   createdAt   DateTime    @default(now())
 }
 

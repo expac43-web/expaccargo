@@ -3,11 +3,14 @@
 import { useState, useEffect, useMemo } from "react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import Modal from "@/components/admin/Modal";
+import Pagination from "@/components/admin/Pagination";
 import Link from "next/link";
 import {
   Users, Search, Download, Trash2, UserCheck, UserX,
   Mail, Phone, AlertCircle, Eye,
 } from "lucide-react";
+
+const PAGE_SIZE = 15;
 
 type Client = {
   id: string; name: string; email: string; phone: string | null;
@@ -37,6 +40,7 @@ export default function ClientsPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     fetch("/api/admin/clients")
@@ -51,6 +55,9 @@ export default function ClientsPage() {
     const matchFilter = filter === "all" || (filter === "active" ? c.isActive : !c.isActive);
     return matchSearch && matchFilter;
   }), [clients, search, filter]);
+
+  useEffect(() => { setPage(1); }, [search, filter]);
+  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   async function deleteClient() {
     if (!deleteId) return;
@@ -139,7 +146,7 @@ export default function ClientsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((c) => (
+                  {paged.map((c) => (
                     <tr key={c.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
@@ -202,6 +209,8 @@ export default function ClientsPage() {
             </div>
           </div>
         )}
+
+        {!loading && <Pagination page={page} total={filtered.length} pageSize={PAGE_SIZE} onChange={setPage} />}
       </div>
 
       {/* Delete confirm */}

@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { name, email, phone, serviceType, origin, destination, cargoType, weight, volume, notes } = body;
+    const { name, email, phone, serviceType, origin, destination, cargoType, weight, volume, notes, transportMode, preferredDate, dangerous } = body;
 
     if (!name?.trim() || !email?.trim() || !phone?.trim() || !serviceType || !origin?.trim() || !destination?.trim() || !cargoType?.trim()) {
       return NextResponse.json({ error: "Champs obligatoires manquants." }, { status: 400 });
@@ -53,6 +53,9 @@ export async function POST(req: NextRequest) {
       weight: toPositiveNumber(weight),
       volume: toPositiveNumber(volume),
       notes: notes?.trim() || null,
+      transportMode: typeof transportMode === "string" && transportMode.trim() ? transportMode.trim() : null,
+      preferredDate: typeof preferredDate === "string" && preferredDate.trim() ? preferredDate.trim() : null,
+      dangerous: dangerous === true || dangerous === "true",
       status: "NEW",
       createdAt: new Date().toISOString(),
     });

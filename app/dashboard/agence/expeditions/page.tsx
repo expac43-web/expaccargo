@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react";
 import { Package, Search, Filter } from "lucide-react";
 import Link from "next/link";
+import Pagination from "@/components/admin/Pagination";
+
+const PAGE_SIZE = 15;
 
 type Shipment = {
   id: string; reference: string; status: string; origin: string;
@@ -27,6 +30,7 @@ export default function AgenceExpeditionsPage() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     let url = "/api/agence/expeditions";
@@ -45,7 +49,10 @@ export default function AgenceExpeditionsPage() {
       s.origin.toLowerCase().includes(q) ||
       s.destination.toLowerCase().includes(q)
     ) : shipments);
+    setPage(1);
   }, [search, shipments]);
+
+  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <div className="p-6 lg:p-8 max-w-7xl">
@@ -101,7 +108,7 @@ export default function AgenceExpeditionsPage() {
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={6} className="px-5 py-16 text-center text-sm text-gray-400" style={{ fontFamily: "var(--font-lato)" }}>Aucune expédition trouvée.</td></tr>
               ) : (
-                filtered.map((s) => (
+                paged.map((s) => (
                   <tr key={s.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-5 py-4">
                       <span className="font-black text-xs" style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>{s.reference}</span>
@@ -131,6 +138,8 @@ export default function AgenceExpeditionsPage() {
           </table>
         </div>
       </div>
+
+      {!loading && <Pagination page={page} total={filtered.length} pageSize={PAGE_SIZE} onChange={setPage} />}
     </div>
   );
 }

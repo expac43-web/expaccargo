@@ -3,11 +3,14 @@
 import { useState, useEffect, useCallback } from "react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import Modal from "@/components/admin/Modal";
+import Pagination from "@/components/admin/Pagination";
 import {
   Package, Plus, Pencil, Trash2, Search, MapPin,
   Calendar, AlertCircle, ExternalLink, Clock,
   Flag, X, CheckCircle2, Loader2,
 } from "lucide-react";
+
+const PAGE_SIZE = 15;
 
 // ── Types ──────────────────────────────────────────────────────────
 type Shipment = {
@@ -106,6 +109,7 @@ export default function ExpeditionsClient() {
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [search, setSearch] = useState("");
   const [clients, setClients] = useState<Client[]>([]);
+  const [page, setPage] = useState(1);
 
   // Modals state
   const [showForm, setShowForm] = useState(false);
@@ -154,6 +158,9 @@ export default function ExpeditionsClient() {
   useEffect(() => {
     loadShipments();
   }, [loadShipments]);
+
+  useEffect(() => { setPage(1); }, [statusFilter, search]);
+  const paged = shipments.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   useEffect(() => {
     fetch("/api/admin/clients")
@@ -392,7 +399,7 @@ export default function ExpeditionsClient() {
                   </tr>
                 </thead>
                 <tbody>
-                  {shipments.map((s) => (
+                  {paged.map((s) => (
                     <tr key={s.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                       {/* Reference */}
                       <td className="px-5 py-3.5">
@@ -490,6 +497,8 @@ export default function ExpeditionsClient() {
             </div>
           </div>
         )}
+
+        {!loading && <Pagination page={page} total={shipments.length} pageSize={PAGE_SIZE} onChange={setPage} />}
       </div>
 
       {/* ── Create / Edit Modal ────────────────────────────────────── */}

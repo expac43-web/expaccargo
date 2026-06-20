@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import {
   FileText, Plus, X, Loader2, CheckCircle2, AlertCircle,
   Clock, Send, ChevronRight, ArrowRight, Download,
-  PenLine, XCircle, ShieldCheck,
+  PenLine, XCircle, ShieldCheck, Coins,
 } from "lucide-react";
 import { exportDevisPDF } from "@/lib/pdf";
 import SignaturePad from "@/components/SignaturePad";
@@ -22,12 +22,25 @@ const STATUS_STEP: Record<string, { color: string; step: number }> = {
 
 const SERVICE_VALUES = ["TRANSIT", "MULTIMODAL", "STORAGE", "MARITIME_CONSIGNMENT", "GROUPAGE"];
 
+function fmtMoney(amount: number, currency: string): string {
+  const n = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(Math.round(amount));
+  return `${n} ${currency === "XAF" ? "FCFA" : currency}`;
+}
+
+type QuoteItem = { label: string; amount: number };
+
 type Quote = {
   id: string; serviceType: string; origin: string; destination: string;
   cargoType: string; weight: number | null; volume: number | null;
   notes: string | null; status: string; createdAt: string;
+  transportMode: string | null; preferredDate: string | null; dangerous: boolean | null;
+  quotedPrice: number | null; quotedCurrency: string | null; quoteMessage: string | null;
+  quotedAt: string | null; quoteItems: QuoteItem[] | null;
   signature?: { signerName: string; signedAt: string } | null;
 };
+
+// Valeurs stables (identiques à la page devis publique) ; affichage traduit via le dico.
+const TRANSPORT_MODES = ["Maritime", "Aérien", "Routier", "Multimodal"];
 
 const inputCls = "w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#1A3A6B] focus:ring-2 focus:ring-[#1A3A6B]/10 transition-all bg-white";
 const labelCls = "block text-xs font-black uppercase tracking-wider mb-1.5 text-gray-600";
@@ -39,6 +52,10 @@ export default function ClientDevisPage() {
   const dl = locale === "en" ? "en-US" : "fr-FR";
   const quoteLabel = (s: string) => (t.quoteStatus as Record<string, string>)[s] ?? s;
   const serviceLabel = (s: string) => (t.serviceTypes as Record<string, string>)[s] ?? s;
+  const modeLabel = (m: string) => (({
+    Maritime: t.devisForm.modes.maritime, "Aérien": t.devisForm.modes.air,
+    Routier: t.devisForm.modes.road, Multimodal: t.devisForm.modes.multimodal,
+  } as Record<string, string>)[m] ?? m);
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -55,6 +72,7 @@ export default function ClientDevisPage() {
     serviceType: "TRANSIT",
     origin: "", destination: "", cargoType: "",
     weight: "", volume: "", phone: "", notes: "",
+    transportMode: "", preferredDate: "", dangerous: false,
   });
 
   const user = session?.user as { name?: string; email?: string } | undefined;
@@ -85,6 +103,9 @@ export default function ClientDevisPage() {
           cargoType: form.cargoType,
           weight: form.weight,
           volume: form.volume,
+          transportMode: form.transportMode || null,
+          preferredDate: form.preferredDate || null,
+          dangerous: form.dangerous,
           notes: form.notes,
         }),
       });
@@ -94,7 +115,7 @@ export default function ClientDevisPage() {
         return;
       }
       setSubmitSuccess(true);
-      setForm({ serviceType: "TRANSIT", origin: "", destination: "", cargoType: "", weight: "", volume: "", phone: "", notes: "" });
+      setForm({ serviceType: "TRANSIT", origin: "", destination: "", cargoType: "", weight: "", volume: "", phone: "", notes: "", transportMode: "", preferredDate: "", dangerous: false });
       setTimeout(() => {
         setShowForm(false);
         setSubmitSuccess(false);
@@ -106,7 +127,7 @@ export default function ClientDevisPage() {
   }
 
   function set(key: string, val: string) {
-    setForm((f) => ({ ...f, [key]: val }));
+    setForm((f) => ({ ...f, [key]: val } as typeof f));
   }
 
   // Télécharge le PDF du devis ; inclut la signature si le devis est signé.
@@ -143,6 +164,12 @@ export default function ClientDevisPage() {
       weight: q.weight,
       volume: q.volume,
       notes: q.notes,
+      transportMode: q.transportMode,
+      preferredDate: q.preferredDate,
+      quotedPrice: q.quotedPrice,
+      quotedCurrency: q.quotedCurrency,
+      quoteMessage: q.quoteMessage,
+      quoteItems: q.quoteItems,
       status: quoteLabel(q.status),
       createdAt: q.createdAt,
       ...sig,
@@ -263,6 +290,24 @@ export default function ClientDevisPage() {
                           {q.weight ? `${q.weight} kg` : ""}{q.weight && q.volume ? " · " : ""}{q.volume ? `${q.volume} m³` : ""}
                         </p>
                       )}
+                      {(q.transportMode || q.preferredDate || q.dangerous) && (
+                        <div className="flex items-center gap-1.5 flex-wrap mt-1">
+                          {q.transportMode && (
+                            <span className="text-xs text-gray-400" style={{ fontFamily: "var(--font-lato)" }}>{modeLabel(q.transportMode)}</span>
+                          )}
+                          {q.transportMode && q.preferredDate && <span className="text-xs text-gray-300">·</span>}
+                          {q.preferredDate && (
+                            <span className="text-xs text-gray-400" style={{ fontFamily: "var(--font-lato)" }}>
+                              {new Date(q.preferredDate).toLocaleDateString(dl, { day: "numeric", month: "short", year: "numeric" })}
+                            </span>
+                          )}
+                          {q.dangerous && (
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-black" style={{ backgroundColor: "rgba(220,38,38,0.1)", color: "#dc2626", fontFamily: "var(--font-montserrat)" }}>
+                              ⚠ {t.devisForm.dangerous}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                     <div className="flex flex-col items-end gap-2 shrink-0">
                       <p className="text-xs text-gray-400" style={{ fontFamily: "var(--font-lato)" }}>
@@ -340,6 +385,30 @@ export default function ClientDevisPage() {
                     <p className="mt-3 text-xs text-gray-500 italic border-l-2 pl-3" style={{ borderColor: "#e5e7eb", fontFamily: "var(--font-lato)" }}>
                       {q.notes}
                     </p>
+                  )}
+
+                  {/* Réponse de la société : devis chiffré */}
+                  {q.quotedPrice != null && (
+                    <div className="mt-4 rounded-xl p-4 border" style={{ borderColor: "rgba(124,58,237,0.3)", backgroundColor: "rgba(124,58,237,0.06)" }}>
+                      <p className="text-xs font-black uppercase tracking-wider mb-2 flex items-center gap-1.5" style={{ color: "#7c3aed", fontFamily: "var(--font-montserrat)" }}>
+                        <Coins size={13} /> {dv.quoteAmountLabel}
+                      </p>
+                      {q.quoteItems && q.quoteItems.length > 0 && (
+                        <div className="space-y-1 mb-2">
+                          {q.quoteItems.map((it, i) => (
+                            <div key={i} className="flex items-center justify-between text-sm" style={{ fontFamily: "var(--font-lato)" }}>
+                              <span className="text-gray-600">{it.label}</span>
+                              <span className="text-gray-800 font-semibold">{fmtMoney(it.amount, q.quotedCurrency || "XAF")}</span>
+                            </div>
+                          ))}
+                          <div className="border-t border-gray-200 my-1" />
+                        </div>
+                      )}
+                      <p className="text-2xl font-black" style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>
+                        {fmtMoney(q.quotedPrice, q.quotedCurrency || "XAF")}
+                      </p>
+                      {q.quoteMessage && <p className="text-sm text-gray-600 mt-1.5" style={{ fontFamily: "var(--font-lato)" }}>{q.quoteMessage}</p>}
+                    </div>
                   )}
 
                   {/* Actions client : accepter & signer / refuser */}
@@ -430,6 +499,14 @@ export default function ClientDevisPage() {
                   </div>
 
                   <div>
+                    <label className={labelCls} style={{ fontFamily: "var(--font-montserrat)" }}>{t.devisForm.transportMode}</label>
+                    <select className={inputCls} value={form.transportMode} onChange={(e) => set("transportMode", e.target.value)} style={{ fontFamily: "var(--font-lato)" }}>
+                      <option value="">—</option>
+                      {TRANSPORT_MODES.map((mode) => <option key={mode} value={mode}>{modeLabel(mode)}</option>)}
+                    </select>
+                  </div>
+
+                  <div>
                     <label className={labelCls} style={{ fontFamily: "var(--font-montserrat)" }}>{dv.cargoType}</label>
                     <input className={inputCls} value={form.cargoType} onChange={(e) => set("cargoType", e.target.value)} placeholder={dv.cargoPh} required style={{ fontFamily: "var(--font-lato)" }} />
                   </div>
@@ -444,6 +521,16 @@ export default function ClientDevisPage() {
                       <input type="number" min="0" step="0.001" className={inputCls} value={form.volume} onChange={(e) => set("volume", e.target.value)} placeholder="0.000" style={{ fontFamily: "var(--font-lato)" }} />
                     </div>
                   </div>
+
+                  <div>
+                    <label className={labelCls} style={{ fontFamily: "var(--font-montserrat)" }}>{t.devisForm.preferredDate}</label>
+                    <input type="date" className={inputCls} value={form.preferredDate} onChange={(e) => set("preferredDate", e.target.value)} style={{ fontFamily: "var(--font-lato)" }} />
+                  </div>
+
+                  <label className="flex items-center gap-3 cursor-pointer w-fit">
+                    <input type="checkbox" checked={form.dangerous} onChange={(e) => setForm((f) => ({ ...f, dangerous: e.target.checked }))} className="w-4 h-4 rounded accent-[#E8520A]" />
+                    <span className="text-sm text-gray-600" style={{ fontFamily: "var(--font-lato)" }}>{t.devisForm.dangerous}</span>
+                  </label>
 
                   <div>
                     <label className={labelCls} style={{ fontFamily: "var(--font-montserrat)" }}>{dv.phone}</label>
