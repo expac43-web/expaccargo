@@ -248,6 +248,20 @@ model PasswordResetToken {
   @@index([userId])
 }
 
+// Historique des actions sur une expédition (qui a modifié quoi). Visible admin/gérant.
+model ShipmentAudit {
+  id         String   @id @default(cuid())
+  shipmentId String
+  action     String
+  detail     String?
+  byId       String?
+  byName     String?
+  byRole     String?
+  createdAt  DateTime @default(now())
+
+  @@index([shipmentId])
+}
+
 // Grille tarifaire (gérée par admin/gérant). Sert au calculateur de devis (prix approximatif).
 model Tariff {
   id          String   @id

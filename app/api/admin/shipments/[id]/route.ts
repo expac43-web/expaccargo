@@ -1,14 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { sbPatch, sbDelete } from "@/lib/supabase-admin";
+import { sbGet, sbPatch, sbDelete } from "@/lib/supabase-admin";
+import { logShipmentAudit, statusFr, fieldFr } from "@/lib/audit";
 
 function isAdmin(role?: string) {
   return ["SUPER_ADMIN", "MANAGER", "AGENCY"].includes(role ?? "");
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+type AuditRow = { id: string; action: string; detail: string | null; byName: string | null; byRole: string | null; createdAt: string };
+
+// Historique des modifications — réservé à l'admin et au gérant.
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   const role = (session?.user as { role?: string })?.role;
+  if (!session || !["SUPER_ADMIN", "MANAGER"].includes(role ?? "")) {
+    return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+  }
+  const { id } = await params;
+  const rows = await sbGet<AuditRow>(
+    "ShipmentAudit",
+    `shipmentId=eq.${id}&select=id,action,detail,byName,byRole,createdAt&order=createdAt.desc`
+  );
+  return NextResponse.json(rows);
+}
+
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await auth();
+  const su = session?.user as { id?: string; name?: string; role?: string } | undefined;
+  const role = su?.role;
   if (!session || !isAdmin(role)) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
   const { id } = await params;
@@ -37,6 +56,19 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   const result = await sbPatch("Shipment", `id=eq.${id}`, update);
   if (!result) return NextResponse.json({ error: "Erreur lors de la mise à jour" }, { status: 500 });
+
+  // Historique : qui a modifié quoi.
+  const parts: string[] = [];
+  if ("status" in body) parts.push(`Statut → ${statusFr(body.status)}`);
+  const others = allowed.filter((k) => k !== "status" && k in body).map(fieldFr);
+  if (others.length) parts.push(`Modifié : ${others.join(", ")}`);
+  await logShipmentAudit({
+    shipmentId: id,
+    action: "update",
+    detail: parts.join(" · ") || "Mise à jour",
+    by: { id: su?.id, name: su?.name, role: su?.role },
+  });
+
   return NextResponse.json(result);
 }
 

@@ -31,6 +31,10 @@ type Milestone = {
 
 type Client = { id: string; name: string; email: string };
 
+type AuditEntry = { id: string; action: string; detail: string | null; byName: string | null; byRole: string | null; createdAt: string };
+
+const ROLE_FR: Record<string, string> = { SUPER_ADMIN: "Admin", MANAGER: "Gérant", AGENCY: "Agence" };
+
 // ── Constants ──────────────────────────────────────────────────────
 const STATUS_META: Record<string, { label: string; color: string }> = {
   PENDING:        { label: "En attente",      color: "#6b7280" },
@@ -103,7 +107,7 @@ function FieldRow({ label, children }: { label: string; children: React.ReactNod
 }
 
 // ── Main component ─────────────────────────────────────────────────
-export default function ExpeditionsClient() {
+export default function ExpeditionsClient({ canSeeAudit = false }: { canSeeAudit?: boolean }) {
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("ALL");
@@ -119,6 +123,7 @@ export default function ExpeditionsClient() {
   const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [milestonesLoading, setMilestonesLoading] = useState(false);
   const [showMilestoneForm, setShowMilestoneForm] = useState(false);
+  const [audit, setAudit] = useState<AuditEntry[]>([]);
 
   // Form state
   const [form, setForm] = useState({
@@ -264,10 +269,17 @@ export default function ExpeditionsClient() {
     setMilestonesLoading(true);
     setShowMilestoneForm(false);
     setMilestones([]);
+    setAudit([]);
     setMError("");
-    const r = await fetch(`/api/admin/shipments/${s.id}/milestones`);
+    const r = await fetch(`/api/admin/shipments/${s.id}/milestones`, { cache: "no-store" });
     if (r.ok) setMilestones(await r.json());
     setMilestonesLoading(false);
+    if (canSeeAudit) {
+      try {
+        const ra = await fetch(`/api/admin/shipments/${s.id}/audit`, { cache: "no-store" });
+        setAudit(ra.ok ? await ra.json() : []);
+      } catch { setAudit([]); }
+    }
   }
 
   async function addMilestone(e: React.FormEvent) {
@@ -872,6 +884,32 @@ export default function ExpeditionsClient() {
                       );
                     })}
                   </div>
+                </div>
+              )}
+
+              {/* Historique des modifications — visible par l'admin et le gérant */}
+              {canSeeAudit && (
+                <div className="mt-6 pt-5 border-t border-gray-100">
+                  <p className="text-xs font-black uppercase tracking-wider text-gray-400 mb-3" style={{ fontFamily: "var(--font-montserrat)" }}>
+                    Historique des modifications
+                  </p>
+                  {audit.length === 0 ? (
+                    <p className="text-xs text-gray-400" style={{ fontFamily: "var(--font-lato)" }}>Aucune modification enregistrée.</p>
+                  ) : (
+                    <div className="space-y-2.5">
+                      {audit.map((a) => (
+                        <div key={a.id} className="flex gap-2.5">
+                          <span className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ backgroundColor: "#1A3A6B" }} />
+                          <div className="min-w-0">
+                            <p className="text-xs text-gray-700" style={{ fontFamily: "var(--font-lato)" }}>{a.detail ?? a.action}</p>
+                            <p className="text-[11px] text-gray-400" style={{ fontFamily: "var(--font-lato)" }}>
+                              {a.byName ?? "—"}{a.byRole ? ` · ${ROLE_FR[a.byRole] ?? a.byRole}` : ""} · {new Date(a.createdAt).toLocaleString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

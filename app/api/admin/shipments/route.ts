@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { sbGet, sbPost } from "@/lib/supabase-admin";
+import { logShipmentAudit, statusFr } from "@/lib/audit";
 
 function isAdmin(role?: string) {
   return ["SUPER_ADMIN", "MANAGER", "AGENCY"].includes(role ?? "");
@@ -66,7 +67,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const session = await auth();
-  const role = (session?.user as { role?: string })?.role;
+  const su = session?.user as { id?: string; name?: string; role?: string } | undefined;
+  const role = su?.role;
   if (!session || !isAdmin(role)) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
   const body = await req.json();
@@ -100,5 +102,13 @@ export async function POST(req: NextRequest) {
   });
 
   if (!shipment) return NextResponse.json({ error: "Erreur lors de la création" }, { status: 500 });
+
+  await logShipmentAudit({
+    shipmentId: id,
+    action: "create",
+    detail: `Expédition créée (statut : ${statusFr(status || "PENDING")})`,
+    by: { id: su?.id, name: su?.name, role: su?.role },
+  });
+
   return NextResponse.json(shipment, { status: 201 });
 }

@@ -130,7 +130,7 @@ export const metadata: Metadata = {
     },
   },
 
-  /* ── Open Graph ── */
+  /* ── Open Graph (aperçu lors du partage de lien : WhatsApp, Facebook…) ── */
   openGraph: {
     type: "website",
     locale: "fr_FR",
@@ -140,9 +140,7 @@ export const metadata: Metadata = {
     description: SITE_DESCRIPTION,
     images: [
       {
-        url: `${SITE_URL}/og-image.jpg`,
-        width: 1200,
-        height: 630,
+        url: `${SITE_URL}/images/logo.jpeg`,
         alt: "EXPAC — Express Africa Cargo Ltd",
       },
     ],
@@ -150,10 +148,10 @@ export const metadata: Metadata = {
 
   /* ── Twitter / X Card ── */
   twitter: {
-    card: "summary_large_image",
+    card: "summary",
     title: SITE_NAME,
     description: SITE_DESCRIPTION,
-    images: [`${SITE_URL}/og-image.jpg`],
+    images: [`${SITE_URL}/images/logo.jpeg`],
   },
 
   /* ── Liens canoniques & alternatifs ── */

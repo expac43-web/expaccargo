@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import Logo from "@/components/ui/Logo";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
@@ -58,7 +57,8 @@ function NavContent({
         <div className="flex items-center gap-3 px-3 py-3 rounded-xl bg-white/10">
           <div className="w-9 h-9 rounded-xl overflow-hidden flex items-center justify-center text-[#0e2248] text-sm font-black shrink-0 bg-white relative">
             {avatarUrl ? (
-              <Image src={avatarUrl} alt={userName} fill className="object-cover" sizes="36px" unoptimized />
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={avatarUrl} alt={userName} className="absolute inset-0 w-full h-full object-cover" />
             ) : (
               initials
             )}

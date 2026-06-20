@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import Image from "next/image";
 import { Camera } from "lucide-react";
 
 interface AvatarUploadProps {
@@ -62,7 +61,8 @@ export default function AvatarUpload({
         <div className="w-full h-full rounded-full overflow-hidden border-4 border-white shadow-md"
           style={{ backgroundColor: `${accentColor}20` }}>
           {preview ? (
-            <Image src={preview} alt={name} fill className="object-cover" sizes={`${size}px`} unoptimized />
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={preview} alt={name} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-white font-black text-xl"
               style={{ backgroundColor: accentColor, fontFamily: "var(--font-montserrat)" }}>
