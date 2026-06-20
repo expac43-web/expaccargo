@@ -173,6 +173,7 @@ export default async function RootLayout({
   const locale = normalizeLocale(cookieStore.get("locale")?.value);
   const dict = getDictionary(locale);
   const gaId = process.env.NEXT_PUBLIC_GA_ID;
+  const gtmId = process.env.NEXT_PUBLIC_GTM_ID;
 
   return (
     <html
@@ -188,9 +189,20 @@ export default async function RootLayout({
           href={process.env.NEXT_PUBLIC_SUPABASE_URL}
           crossOrigin="anonymous"
         />
-        {gaId && <link rel="preconnect" href="https://www.googletagmanager.com" />}
+        {(gaId || gtmId) && <link rel="preconnect" href="https://www.googletagmanager.com" />}
       </head>
       <body className="min-h-full flex flex-col">
+        {/* Google Tag Manager (noscript) — juste après l'ouverture de <body> */}
+        {gtmId && (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+              height="0"
+              width="0"
+              style={{ display: "none", visibility: "hidden" }}
+            />
+          </noscript>
+        )}
         <Providers>
           <LanguageProvider locale={locale} dict={dict}>{children}</LanguageProvider>
         </Providers>
@@ -212,6 +224,15 @@ export default async function RootLayout({
               `}
             </Script>
           </>
+        )}
+
+        {/* Google Tag Manager — chargé après l'hydratation (ne bloque pas le rendu).
+            ⚠️ Ne PAS configurer GA4 dans GTM : GA4 est déjà branché en direct ci-dessus
+            (sinon double comptage). GTM sert aux autres tags. */}
+        {gtmId && (
+          <Script id="gtm-init" strategy="afterInteractive">
+            {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${gtmId}');`}
+          </Script>
         )}
       </body>
     </html>
