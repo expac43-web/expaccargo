@@ -14,8 +14,37 @@ const MARGIN = 14;
 
 type Doc = jsPDF & { lastAutoTable?: { finalY: number } };
 
+type LogoData = { dataUrl: string; w: number; h: number };
+
+// Logo chargé une seule fois puis mis en cache (génération PDF côté navigateur).
+let logoCache: LogoData | null | undefined;
+async function getLogo(): Promise<LogoData | null> {
+  if (logoCache !== undefined) return logoCache;
+  try {
+    const r = await fetch("/images/logo.jpeg");
+    if (!r.ok) throw new Error("logo introuvable");
+    const blob = await r.blob();
+    const dataUrl = await new Promise<string>((res, rej) => {
+      const fr = new FileReader();
+      fr.onload = () => res(fr.result as string);
+      fr.onerror = rej;
+      fr.readAsDataURL(blob);
+    });
+    const dims = await new Promise<{ w: number; h: number }>((res) => {
+      const im = new window.Image();
+      im.onload = () => res({ w: im.naturalWidth || 130, h: im.naturalHeight || 44 });
+      im.onerror = () => res({ w: 130, h: 44 });
+      im.src = dataUrl;
+    });
+    logoCache = { dataUrl, w: dims.w, h: dims.h };
+  } catch {
+    logoCache = null;
+  }
+  return logoCache;
+}
+
 /** En-tête de marque + titre du document. Retourne le Y de départ du contenu. */
-function header(doc: Doc, title: string, subtitle?: string): number {
+function header(doc: Doc, title: string, subtitle?: string, logo?: LogoData | null): number {
   const w = doc.internal.pageSize.getWidth();
 
   // Bandeau navy
@@ -25,15 +54,25 @@ function header(doc: Doc, title: string, subtitle?: string): number {
   doc.setFillColor(...ORANGE);
   doc.rect(0, 26, w, 1.5, "F");
 
-  doc.setTextColor(255, 255, 255);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(16);
-  doc.text("EXPRESS AFRICA CARGO", MARGIN, 13);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(8);
-  doc.text("Commissionnaire agréé en douane — CEMAC 2023 · Sûr & Rapide", MARGIN, 19);
+  if (logo) {
+    // Pastille blanche + logo (le logo a un fond clair, lisible sur le bandeau navy)
+    const lh = 15;
+    const lw = Math.min(60, (logo.w / logo.h) * lh);
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(MARGIN - 1, 5.5, lw + 4, lh + 4, 1.5, 1.5, "F");
+    try { doc.addImage(logo.dataUrl, "JPEG", MARGIN + 1, 7.5, lw, lh); } catch { /* image invalide → ignorée */ }
+  } else {
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text("EXPRESS AFRICA CARGO", MARGIN, 13);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.text("Commissionnaire agréé en douane — CEMAC 2023 · Sûr & Rapide", MARGIN, 19);
+  }
 
   // Titre du document (à droite)
+  doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(11);
   doc.text(title.toUpperCase(), w - MARGIN, 13, { align: "right" });
@@ -143,12 +182,13 @@ const SERVICE_LABELS: Record<string, string> = {
   GROUPAGE: "Groupage",
 };
 
-export function exportDevisPDF(d: DevisPDF) {
+export async function exportDevisPDF(d: DevisPDF) {
   const doc = new jsPDF() as Doc;
+  const logo = await getLogo();
   const w = doc.internal.pageSize.getWidth();
   const ref = d.reference ?? "—";
   const priced = d.quotedPrice != null;
-  let y = header(doc, priced ? "Devis" : "Demande de devis", `Réf : ${ref}`);
+  let y = header(doc, priced ? "Devis" : "Demande de devis", `Réf : ${ref}`, logo);
 
   y = sectionTitle(doc, "Demandeur", y);
   y = keyValueTable(
@@ -258,9 +298,10 @@ export type ExpeditionPDF = {
   documents?: { name: string; type: string }[];
 };
 
-export function exportExpeditionPDF(e: ExpeditionPDF) {
+export async function exportExpeditionPDF(e: ExpeditionPDF) {
   const doc = new jsPDF() as Doc;
-  let y = header(doc, "Fiche d'expédition", `Réf : ${e.reference}`);
+  const logo = await getLogo();
+  let y = header(doc, "Fiche d'expédition", `Réf : ${e.reference}`, logo);
 
   y = sectionTitle(doc, "Informations générales", y);
   y = keyValueTable(
@@ -315,9 +356,10 @@ export function exportExpeditionPDF(e: ExpeditionPDF) {
 
 export type DocumentRow = { name: string; type: string; createdAt: string; owner?: string };
 
-export function exportDocumentsListPDF(docs: DocumentRow[], subtitle?: string) {
+export async function exportDocumentsListPDF(docs: DocumentRow[], subtitle?: string) {
   const doc = new jsPDF() as Doc;
-  const y = header(doc, "Liste des documents", subtitle);
+  const logo = await getLogo();
+  const y = header(doc, "Liste des documents", subtitle, logo);
 
   autoTable(doc, {
     startY: y,
@@ -345,10 +387,11 @@ export type ConversationMsgPDF = {
   fromMe?: boolean;
 };
 
-export function exportConversationPDF(title: string, messages: ConversationMsgPDF[]) {
+export async function exportConversationPDF(title: string, messages: ConversationMsgPDF[]) {
   const doc = new jsPDF() as Doc;
+  const logo = await getLogo();
   const w = doc.internal.pageSize.getWidth();
-  let y = header(doc, "Conversation", title);
+  let y = header(doc, "Conversation", title, logo);
 
   doc.setFontSize(9);
   for (const m of messages) {
@@ -406,10 +449,11 @@ export type EstimatePDF = {
   note?: string | null;
 };
 
-export function exportEstimatePDF(e: EstimatePDF) {
+export async function exportEstimatePDF(e: EstimatePDF) {
   const doc = new jsPDF() as Doc;
+  const logo = await getLogo();
   const w = doc.internal.pageSize.getWidth();
-  let y = header(doc, "Estimation de devis", new Date().toLocaleDateString("fr-FR"));
+  let y = header(doc, "Estimation de devis", new Date().toLocaleDateString("fr-FR"), logo);
 
   y = sectionTitle(doc, "Votre demande", y);
   y = keyValueTable(

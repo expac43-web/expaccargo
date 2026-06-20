@@ -13,15 +13,15 @@ import { useT } from "@/components/i18n/LanguageProvider";
 
 const sliderImages = [
   {
-    src: "https://images.unsplash.com/photo-1759216373394-91146ca977c7?auto=format&fit=crop&w=1920&q=80",
+    src: "https://images.unsplash.com/photo-1759216373394-91146ca977c7?auto=format&fit=crop&w=1280&q=70",
     alt: "Port cargo conteneurs",
   },
   {
-    src: "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=1920&q=80",
+    src: "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=1280&q=70",
     alt: "Cargo maritime",
   },
   {
-    src: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1920&q=80",
+    src: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1280&q=70",
     alt: "Fret aérien",
   },
 ];
