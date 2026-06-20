@@ -32,14 +32,6 @@ type Quote = {
 const inputCls = "w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#1A3A6B] focus:ring-2 focus:ring-[#1A3A6B]/10 transition-all bg-white";
 const labelCls = "block text-xs font-black uppercase tracking-wider mb-1.5 text-gray-600";
 
-const SERVICE_FORM_MAP: Record<string, string> = {
-  TRANSIT:              "transit",
-  MULTIMODAL:           "transport",
-  STORAGE:              "stockage",
-  MARITIME_CONSIGNMENT: "consignation",
-  GROUPAGE:             "groupage",
-};
-
 export default function ClientDevisPage() {
   const { data: session } = useSession();
   const { t, locale } = useT();
@@ -75,15 +67,6 @@ export default function ClientDevisPage() {
 
   useEffect(() => { loadQuotes(); }, []);
 
-  // Map our form serviceType to API values
-  const SERVICE_API_MAP: Record<string, string> = {
-    TRANSIT: "MULTIMODAL",
-    MULTIMODAL: "MULTIMODAL",
-    STORAGE: "STORAGE",
-    MARITIME_CONSIGNMENT: "MARITIME_CONSIGNMENT",
-    GROUPAGE: "GROUPAGE",
-  };
-
   async function submitQuote(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
@@ -93,10 +76,10 @@ export default function ClientDevisPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          clientName: user?.name ?? "",
+          name: user?.name ?? "",
           email: user?.email ?? "",
           phone: form.phone,
-          service: SERVICE_FORM_MAP[form.serviceType] ?? "transit",
+          serviceType: form.serviceType,
           origin: form.origin,
           destination: form.destination,
           cargoType: form.cargoType,
