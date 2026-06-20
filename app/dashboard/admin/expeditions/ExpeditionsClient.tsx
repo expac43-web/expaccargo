@@ -148,7 +148,7 @@ export default function ExpeditionsClient() {
       const qs = new URLSearchParams();
       if (statusFilter !== "ALL") qs.set("status", statusFilter);
       if (search) qs.set("search", search);
-      const r = await fetch(`/api/admin/shipments?${qs}`);
+      const r = await fetch(`/api/admin/shipments?${qs}`, { cache: "no-store" });
       if (r.ok) setShipments(await r.json());
     } finally {
       setLoading(false);

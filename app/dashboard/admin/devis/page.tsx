@@ -6,7 +6,7 @@ import AdminHeader from "@/components/admin/AdminHeader";
 import Modal from "@/components/admin/Modal";
 import Pagination from "@/components/admin/Pagination";
 import { DevisQuote } from "@/components/admin/DevisProcessPanel";
-import { FileText, Search, Trash2, ShieldCheck } from "lucide-react";
+import { FileText, Trash2, ShieldCheck } from "lucide-react";
 
 const PAGE_SIZE = 15;
 
@@ -26,30 +26,25 @@ const SERVICE_LABELS: Record<string, string> = {
 export default function DevisPage() {
   const [quotes, setQuotes] = useState<DevisQuote[]>([]);
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [page, setPage] = useState(1);
 
   useEffect(() => {
-    fetch("/api/admin/devis")
+    fetch("/api/admin/devis", { cache: "no-store" })
       .then(r => r.json())
       .then(setQuotes)
       .finally(() => setLoading(false));
   }, []);
 
-  const filtered = useMemo(() => quotes.filter(q => {
-    const matchSearch = q.name.toLowerCase().includes(search.toLowerCase()) ||
-      q.email.toLowerCase().includes(search.toLowerCase()) ||
-      q.origin.toLowerCase().includes(search.toLowerCase()) ||
-      q.destination.toLowerCase().includes(search.toLowerCase());
-    const matchStatus = filterStatus === "all" || q.status === filterStatus;
-    return matchSearch && matchStatus;
-  }), [quotes, search, filterStatus]);
+  const filtered = useMemo(
+    () => quotes.filter(q => filterStatus === "all" || q.status === filterStatus),
+    [quotes, filterStatus]
+  );
 
-  // Revenir en page 1 quand la recherche / le filtre change.
-  useEffect(() => { setPage(1); }, [search, filterStatus]);
+  // Revenir en page 1 quand le filtre change.
+  useEffect(() => { setPage(1); }, [filterStatus]);
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   async function deleteQuote() {
@@ -91,17 +86,6 @@ export default function DevisPage() {
               <p className="text-xs text-gray-500 mt-0.5" style={{ fontFamily: "var(--font-lato)" }}>{m.label}</p>
             </button>
           ))}
-        </div>
-
-        {/* Search */}
-        <div className="relative mb-5">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text" placeholder="Rechercher par nom, email, origine ou destination..."
-            value={search} onChange={e => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#1A3A6B] focus:ring-2 focus:ring-[#1A3A6B]/10 bg-white"
-            style={{ fontFamily: "var(--font-lato)" }}
-          />
         </div>
 
         {/* Table */}

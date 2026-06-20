@@ -93,7 +93,7 @@ export default function GerantExpeditionsPage() {
     const p = new URLSearchParams(window.location.search);
     const cid = p.get("clientId");
     if (cid) {
-      fetch(`/api/gerant/expeditions?clientId=${cid}`)
+      fetch(`/api/gerant/expeditions?clientId=${cid}`, { cache: "no-store" })
         .then((r) => r.ok ? r.json() : [])
         .then((d) => { setShipments(d); setFiltered(d); })
         .finally(() => setLoading(false));
@@ -104,7 +104,7 @@ export default function GerantExpeditionsPage() {
     setLoading(true);
     let url = "/api/gerant/expeditions";
     if (status) url += `?status=${status}`;
-    const r = await fetch(url);
+    const r = await fetch(url, { cache: "no-store" });
     const data = r.ok ? await r.json() : [];
     setShipments(data); setFiltered(data);
     setLoading(false);

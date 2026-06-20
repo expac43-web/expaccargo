@@ -12,7 +12,7 @@ export default function DevisDetail({ id, backHref }: { id: string; backHref: st
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/admin/devis/${id}`)
+    fetch(`/api/admin/devis/${id}`, { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
       .then((d) => setQuote(d))
       .catch(() => setError(true))

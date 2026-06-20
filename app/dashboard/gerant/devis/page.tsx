@@ -34,7 +34,7 @@ export default function GerantDevisPage() {
   useEffect(() => { setPage(1); }, [filter]);
 
   useEffect(() => {
-    fetch("/api/admin/devis")
+    fetch("/api/admin/devis", { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : []))
       .then((d) => setQuotes(Array.isArray(d) ? d : []))
       .finally(() => setLoading(false));

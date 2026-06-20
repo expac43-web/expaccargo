@@ -78,7 +78,7 @@ export default function ClientDevisPage() {
   const user = session?.user as { name?: string; email?: string } | undefined;
 
   const loadQuotes = async () => {
-    const r = await fetch("/api/client/devis");
+    const r = await fetch("/api/client/devis", { cache: "no-store" });
     if (r.ok) setQuotes(await r.json());
     setLoading(false);
   };

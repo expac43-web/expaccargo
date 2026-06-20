@@ -35,7 +35,7 @@ export default function AgenceExpeditionsPage() {
   useEffect(() => {
     let url = "/api/agence/expeditions";
     if (status) url += `?status=${status}`;
-    fetch(url)
+    fetch(url, { cache: "no-store" })
       .then((r) => r.ok ? r.json() : [])
       .then((data) => { setShipments(data); setFiltered(data); })
       .finally(() => setLoading(false));
