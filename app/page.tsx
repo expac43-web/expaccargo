@@ -18,36 +18,72 @@ export const metadata: Metadata = {
   },
 };
 
-/* ── JSON-LD Organisation (données structurées pour Google) ─────────────── */
-const organizationSchema = {
+/* ── JSON-LD : Organisation + 2 établissements (données structurées Google) ──
+   👉 Infos modifiables ici à tout moment (adresses, téléphones, horaires).
+   La source qui fait foi pour le référencement local reste le Profil d'établissement Google. */
+const SITE = "https://expaccargo.com";
+const ORG_ID = `${SITE}/#organization`;
+
+const structuredData = {
   "@context": "https://schema.org",
-  "@type": "Organization",
-  name: "Express Africa Cargo Ltd",
-  alternateName: "EXPAC",
-  url: "https://expaccargo.com",
-  logo: "https://expaccargo.com/images/logo.jpeg",
-  description:
-    "Expert en logistique internationale, transit douanier et transport multimodal en Afrique.",
-  contactPoint: {
-    "@type": "ContactPoint",
-    telephone: "+221-00-000-00-00",
-    contactType: "customer service",
-    availableLanguage: ["French", "English"],
-  },
-  sameAs: [],
-  areaServed: {
-    "@type": "Place",
-    name: "Africa",
-  },
-  serviceType: [
-    "Import Export Afrique",
-    "Transit douanier",
-    "Transport multimodal",
-    "Stockage",
-    "Consignation maritime",
-    "Groupage",
-    "Dédouanement marchandises",
-    "Commissionnaire en douane",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": ORG_ID,
+      name: "Express Africa Cargo Ltd",
+      alternateName: "EXPAC",
+      url: SITE,
+      logo: `${SITE}/images/logo.jpeg`,
+      email: "contact@expaccargo.com",
+      description:
+        "Société d'import-export, transit douanier, transport multimodal et logistique en Afrique (Congo Brazzaville).",
+      areaServed: { "@type": "Place", name: "Afrique centrale" },
+      sameAs: [], // ← ajouter ici les URLs réseaux sociaux (LinkedIn, Facebook…)
+      knowsAbout: [
+        "Import-export",
+        "Transit douanier",
+        "Transport multimodal",
+        "Stockage",
+        "Consignation maritime",
+        "Groupage",
+        "Dédouanement",
+      ],
+    },
+    {
+      "@type": "LocalBusiness",
+      "@id": `${SITE}/#pointe-noire`,
+      name: "EXPAC — Pointe-Noire",
+      parentOrganization: { "@id": ORG_ID },
+      url: SITE,
+      image: `${SITE}/images/logo.jpeg`,
+      telephone: "+242064363882",
+      email: "agence.pn@expaccargo.com",
+      address: {
+        "@type": "PostalAddress",
+        streetAddress:
+          "Résidence les Palmiers, Bât C 2e étage, Appt Caïman — Av. Germain Bikoumat, Centre-Ville",
+        addressLocality: "Pointe-Noire",
+        addressCountry: "CG",
+      },
+      openingHours: ["Mo-Fr 08:00-18:00", "Sa 09:00-13:00"],
+    },
+    {
+      "@type": "LocalBusiness",
+      "@id": `${SITE}/#brazzaville`,
+      name: "EXPAC — Brazzaville (Siège)",
+      parentOrganization: { "@id": ORG_ID },
+      url: SITE,
+      image: `${SITE}/images/logo.jpeg`,
+      telephone: "+242055119711",
+      email: "agence.bz@expaccargo.com",
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "Croisement Av. de la Tsieme / Rue Mbetis, Ouenze SOCECA-SOCEMA",
+        addressLocality: "Brazzaville",
+        addressCountry: "CG",
+      },
+      openingHours: ["Mo-Fr 08:00-18:00", "Sa 09:00-13:00"],
+    },
   ],
 };
 import HeroSlider from "@/components/public/HeroSlider";
@@ -130,7 +166,7 @@ export default async function HomePage() {
       {/* JSON-LD Organisation — signale à Google la structure de l'entreprise */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
       <Navbar />
