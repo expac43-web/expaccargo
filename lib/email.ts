@@ -17,7 +17,7 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
 // Expéditeur unique de tous les emails système (domaine à vérifier dans Resend).
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "support@expaccargo.com";
 const FROM = `EXPAC — Express Africa Cargo <${FROM_EMAIL}>`;
-const SITE = "https://expaccargoltd.com";
+const SITE = "https://expaccargo.com";
 const LOGIN_URL = `${SITE}/login`;
 
 const NAVY = "#1A3A6B";

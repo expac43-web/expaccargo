@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: "Calculateur de devis — Estimation de transport",
   description:
     "Estimez le coût de votre expédition en quelques secondes avec le calculateur EXPAC. Prix indicatif selon le trajet, le poids et le volume.",
-  alternates: { canonical: "https://expaccargoltd.com/calculateur" },
+  alternates: { canonical: "https://expaccargo.com/calculateur" },
 };
 
 async function getActiveTariffs(): Promise<Tariff[]> {

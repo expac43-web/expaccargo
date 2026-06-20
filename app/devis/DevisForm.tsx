@@ -370,8 +370,8 @@ export default function DevisForm() {
                     <a href="tel:+242000000000" className="flex items-center gap-2 text-sm text-blue-200 hover:text-white transition-colors mb-3" style={{ fontFamily: "var(--font-lato)" }}>
                       <Phone size={14} className="shrink-0" />+242 00 000 00 00
                     </a>
-                    <a href="mailto:contact@expaccargoltd.com" className="flex items-center gap-2 text-sm text-blue-200 hover:text-white transition-colors" style={{ fontFamily: "var(--font-lato)" }}>
-                      <Mail size={14} className="shrink-0" />contact@expaccargoltd.com
+                    <a href="mailto:contact@expaccargo.com" className="flex items-center gap-2 text-sm text-blue-200 hover:text-white transition-colors" style={{ fontFamily: "var(--font-lato)" }}>
+                      <Mail size={14} className="shrink-0" />contact@expaccargo.com
                     </a>
                   </div>
 

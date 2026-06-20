@@ -8,12 +8,12 @@ export const metadata: Metadata = {
   title: "Nos Services — Transit, Transport Multimodal & Logistique",
   description:
     "Découvrez tous les services EXPAC : transit douanier, transport multimodal aérien/maritime/routier, stockage, consignation maritime et groupage en Afrique.",
-  alternates: { canonical: "https://expaccargoltd.com/services" },
+  alternates: { canonical: "https://expaccargo.com/services" },
   openGraph: {
     title: "Services Logistiques EXPAC en Afrique",
     description:
       "Transit, transport multimodal, stockage et consignation maritime. Des solutions logistiques complètes pour vos marchandises en Afrique.",
-    url: "https://expaccargoltd.com/services",
+    url: "https://expaccargo.com/services",
   },
   keywords: [
     "transit douanier Afrique",

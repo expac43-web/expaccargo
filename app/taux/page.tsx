@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: "Taux de change du jour — Franc CFA (XAF)",
   description:
     "Consultez les taux de change du jour en Franc CFA (XAF) : EUR, USD, CNY et toutes les devises. Mis à jour quotidiennement par Express Africa Cargo.",
-  alternates: { canonical: "https://expaccargoltd.com/taux" },
+  alternates: { canonical: "https://expaccargo.com/taux" },
 };
 
 function formatUpdated(s: string, dl: string): string {

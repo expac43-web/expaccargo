@@ -7,12 +7,12 @@ export const metadata: Metadata = {
   title: "Suivi d'Expédition en Temps Réel",
   description:
     "Suivez votre expédition EXPAC en temps réel. Entrez votre numéro de référence pour localiser vos marchandises à chaque étape du transport en Afrique.",
-  alternates: { canonical: "https://expaccargoltd.com/tracking" },
+  alternates: { canonical: "https://expaccargo.com/tracking" },
   openGraph: {
     title: "Suivi d'Expédition EXPAC — Tracking en Temps Réel",
     description:
       "Localisez vos marchandises à tout moment grâce au système de tracking EXPAC. Suivi étape par étape de vos envois en Afrique.",
-    url: "https://expaccargoltd.com/tracking",
+    url: "https://expaccargo.com/tracking",
   },
   keywords: [
     "suivi expédition Afrique",

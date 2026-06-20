@@ -116,7 +116,7 @@ export default function ExpackLoginPage() {
                     type="email"
                     required
                     autoComplete="email"
-                    placeholder="admin@expaccargoltd.com"
+                    placeholder="admin@expaccargo.com"
                     className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#1A3A6B] focus:ring-2 focus:ring-[#1A3A6B]/10 transition-all bg-white"
                     style={{ fontFamily: "var(--font-lato)" }}
                   />
@@ -173,8 +173,8 @@ export default function ExpackLoginPage() {
 
           <p className="text-center text-xs text-gray-400 mt-6" style={{ fontFamily: "var(--font-lato)" }}>
             Problème de connexion :{" "}
-            <a href="mailto:contact@expaccargoltd.com" className="underline hover:text-gray-600">
-              contact@expaccargoltd.com
+            <a href="mailto:contact@expaccargo.com" className="underline hover:text-gray-600">
+              contact@expaccargo.com
             </a>
           </p>
         </div>

@@ -53,7 +53,7 @@ export async function generateMetadata({
 
   const title = `${post.title}`;
   const description = post.excerpt?.slice(0, 160) ?? "Article EXPAC — Logistique Afrique";
-  const url = `https://expaccargoltd.com/actualites/${post.slug}`;
+  const url = `https://expaccargo.com/actualites/${post.slug}`;
 
   return {
     title,

@@ -29,7 +29,7 @@ const lato = Lato({
 
 /* ── Métadonnées de base (surchargées par chaque page) ─────────────────── */
 const SITE_NAME = "EXPAC — Express Africa Cargo Ltd";
-const SITE_URL = "https://expaccargoltd.com";
+const SITE_URL = "https://expaccargo.com";
 const SITE_DESCRIPTION =
   "Expert en logistique internationale, transit douanier et transport multimodal en Afrique. Suivi d'expéditions en temps réel. Devis gratuit sous 24h.";
 
@@ -49,6 +49,9 @@ export const metadata: Metadata = {
     "société import export Afrique",
     "société import export Congo",
     "société import export Congo Brazzaville",
+    "société d'import-export",
+    "société d'import-export Congo Brazzaville",
+    "société d'import-export Afrique",
     "agence import export Afrique",
     "entreprise import export Congo",
     "importer des marchandises en Afrique",

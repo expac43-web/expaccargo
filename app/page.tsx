@@ -5,15 +5,15 @@ import { getServerDict } from "@/lib/i18n/server";
 
 /* ── SEO — Métadonnées spécifiques à la page d'accueil ──────────────────── */
 export const metadata: Metadata = {
-  title: "EXPAC — Logistique & Transit International en Afrique",
+  title: "EXPAC — Société d'Import-Export, Transit & Logistique en Afrique",
   description:
-    "EXPAC, votre expert en transit douanier, transport multimodal et logistique internationale en Afrique. Suivi d'expéditions en temps réel. Devis gratuit sous 24h.",
-  alternates: { canonical: "https://expaccargoltd.com" },
+    "EXPAC, société d'import-export et expert en transit douanier, transport multimodal et logistique en Afrique (Congo Brazzaville). Suivi d'expéditions en temps réel. Devis gratuit sous 24h.",
+  alternates: { canonical: "https://expaccargo.com" },
   openGraph: {
-    title: "EXPAC — Logistique & Transit International en Afrique",
+    title: "EXPAC — Société d'Import-Export & Logistique en Afrique",
     description:
-      "Transit douanier, transport multimodal, stockage et consignation maritime en Afrique. Express Africa Cargo Ltd — votre partenaire de confiance.",
-    url: "https://expaccargoltd.com",
+      "Société d'import-export : transit douanier, transport multimodal, stockage et consignation maritime en Afrique. Express Africa Cargo Ltd — votre partenaire de confiance.",
+    url: "https://expaccargo.com",
     type: "website",
   },
 };
@@ -24,8 +24,8 @@ const organizationSchema = {
   "@type": "Organization",
   name: "Express Africa Cargo Ltd",
   alternateName: "EXPAC",
-  url: "https://expaccargoltd.com",
-  logo: "https://expaccargoltd.com/images/logo.jpeg",
+  url: "https://expaccargo.com",
+  logo: "https://expaccargo.com/images/logo.jpeg",
   description:
     "Expert en logistique internationale, transit douanier et transport multimodal en Afrique.",
   contactPoint: {

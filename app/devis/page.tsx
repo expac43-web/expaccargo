@@ -7,12 +7,12 @@ export const metadata: Metadata = {
   title: "Demande de Devis — Transport & Logistique en Afrique",
   description:
     "Demandez un devis gratuit pour vos expéditions en Afrique. Transit douanier, transport multimodal, stockage, consignation maritime. Réponse sous 24h ouvrées.",
-  alternates: { canonical: "https://expaccargoltd.com/devis" },
+  alternates: { canonical: "https://expaccargo.com/devis" },
   openGraph: {
     title: "Devis Gratuit Logistique Afrique — EXPAC",
     description:
       "Obtenez votre devis personnalisé pour le transport et la logistique de vos marchandises en Afrique. Gratuit et sans engagement.",
-    url: "https://expaccargoltd.com/devis",
+    url: "https://expaccargo.com/devis",
   },
   keywords: [
     "devis logistique Afrique",

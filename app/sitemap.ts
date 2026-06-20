@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const BASE_URL = "https://expaccargoltd.com";
+const BASE_URL = "https://expaccargo.com";
 
 /** Pages statiques avec leur priorité et fréquence de mise à jour */
 const staticPages: MetadataRoute.Sitemap = [
