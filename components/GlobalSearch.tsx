@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Search, X, Loader2, Users, Package, FileText } from "lucide-react";
 
@@ -33,7 +34,10 @@ export default function GlobalSearch({
   const [q, setQ] = useState("");
   const [res, setRes] = useState<Results>(EMPTY);
   const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => setMounted(true), []);
 
   // Raccourci clavier Ctrl/Cmd+K
   useEffect(() => {
@@ -85,7 +89,7 @@ export default function GlobalSearch({
         <Search size={18} />
       </button>
 
-      {open && (
+      {open && mounted && createPortal(
         <div className="fixed inset-0 z-[100] flex items-start justify-center p-4 pt-[10vh] bg-black/50 backdrop-blur-sm" onClick={() => setOpen(false)}>
           <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
             {/* Champ */}
@@ -152,7 +156,8 @@ export default function GlobalSearch({
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
