@@ -708,6 +708,7 @@ const fr = {
       acceptSign: "Accepter & signer",
       reject: "Refuser",
       quoteAmountLabel: "Montant du devis",
+      acceptedTitle: "Devis accepté et signé",
       rejectConfirm: "Refuser ce devis ? Cette action est définitive.",
       signedByPre: "Signé par",
       signedByOn: "le",

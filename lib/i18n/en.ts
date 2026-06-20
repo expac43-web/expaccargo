@@ -706,6 +706,7 @@ const en: Dict = {
       acceptSign: "Accept & sign",
       reject: "Reject",
       quoteAmountLabel: "Quote amount",
+      acceptedTitle: "Quote accepted & signed",
       rejectConfirm: "Reject this quote? This action is final.",
       signedByPre: "Signed by",
       signedByOn: "on",

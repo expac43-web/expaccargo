@@ -218,7 +218,7 @@ export default function ClientSidebar({ userName }: { userName: string }) {
 
       {/* Desktop sidebar */}
       <aside
-        className="hidden lg:flex w-60 shrink-0 flex-col min-h-screen sticky top-0 h-screen shadow-xl"
+        className="hidden lg:flex w-60 shrink-0 flex-col min-h-screen sticky top-0 h-screen shadow-xl z-30"
         style={{ background: sidebarBg }}
       >
         <NavContent

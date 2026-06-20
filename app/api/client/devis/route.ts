@@ -22,7 +22,7 @@ export async function GET() {
   );
 
   // Attacher la signature éventuelle (devis acceptés et signés).
-  const ids = quotes.map((q) => q.id).filter((x) => /^[a-z0-9]+$/i.test(x));
+  const ids = quotes.map((q) => q.id).filter((x) => /^[a-z0-9-]+$/i.test(x));
   const sigByQuote: Record<string, { signerName: string; signedAt: string }> = {};
   if (ids.length) {
     const sigs = await sbGet<{ quoteId: string; signerName: string; createdAt: string }>(

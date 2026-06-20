@@ -166,7 +166,7 @@ export default function GerantSidebar({ userName, avatarUrl = null }: { userName
       </div>
 
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex w-60 shrink-0 flex-col min-h-screen sticky top-0 h-screen shadow-xl" style={{ background: BG }}>
+      <aside className="hidden lg:flex w-60 shrink-0 flex-col min-h-screen sticky top-0 h-screen shadow-xl z-30" style={{ background: BG }}>
         <NavContent userName={userName} avatarUrl={avatarUrl} pathname={pathname} unread={unread} />
       </aside>
 

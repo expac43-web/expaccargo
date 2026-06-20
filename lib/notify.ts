@@ -64,3 +64,23 @@ export async function notifyDocumentShared(clientId: string, documentName: strin
     link: "/dashboard/documents",
   });
 }
+
+/** Notifie l'équipe (admin + gérants) qu'un client a accepté et signé un devis. */
+export async function notifyStaffQuoteSigned(reference: string, signerName: string): Promise<void> {
+  try {
+    const staff = await sbGet<{ id: string; role: string }>(
+      "User", `role=in.(SUPER_ADMIN,MANAGER)&select=id,role`
+    );
+    await Promise.all(
+      staff.map((u) =>
+        createNotification(u.id, {
+          title: "Devis signé",
+          body: `${signerName} a accepté et signé le devis ${reference}.`,
+          link: u.role === "MANAGER" ? "/dashboard/gerant/devis" : "/dashboard/admin/devis",
+        })
+      )
+    );
+  } catch (e) {
+    console.error("[notify] devis signé:", e);
+  }
+}

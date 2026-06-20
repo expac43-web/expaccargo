@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Bell, Check } from "lucide-react";
 
@@ -21,7 +22,12 @@ export default function NotificationBell({ accent = "#1A3A6B", tone = "light" }:
   const [items, setItems] = useState<Notif[]>([]);
   const [unread, setUnread] = useState(0);
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [mounted, setMounted] = useState(false);
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => setMounted(true), []);
 
   const load = useCallback(async () => {
     try {
@@ -40,17 +46,37 @@ export default function NotificationBell({ accent = "#1A3A6B", tone = "light" }:
     return () => clearInterval(id);
   }, [load]);
 
-  // Fermer au clic extérieur
+  // Positionne le panneau (rendu en portail) sous la cloche, en restant dans l'écran.
+  const computePos = useCallback(() => {
+    const r = btnRef.current?.getBoundingClientRect();
+    if (!r) return;
+    const width = 320;
+    let left = r.left;
+    if (left + width > window.innerWidth - 8) left = window.innerWidth - width - 8;
+    if (left < 8) left = 8;
+    setPos({ top: r.bottom + 8, left });
+  }, []);
+
+  // Fermer au clic extérieur + repositionner au redimensionnement.
   useEffect(() => {
+    if (!open) return;
     function onClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      const t = e.target as Node;
+      if (btnRef.current?.contains(t) || panelRef.current?.contains(t)) return;
+      setOpen(false);
     }
-    if (open) document.addEventListener("mousedown", onClick);
-    return () => document.removeEventListener("mousedown", onClick);
-  }, [open]);
+    function onResize() { computePos(); }
+    document.addEventListener("mousedown", onClick);
+    window.addEventListener("resize", onResize);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      window.removeEventListener("resize", onResize);
+    };
+  }, [open, computePos]);
 
   async function toggle() {
     const next = !open;
+    if (next) computePos();
     setOpen(next);
     if (next && unread > 0) {
       setUnread(0);
@@ -64,29 +90,13 @@ export default function NotificationBell({ accent = "#1A3A6B", tone = "light" }:
     if (n.link) router.push(n.link);
   }
 
-  return (
-    <div className="relative" ref={ref}>
-      <button
-        onClick={toggle}
-        className={`relative w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
-          tone === "dark" ? "text-white/80 hover:bg-white/10" : "text-gray-500 hover:bg-gray-100"
-        }`}
-        title="Notifications"
-        aria-label="Notifications"
-      >
-        <Bell size={18} />
-        {unread > 0 && (
-          <span
-            className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full text-[9px] font-black flex items-center justify-center text-white"
-            style={{ backgroundColor: "#E8520A" }}
-          >
-            {unread > 9 ? "9+" : unread}
-          </span>
-        )}
-      </button>
-
-      {open && (
-        <div className="absolute right-0 lg:right-auto lg:left-0 mt-2 w-80 max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden">
+  const panel = open && pos && mounted
+    ? createPortal(
+        <div
+          ref={panelRef}
+          className="fixed w-80 max-w-[calc(100vw-1rem)] bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
+          style={{ top: pos.top, left: pos.left, zIndex: 9999 }}
+        >
           <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
             <p className="font-black text-sm" style={{ color: accent, fontFamily: "var(--font-montserrat)" }}>Notifications</p>
             {items.some((n) => n.isRead === false) ? null : (
@@ -113,8 +123,33 @@ export default function NotificationBell({ accent = "#1A3A6B", tone = "light" }:
               ))
             )}
           </div>
-        </div>
-      )}
+        </div>,
+        document.body
+      )
+    : null;
+
+  return (
+    <div className="relative">
+      <button
+        ref={btnRef}
+        onClick={toggle}
+        className={`relative w-9 h-9 rounded-xl flex items-center justify-center transition-colors ${
+          tone === "dark" ? "text-white/80 hover:bg-white/10" : "text-gray-500 hover:bg-gray-100"
+        }`}
+        title="Notifications"
+        aria-label="Notifications"
+      >
+        <Bell size={18} />
+        {unread > 0 && (
+          <span
+            className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full text-[9px] font-black flex items-center justify-center text-white"
+            style={{ backgroundColor: "#E8520A" }}
+          >
+            {unread > 9 ? "9+" : unread}
+          </span>
+        )}
+      </button>
+      {panel}
     </div>
   );
 }

@@ -6,7 +6,7 @@ import AdminHeader from "@/components/admin/AdminHeader";
 import Modal from "@/components/admin/Modal";
 import Pagination from "@/components/admin/Pagination";
 import { DevisQuote } from "@/components/admin/DevisProcessPanel";
-import { FileText, Search, Trash2 } from "lucide-react";
+import { FileText, Search, Trash2, ShieldCheck } from "lucide-react";
 
 const PAGE_SIZE = 15;
 
@@ -140,10 +140,18 @@ export default function DevisPage() {
                           <p className="text-xs text-gray-400" style={{ fontFamily: "var(--font-lato)" }}>→ {q.destination}</p>
                         </td>
                         <td className="px-4 py-3">
-                          <span className="inline-flex items-center px-2 py-1 rounded-lg text-xs font-black uppercase"
-                            style={{ backgroundColor: m.bg, color: m.color, fontFamily: "var(--font-montserrat)" }}>
-                            {m.label}
-                          </span>
+                          <div className="flex items-center gap-1 flex-wrap">
+                            <span className="inline-flex items-center px-2 py-1 rounded-lg text-xs font-black uppercase"
+                              style={{ backgroundColor: m.bg, color: m.color, fontFamily: "var(--font-montserrat)" }}>
+                              {m.label}
+                            </span>
+                            {q.signature && (
+                              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-black uppercase"
+                                style={{ backgroundColor: "rgba(22,163,74,0.12)", color: "#16a34a", fontFamily: "var(--font-montserrat)" }}>
+                                <ShieldCheck size={10} /> Signé
+                              </span>
+                            )}
+                          </div>
                           {q.handledByName && (
                             <p className="text-[10px] text-gray-400 mt-1 truncate max-w-[120px]" style={{ fontFamily: "var(--font-lato)" }}>par {q.handledByName}</p>
                           )}

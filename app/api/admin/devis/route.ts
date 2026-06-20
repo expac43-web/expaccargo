@@ -17,7 +17,7 @@ export async function GET() {
   }>("QuoteRequest", "select=*&order=createdAt.desc");
 
   // Attacher la signature éventuelle (preuve d'acceptation).
-  const ids = quotes.map((q) => q.id).filter((x) => /^[a-z0-9]+$/i.test(x));
+  const ids = quotes.map((q) => q.id).filter((x) => /^[a-z0-9-]+$/i.test(x));
   const sigByQuote: Record<string, { signerName: string; signedAt: string }> = {};
   if (ids.length) {
     const sigs = await sbGet<{ quoteId: string; signerName: string; createdAt: string }>(

@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { sbGet, sbPost, sbPatch, enc } from "@/lib/supabase-admin";
 import { uploadFile } from "@/lib/supabase-storage";
 import { sendQuoteAcceptedEmail, sendQuoteSignedInternalEmail } from "@/lib/email";
+import { notifyStaffQuoteSigned } from "@/lib/notify";
 
 export const runtime = "nodejs";
 
@@ -78,6 +79,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     reference: ref, signerName: signerName.trim(), signerEmail: quote.email,
     serviceType: quote.serviceType, origin: quote.origin, destination: quote.destination,
   });
+
+  // Notification in-app pour l'équipe (admin + gérants).
+  await notifyStaffQuoteSigned(ref, signerName.trim());
 
   return NextResponse.json({ success: true });
 }

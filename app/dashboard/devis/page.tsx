@@ -430,12 +430,19 @@ export default function ClientDevisPage() {
                       </button>
                     </div>
                   )}
-                  {q.status === "ACCEPTED" && q.signature && (
-                    <div className="flex items-center gap-2 mt-4 pt-4 border-t border-gray-100 text-xs" style={{ fontFamily: "var(--font-lato)" }}>
-                      <ShieldCheck size={15} className="text-green-600 shrink-0" />
-                      <span className="text-gray-600">
-                        {dv.signedByPre} <strong>{q.signature.signerName}</strong> {dv.signedByOn} {new Date(q.signature.signedAt).toLocaleDateString(dl, { day: "numeric", month: "long", year: "numeric" })}
-                      </span>
+                  {q.status === "ACCEPTED" && (
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      <div className="flex items-start gap-2.5 rounded-xl p-3 bg-green-50 border border-green-100">
+                        <ShieldCheck size={17} className="text-green-600 shrink-0 mt-0.5" />
+                        <div className="text-xs" style={{ fontFamily: "var(--font-lato)" }}>
+                          <p className="font-black text-green-700" style={{ fontFamily: "var(--font-montserrat)" }}>{dv.acceptedTitle}</p>
+                          {q.signature && (
+                            <p className="text-gray-600 mt-0.5">
+                              {dv.signedByPre} <strong>{q.signature.signerName}</strong> {dv.signedByOn} {new Date(q.signature.signedAt).toLocaleDateString(dl, { day: "numeric", month: "long", year: "numeric" })}
+                            </p>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
