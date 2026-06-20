@@ -1,20 +1,24 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import Logo from "@/components/ui/Logo";
 import { useState } from "react";
 import { Eye, EyeOff, ArrowRight, Lock, Mail, AlertCircle } from "lucide-react";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-
-const navLinks = [
-  { label: "Services", href: "/services" },
-  { label: "Suivi", href: "/tracking" },
-  { label: "Devis", href: "/devis" },
-  { label: "Contact", href: "/contact" },
-];
+import { useT } from "@/components/i18n/LanguageProvider";
+import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
 
 export default function LoginPage() {
+  const { t } = useT();
+  const a = t.auth;
+  const L = a.login;
+  const navLinks = [
+    { label: t.nav.services, href: "/services" },
+    { label: t.nav.tracking, href: "/tracking" },
+    { label: t.nav.quote, href: "/devis" },
+    { label: t.nav.contact, href: "/contact" },
+  ];
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,10 +40,21 @@ export default function LoginPage() {
     });
 
     if (result?.error) {
-      setError("Identifiants incorrects. Vérifiez votre email et mot de passe.");
+      setError(L.error);
       setLoading(false);
     } else {
-      router.push("/dashboard");
+      // Redirection selon le rôle
+      const session = await getSession();
+      const role = (session?.user as { role?: string })?.role;
+      if (role === "AGENCY") {
+        router.push("/dashboard/agence");
+      } else if (role === "MANAGER") {
+        router.push("/dashboard/gerant");
+      } else if (role === "SUPER_ADMIN") {
+        router.push("/dashboard/admin");
+      } else {
+        router.push("/dashboard");
+      }
       router.refresh();
     }
   }
@@ -49,13 +64,7 @@ export default function LoginPage() {
       {/* ── Barre de navigation minimale ─────────────────── */}
       <div className="bg-white border-b border-gray-100 h-14 flex items-center px-6 shrink-0 z-10">
         <Link href="/" className="shrink-0">
-          <Image
-            src="/images/logo.jpeg"
-            alt="EXPAC"
-            width={110}
-            height={38}
-            className="h-9 w-auto object-contain"
-          />
+          <Logo className="h-9 w-auto object-contain" width={110} height={38} priority />
         </Link>
         <nav className="hidden sm:flex items-center gap-6 ml-8">
           {navLinks.map((l) => (
@@ -69,13 +78,16 @@ export default function LoginPage() {
             </Link>
           ))}
         </nav>
-        <Link
-          href="/inscription"
-          className="ml-auto text-xs font-black uppercase tracking-wide transition-all hover:opacity-80"
-          style={{ color: "#E8520A", fontFamily: "var(--font-montserrat)" }}
-        >
-          Pas encore de compte ? →
-        </Link>
+        <div className="ml-auto flex items-center gap-4">
+          <LanguageSwitcher />
+          <Link
+            href="/inscription"
+            className="text-xs font-black uppercase tracking-wide transition-all hover:opacity-80"
+            style={{ color: "#E8520A", fontFamily: "var(--font-montserrat)" }}
+          >
+            {a.noAccountYet}
+          </Link>
+        </div>
       </div>
 
       {/* ── Split layout ──────────────────────────────────── */}
@@ -95,27 +107,21 @@ export default function LoginPage() {
               className="text-xs font-black uppercase tracking-[0.2em] mb-5"
               style={{ color: "#fba563", fontFamily: "var(--font-montserrat)" }}
             >
-              ▪ Espace client sécurisé
+              ▪ {L.eyebrow}
             </p>
             <h1
               className="text-4xl font-black text-white uppercase leading-tight mb-6"
               style={{ fontFamily: "var(--font-montserrat)" }}
             >
-              Accédez à votre<br />
-              <span style={{ color: "#E8520A" }}>tableau de bord</span>
+              {L.titlePre}<br />
+              <span style={{ color: "#E8520A" }}>{L.titleHighlight}</span>
             </h1>
             <p className="text-blue-200 leading-relaxed max-w-sm" style={{ fontFamily: "var(--font-lato)" }}>
-              Suivez vos expéditions, consultez vos documents et communiquez
-              avec votre agence directement depuis votre espace personnel.
+              {L.intro}
             </p>
 
             <ul className="mt-8 space-y-3">
-              {[
-                "Suivi en temps réel de vos expéditions",
-                "Accès à tous vos documents",
-                "Messagerie avec votre agence",
-                "Demandes de devis en ligne",
-              ].map((f) => (
+              {L.features.map((f) => (
                 <li key={f} className="flex items-center gap-3 text-sm text-blue-100" style={{ fontFamily: "var(--font-lato)" }}>
                   <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: "#E8520A" }} />
                   {f}
@@ -138,10 +144,10 @@ export default function LoginPage() {
                   className="text-xl font-black uppercase mb-1"
                   style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}
                 >
-                  Connexion
+                  {L.formTitle}
                 </h2>
                 <p className="text-gray-500 text-sm" style={{ fontFamily: "var(--font-lato)" }}>
-                  Utilisez vos identifiants EXPAC pour vous connecter.
+                  {L.formIntro}
                 </p>
               </div>
 
@@ -160,7 +166,7 @@ export default function LoginPage() {
                     className="block text-xs font-black uppercase tracking-wider mb-2"
                     style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}
                   >
-                    Adresse email
+                    {L.email}
                   </label>
                   <div className="relative">
                     <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -169,7 +175,7 @@ export default function LoginPage() {
                       type="email"
                       required
                       autoComplete="email"
-                      placeholder="vous@exemple.com"
+                      placeholder={L.emailPlaceholder}
                       className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#1A3A6B] focus:ring-2 focus:ring-[#1A3A6B]/10 transition-all bg-white"
                       style={{ fontFamily: "var(--font-lato)" }}
                     />
@@ -184,14 +190,14 @@ export default function LoginPage() {
                       className="block text-xs font-black uppercase tracking-wider"
                       style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}
                     >
-                      Mot de passe
+                      {L.password}
                     </label>
                     <Link
                       href="/mot-de-passe-oublie"
                       className="text-xs text-gray-400 hover:text-[#E8520A] transition-colors"
                       style={{ fontFamily: "var(--font-lato)" }}
                     >
-                      Mot de passe oublié ?
+                      {L.forgot}
                     </Link>
                   </div>
                   <div className="relative">
@@ -220,7 +226,7 @@ export default function LoginPage() {
                 <label className="flex items-center gap-3 cursor-pointer">
                   <input type="checkbox" className="w-4 h-4 rounded border-gray-300 accent-[#1A3A6B]" />
                   <span className="text-sm text-gray-500" style={{ fontFamily: "var(--font-lato)" }}>
-                    Se souvenir de moi
+                    {L.remember}
                   </span>
                 </label>
 
@@ -234,7 +240,7 @@ export default function LoginPage() {
                   {loading ? (
                     <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   ) : (
-                    <>Se connecter <ArrowRight size={16} /></>
+                    <>{L.submit} <ArrowRight size={16} /></>
                   )}
                 </button>
               </form>
@@ -242,7 +248,7 @@ export default function LoginPage() {
               <div className="flex items-center gap-4 my-6">
                 <div className="flex-1 h-px bg-gray-200" />
                 <span className="text-xs text-gray-400" style={{ fontFamily: "var(--font-lato)" }}>
-                  Pas encore de compte ?
+                  {L.dividerNoAccount}
                 </span>
                 <div className="flex-1 h-px bg-gray-200" />
               </div>
@@ -252,11 +258,11 @@ export default function LoginPage() {
                 className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-black text-sm uppercase tracking-wide border-2 transition-all hover:bg-orange-50"
                 style={{ color: "#E8520A", borderColor: "#E8520A", fontFamily: "var(--font-montserrat)" }}
               >
-                Créer un compte client <ArrowRight size={15} />
+                {L.createAccount} <ArrowRight size={15} />
               </Link>
 
               <p className="text-center text-xs text-gray-400 mt-5" style={{ fontFamily: "var(--font-lato)" }}>
-                Accès agence / gérant :{" "}
+                {L.staffAccess}{" "}
                 <a href="mailto:contact@expaccargoltd.com" className="underline hover:text-gray-600">
                   contact@expaccargoltd.com
                 </a>

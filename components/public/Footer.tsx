@@ -1,8 +1,12 @@
-import Image from "next/image";
+"use client";
+
 import Link from "next/link";
+import Logo from "@/components/ui/Logo";
 import { MapPin, Phone, Mail, Globe } from "lucide-react";
+import { useT } from "@/components/i18n/LanguageProvider";
 
 export default function Footer() {
+  const { t } = useT();
   return (
     <footer style={{ backgroundColor: "#1A3A6B" }} className="text-white">
       {/* Top accent line */}
@@ -10,48 +14,37 @@ export default function Footer() {
 
       <div className="container-custom pb-10" style={{ paddingTop: "5rem" }}>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-14 border-b border-blue-800">
+
           {/* Brand */}
           <div className="md:col-span-1">
-            <div className="inline-block bg-white rounded-xl px-3 py-2 mb-5">
-              <Image
-                src="/images/logo.jpeg"
-                alt="EXPAC"
-                width={120}
-                height={40}
-                className="h-10 w-auto object-contain"
-              />
+            <div className="mb-5">
+              <Logo variant="onDark" className="h-9 w-auto object-contain" width={120} height={40} />
             </div>
-            <p
-              className="text-sm text-blue-200 leading-relaxed"
-              style={{ fontFamily: "var(--font-lato)" }}
-            >
-              Votre partenaire en logistique internationale, transit et transport
-              multimodal en Afrique.
+            <p className="text-sm text-blue-200 leading-relaxed mb-3" style={{ fontFamily: "var(--font-lato)" }}>
+              {t.footer.tagline}
+            </p>
+            <p className="text-xs text-blue-400" style={{ fontFamily: "var(--font-lato)" }}>
+              {t.footer.legalLine}
             </p>
           </div>
 
           {/* Services */}
           <div>
-            <h3
-              className="text-xs font-black uppercase tracking-[0.15em] text-blue-300 mb-5"
-              style={{ fontFamily: "var(--font-montserrat)" }}
-            >
-              Services
+            <h3 className="text-xs font-black uppercase tracking-[0.15em] text-blue-300 mb-5"
+              style={{ fontFamily: "var(--font-montserrat)" }}>
+              {t.footer.servicesTitle}
             </h3>
             <ul className="space-y-3">
               {[
-                { label: "Transit", href: "/services#transit" },
-                { label: "Transport Multimodal", href: "/services#transport" },
-                { label: "Stockage", href: "/services#stockage" },
-                { label: "Consignation Maritime", href: "/services#consignation" },
-                { label: "Groupage", href: "/services#groupage" },
+                { label: t.footer.svcTransit, href: "/services#transit" },
+                { label: t.footer.svcMultimodal, href: "/services#transport" },
+                { label: t.footer.svcStorage, href: "/services#stockage" },
+                { label: t.footer.svcConsignment, href: "/services#consignation" },
+                { label: t.footer.svcGroupage, href: "/services#groupage" },
               ].map((s) => (
                 <li key={s.href}>
-                  <Link
-                    href={s.href}
-                    className="text-sm text-blue-200 hover:text-white transition-colors"
-                    style={{ fontFamily: "var(--font-lato)" }}
-                  >
+                  <Link href={s.href} className="text-sm text-blue-200 hover:text-white transition-colors"
+                    style={{ fontFamily: "var(--font-lato)" }}>
                     {s.label}
                   </Link>
                 </li>
@@ -61,26 +54,21 @@ export default function Footer() {
 
           {/* Liens */}
           <div>
-            <h3
-              className="text-xs font-black uppercase tracking-[0.15em] text-blue-300 mb-5"
-              style={{ fontFamily: "var(--font-montserrat)" }}
-            >
-              Liens utiles
+            <h3 className="text-xs font-black uppercase tracking-[0.15em] text-blue-300 mb-5"
+              style={{ fontFamily: "var(--font-montserrat)" }}>
+              {t.footer.linksTitle}
             </h3>
             <ul className="space-y-3">
               {[
-                { label: "Suivre une expédition", href: "/tracking" },
-                { label: "Demander un devis", href: "/devis" },
-                { label: "Actualités", href: "/actualites" },
-                { label: "Espace client", href: "/login" },
-                { label: "Mentions légales", href: "/mentions-legales" },
+                { label: t.footer.linkTrack, href: "/tracking" },
+                { label: t.footer.linkQuote, href: "/devis" },
+                { label: t.footer.linkNews, href: "/actualites" },
+                { label: t.footer.linkClient, href: "/login" },
+                { label: t.footer.linkLegal, href: "/mentions-legales" },
               ].map((l) => (
                 <li key={l.href}>
-                  <Link
-                    href={l.href}
-                    className="text-sm text-blue-200 hover:text-white transition-colors"
-                    style={{ fontFamily: "var(--font-lato)" }}
-                  >
+                  <Link href={l.href} className="text-sm text-blue-200 hover:text-white transition-colors"
+                    style={{ fontFamily: "var(--font-lato)" }}>
                     {l.label}
                   </Link>
                 </li>
@@ -88,52 +76,75 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Contact */}
+          {/* Contact — deux bureaux */}
           <div>
-            <h3
-              className="text-xs font-black uppercase tracking-[0.15em] text-blue-300 mb-5"
-              style={{ fontFamily: "var(--font-montserrat)" }}
-            >
-              Contact
+            <h3 className="text-xs font-black uppercase tracking-[0.15em] text-blue-300 mb-5"
+              style={{ fontFamily: "var(--font-montserrat)" }}>
+              {t.footer.officesTitle}
             </h3>
-            <ul className="space-y-4">
-              <li className="flex items-start gap-2.5 text-sm text-blue-200">
-                <MapPin size={15} className="mt-0.5 shrink-0 text-[#E8520A]" />
-                <span style={{ fontFamily: "var(--font-lato)" }}>
-                  Express Africa Cargo Ltd, Afrique
-                </span>
+            <ul className="space-y-5">
+
+              {/* Pointe-Noire */}
+              <li>
+                <p className="text-xs font-black uppercase tracking-wide mb-2" style={{ color: "#fba563", fontFamily: "var(--font-montserrat)" }}>
+                  Pointe-Noire
+                </p>
+                <div className="flex items-start gap-2.5 text-sm text-blue-200 mb-1.5">
+                  <MapPin size={13} className="mt-0.5 shrink-0 text-[#E8520A]" />
+                  <span style={{ fontFamily: "var(--font-lato)" }}>
+                    Résidence les Palmiers, Bat C 2ème étage, Appt Caïman — Av. Germain Bikoumat, Centre-Ville
+                  </span>
+                </div>
+                <div className="flex items-center gap-2.5 text-sm text-blue-200 mb-1">
+                  <Phone size={13} className="shrink-0 text-[#E8520A]" />
+                  <a href="tel:+242064363882" className="hover:text-white transition-colors" style={{ fontFamily: "var(--font-lato)" }}>
+                    +242 06 436 38 82
+                  </a>
+                </div>
+                <div className="flex items-center gap-2.5 text-sm text-blue-200">
+                  <Phone size={13} className="shrink-0 text-[#E8520A]" />
+                  <a href="tel:+242050526043" className="hover:text-white transition-colors" style={{ fontFamily: "var(--font-lato)" }}>
+                    +242 05 052 60 43
+                  </a>
+                </div>
               </li>
-              <li className="flex items-center gap-2.5 text-sm text-blue-200">
-                <Phone size={15} className="shrink-0 text-[#E8520A]" />
-                <a
-                  href="tel:+221000000000"
-                  className="hover:text-white transition-colors"
-                  style={{ fontFamily: "var(--font-lato)" }}
-                >
-                  +221 00 000 00 00
-                </a>
-              </li>
-              <li className="flex items-center gap-2.5 text-sm text-blue-200">
-                <Mail size={15} className="shrink-0 text-[#E8520A]" />
-                <a
-                  href="mailto:contact@expaccargoltd.com"
-                  className="hover:text-white transition-colors"
-                  style={{ fontFamily: "var(--font-lato)" }}
-                >
-                  contact@expaccargoltd.com
-                </a>
-              </li>
-              <li className="flex items-center gap-2.5 text-sm text-blue-200">
-                <Globe size={15} className="shrink-0 text-[#E8520A]" />
-                <a
-                  href="http://expaccargoltd.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-white transition-colors"
-                  style={{ fontFamily: "var(--font-lato)" }}
-                >
-                  expaccargoltd.com
-                </a>
+
+              {/* Brazzaville */}
+              <li>
+                <p className="text-xs font-black uppercase tracking-wide mb-2" style={{ color: "#fba563", fontFamily: "var(--font-montserrat)" }}>
+                  {t.footer.headquarters}
+                </p>
+                <div className="flex items-start gap-2.5 text-sm text-blue-200 mb-1.5">
+                  <MapPin size={13} className="mt-0.5 shrink-0 text-[#E8520A]" />
+                  <span style={{ fontFamily: "var(--font-lato)" }}>
+                    Croisement Av. de la Tsieme / Rue Mbetis Ouenze SOCECA-SOCEMA BZV
+                  </span>
+                </div>
+                <div className="flex items-center gap-2.5 text-sm text-blue-200 mb-1">
+                  <Phone size={13} className="shrink-0 text-[#E8520A]" />
+                  <a href="tel:+242055119711" className="hover:text-white transition-colors" style={{ fontFamily: "var(--font-lato)" }}>
+                    +242 05 511 97 11
+                  </a>
+                </div>
+                <div className="flex items-center gap-2.5 text-sm text-blue-200 mb-2">
+                  <Phone size={13} className="shrink-0 text-[#E8520A]" />
+                  <a href="tel:+242056402277" className="hover:text-white transition-colors" style={{ fontFamily: "var(--font-lato)" }}>
+                    +242 05 640 22 77
+                  </a>
+                </div>
+                <div className="flex items-center gap-2.5 text-sm text-blue-200 mb-1">
+                  <Mail size={13} className="shrink-0 text-[#E8520A]" />
+                  <a href="mailto:expacargo@gmail.com" className="hover:text-white transition-colors" style={{ fontFamily: "var(--font-lato)" }}>
+                    expacargo@gmail.com
+                  </a>
+                </div>
+                <div className="flex items-center gap-2.5 text-sm text-blue-200">
+                  <Globe size={13} className="shrink-0 text-[#E8520A]" />
+                  <a href="http://expaccargoltd.com" target="_blank" rel="noopener noreferrer"
+                    className="hover:text-white transition-colors" style={{ fontFamily: "var(--font-lato)" }}>
+                    expaccargoltd.com
+                  </a>
+                </div>
               </li>
             </ul>
           </div>
@@ -142,14 +153,16 @@ export default function Footer() {
         {/* Bottom bar */}
         <div className="pt-6 flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-blue-400">
           <p style={{ fontFamily: "var(--font-lato)" }}>
-            © {new Date().getFullYear()} Express Africa Cargo Ltd. Tous droits réservés.
+            © {new Date().getFullYear()} Express Africa Cargo Ltd (EXPAC). {t.footer.rights}
           </p>
-          <p
-            className="font-black uppercase tracking-wider text-blue-400"
-            style={{ fontFamily: "var(--font-montserrat)" }}
-          >
-            Sûr et Rapide
-          </p>
+          <div className="flex items-center gap-4">
+            <p className="text-blue-500 text-xs" style={{ fontFamily: "var(--font-lato)" }}>
+              RC : CG-BZV-01-2021-B12-00199
+            </p>
+            <p className="font-black uppercase tracking-wider text-blue-400" style={{ fontFamily: "var(--font-montserrat)" }}>
+              {t.footer.tagFast}
+            </p>
+          </div>
         </div>
       </div>
     </footer>

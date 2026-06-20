@@ -1,7 +1,23 @@
+import type { Metadata } from "next";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Actualités — Logistique & Transport en Afrique",
+  description:
+    "Restez informé des dernières actualités du secteur logistique, transport et transit en Afrique. Articles, analyses et conseils par les experts EXPAC.",
+  alternates: { canonical: "https://expaccargoltd.com/actualites" },
+  openGraph: {
+    title: "Actualités Logistique Afrique — EXPAC",
+    description:
+      "Toute l'actualité du transport international et de la logistique en Afrique par Express Africa Cargo Ltd.",
+    url: "https://expaccargoltd.com/actualites",
+  },
+};
 import { ExternalLink, Calendar, Tag, ArrowRight, Newspaper, PenLine } from "lucide-react";
+import { getServerLocale } from "@/lib/i18n/server";
+import { getDictionary } from "@/lib/i18n";
 
 /* ── Types ─────────────────────────────────────────────── */
 
@@ -74,7 +90,7 @@ async function fetchRssNews(): Promise<RssArticle[]> {
 async function fetchPosts(): Promise<DbPost[]> {
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Post?published=eq.true&order=createdAt.desc&limit=6`,
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Post?published=eq.true&order=createdAt.desc&limit=12`,
       {
         headers: {
           apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
@@ -93,9 +109,9 @@ async function fetchPosts(): Promise<DbPost[]> {
 
 /* ── Helpers ────────────────────────────────────────────── */
 
-function formatDate(dateStr: string) {
+function formatDate(dateStr: string, dl: string) {
   try {
-    return new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long", year: "numeric" }).format(new Date(dateStr));
+    return new Intl.DateTimeFormat(dl, { day: "numeric", month: "long", year: "numeric" }).format(new Date(dateStr));
   } catch {
     return dateStr;
   }
@@ -105,6 +121,10 @@ function formatDate(dateStr: string) {
 
 export default async function ActualitesPage() {
   const [rssArticles, dbPosts] = await Promise.all([fetchRssNews(), fetchPosts()]);
+  const locale = await getServerLocale();
+  const t = getDictionary(locale);
+  const n = t.news;
+  const dl = locale === "en" ? "en-US" : "fr-FR";
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -119,13 +139,13 @@ export default async function ActualitesPage() {
           <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full opacity-10" style={{ backgroundColor: "#E8520A" }} />
           <div className="container-custom relative z-10">
             <p className="text-xs font-black uppercase tracking-[0.2em] mb-4" style={{ color: "#fba563", fontFamily: "var(--font-montserrat)" }}>
-              ▪ Restez informé
+              ▪ {n.eyebrow}
             </p>
             <h1 className="text-4xl lg:text-5xl font-black text-white uppercase leading-tight mb-4" style={{ fontFamily: "var(--font-montserrat)" }}>
-              Actualités <span style={{ color: "#E8520A" }}>logistique</span>
+              {n.titlePre} <span style={{ color: "#E8520A" }}>{n.titleHighlight}</span>
             </h1>
             <p className="text-blue-200 max-w-xl" style={{ fontFamily: "var(--font-lato)" }}>
-              Les dernières nouvelles de l'import-export et de la logistique en Afrique, ainsi que les publications de notre équipe.
+              {n.subtitle}
             </p>
           </div>
         </div>
@@ -139,7 +159,7 @@ export default async function ActualitesPage() {
                 <div className="flex items-center gap-3 mb-7">
                   <PenLine size={18} style={{ color: "#E8520A" }} />
                   <h2 className="text-lg font-black uppercase" style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>
-                    Articles EXPAC
+                    {n.expacArticles}
                   </h2>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -165,10 +185,10 @@ export default async function ActualitesPage() {
                         <div className="flex items-center justify-between">
                           <span className="flex items-center gap-1.5 text-xs text-gray-400" style={{ fontFamily: "var(--font-lato)" }}>
                             <Calendar size={12} />
-                            {formatDate(post.createdAt)}
+                            {formatDate(post.createdAt, dl)}
                           </span>
                           <span className="flex items-center gap-1 text-xs font-black uppercase" style={{ color: "#E8520A", fontFamily: "var(--font-montserrat)" }}>
-                            Lire <ArrowRight size={12} />
+                            {n.read} <ArrowRight size={12} />
                           </span>
                         </div>
                       </div>
@@ -183,17 +203,17 @@ export default async function ActualitesPage() {
               <div className="flex items-center gap-3 mb-7">
                 <Newspaper size={18} style={{ color: "#1A3A6B" }} />
                 <h2 className="text-lg font-black uppercase" style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>
-                  Actualités du secteur
+                  {n.sectorNews}
                 </h2>
                 <span className="text-xs text-gray-400 ml-2" style={{ fontFamily: "var(--font-lato)" }}>
-                  Mise à jour automatique toutes les heures
+                  {n.autoUpdate}
                 </span>
               </div>
 
               {rssArticles.length === 0 ? (
                 <div className="bg-white rounded-2xl border border-gray-100 p-10 text-center">
                   <p className="text-gray-400" style={{ fontFamily: "var(--font-lato)" }}>
-                    Aucune actualité disponible pour le moment.
+                    {n.none}
                   </p>
                 </div>
               ) : (
@@ -225,10 +245,10 @@ export default async function ActualitesPage() {
                         <div className="flex items-center justify-between mt-auto">
                           <span className="flex items-center gap-1.5 text-xs text-gray-400" style={{ fontFamily: "var(--font-lato)" }}>
                             <Calendar size={12} />
-                            {formatDate(article.pubDate)}
+                            {formatDate(article.pubDate, dl)}
                           </span>
                           <span className="flex items-center gap-1 text-xs font-black uppercase" style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>
-                            Lire <ExternalLink size={11} />
+                            {n.read} <ExternalLink size={11} />
                           </span>
                         </div>
                       </div>

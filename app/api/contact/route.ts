@@ -1,17 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import { isValidEmail } from "@/lib/validation";
 
 export async function POST(req: NextRequest) {
   try {
+    // Anti-spam : 5 messages / 10 min / IP
+    const ip = getClientIp(req);
+    const rl = rateLimit(`contact:${ip}`, 5, 10 * 60 * 1000);
+    if (!rl.ok) {
+      return NextResponse.json(
+        { error: "Trop de messages envoyés. Réessayez dans quelques minutes." },
+        { status: 429, headers: { "Retry-After": String(rl.retryAfter) } }
+      );
+    }
+
     const { name, email, phone, subject, message } = await req.json();
 
     if (!name || !email || !message || !subject) {
       return NextResponse.json({ error: "Champs obligatoires manquants." }, { status: 400 });
     }
 
-    // Log the contact request (email sending via Resend when RESEND_API_KEY is configured)
-    console.log("[contact]", { name, email, phone, subject, message: message.slice(0, 100) });
+    if (!isValidEmail(email)) {
+      return NextResponse.json({ error: "Adresse email invalide." }, { status: 400 });
+    }
 
-    // TODO: Send email via Resend when API key is set
+    if (typeof message !== "string" || message.trim().length > 5000) {
+      return NextResponse.json({ error: "Message invalide." }, { status: 400 });
+    }
+
+    // TODO: envoi email via Resend quand RESEND_API_KEY sera configurée
     // if (process.env.RESEND_API_KEY) { ... }
 
     return NextResponse.json({ success: true }, { status: 200 });

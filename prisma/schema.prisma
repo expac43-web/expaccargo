@@ -51,6 +51,11 @@ enum QuoteStatus {
   REJECTED
 }
 
+enum ConvType {
+  CLIENT_AGENCY
+  CLIENT_MANAGER
+}
+
 model User {
   id               String         @id @default(cuid())
   name             String
@@ -58,6 +63,7 @@ model User {
   password         String
   phone            String?
   whatsapp         String?
+  avatarUrl        String?
   role             Role           @default(CLIENT)
   agencyId         String?
   agency           Agency?        @relation(fields: [agencyId], references: [id])
@@ -66,6 +72,7 @@ model User {
   receivedMessages Message[]      @relation("ReceivedMessages")
   notifications    Notification[]
   documents        Document[]
+  clientConvs      Conversation[] @relation("ClientConvs")
   isActive         Boolean        @default(true)
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
@@ -78,9 +85,10 @@ model Agency {
   country   String
   phone     String?
   email     String?
-  users     User[]
-  shipments Shipment[]
-  createdAt DateTime   @default(now())
+  users         User[]
+  shipments     Shipment[]
+  conversations Conversation[]
+  createdAt     DateTime       @default(now())
 }
 
 model Shipment {
@@ -118,17 +126,38 @@ model Milestone {
   note       String?
 }
 
+model Conversation {
+  id        String    @id @default(cuid())
+  type      ConvType  @default(CLIENT_AGENCY)
+  clientId  String
+  client    User      @relation("ClientConvs", fields: [clientId], references: [id])
+  agencyId  String?
+  agency    Agency?   @relation(fields: [agencyId], references: [id])
+  messages  Message[]
+  // Suppression « par côté » : le client et le staff (agence/gérant) sont les deux parties.
+  // La conversation n'est purgée de la base que lorsque les deux ont supprimé.
+  deletedByClient Boolean @default(false)
+  deletedByStaff  Boolean @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
 model Message {
-  id         String    @id @default(cuid())
-  content    String
-  senderId   String
-  sender     User      @relation("SentMessages", fields: [senderId], references: [id])
-  receiverId String
-  receiver   User      @relation("ReceivedMessages", fields: [receiverId], references: [id])
-  shipmentId String?
-  shipment   Shipment? @relation(fields: [shipmentId], references: [id])
-  isRead     Boolean   @default(false)
-  createdAt  DateTime  @default(now())
+  id                String        @id @default(cuid())
+  content           String
+  senderId          String
+  sender            User          @relation("SentMessages", fields: [senderId], references: [id])
+  receiverId        String
+  receiver          User          @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  conversationId    String?
+  conversation      Conversation? @relation(fields: [conversationId], references: [id])
+  shipmentId        String?
+  shipment          Shipment?     @relation(fields: [shipmentId], references: [id])
+  isRead            Boolean       @default(false)
+  deletedBySender   Boolean       @default(false)
+  deletedByReceiver Boolean       @default(false)
+  sentAsManager     Boolean       @default(false)
+  createdAt         DateTime      @default(now())
 }
 
 model Document {
@@ -140,6 +169,9 @@ model Document {
   shipment     Shipment?    @relation(fields: [shipmentId], references: [id])
   uploadedById String
   uploadedBy   User         @relation(fields: [uploadedById], references: [id])
+  // Auteur réel du dépôt (staff ou client), distinct du propriétaire (uploadedById).
+  // Sert au contrôle de suppression. Nullable pour compatibilité historique.
+  uploaderId   String?
   createdAt    DateTime     @default(now())
 }
 
@@ -190,4 +222,60 @@ model Partner {
   isActive  Boolean  @default(true)
   order     Int      @default(0)
   createdAt DateTime @default(now())
+}
+
+// Jeton de réinitialisation à usage unique (clients : « mot de passe oublié »).
+model PasswordResetToken {
+  id        String    @id
+  userId    String
+  tokenHash String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([tokenHash])
+  @@index([userId])
+}
+
+// Grille tarifaire (gérée par admin/gérant). Sert au calculateur de devis (prix approximatif).
+model Tariff {
+  id          String   @id
+  serviceType String
+  origin      String
+  destination String
+  baseFee          Float    @default(0)
+  pricePerKg       Float    @default(0)
+  pricePerM3       Float    @default(0)
+  volumetricFactor Float    @default(167)
+  minPrice         Float    @default(0)
+  currency         String   @default("XAF")
+  note        String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@index([isActive])
+}
+
+// Liste de suppression (anti-spam) alimentée par les webhooks Resend.
+// Toute adresse présente ici n'est plus destinataire d'email (bounce dur / plainte).
+model EmailSuppression {
+  email     String   @id
+  reason    String
+  detail    String?
+  createdAt DateTime @default(now())
+}
+
+// Signature électronique simple (acceptation de devis). Image stockée en bucket privé.
+model Signature {
+  id          String   @id
+  quoteId     String
+  userId      String?
+  signerName  String
+  signerEmail String
+  url         String
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  @@index([quoteId])
 }

@@ -1,7 +1,59 @@
+import type { Metadata } from "next";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
+import { getServerDict } from "@/lib/i18n/server";
+
+/* ── SEO — Métadonnées spécifiques à la page d'accueil ──────────────────── */
+export const metadata: Metadata = {
+  title: "EXPAC — Logistique & Transit International en Afrique",
+  description:
+    "EXPAC, votre expert en transit douanier, transport multimodal et logistique internationale en Afrique. Suivi d'expéditions en temps réel. Devis gratuit sous 24h.",
+  alternates: { canonical: "https://expaccargoltd.com" },
+  openGraph: {
+    title: "EXPAC — Logistique & Transit International en Afrique",
+    description:
+      "Transit douanier, transport multimodal, stockage et consignation maritime en Afrique. Express Africa Cargo Ltd — votre partenaire de confiance.",
+    url: "https://expaccargoltd.com",
+    type: "website",
+  },
+};
+
+/* ── JSON-LD Organisation (données structurées pour Google) ─────────────── */
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Express Africa Cargo Ltd",
+  alternateName: "EXPAC",
+  url: "https://expaccargoltd.com",
+  logo: "https://expaccargoltd.com/images/logo.jpeg",
+  description:
+    "Expert en logistique internationale, transit douanier et transport multimodal en Afrique.",
+  contactPoint: {
+    "@type": "ContactPoint",
+    telephone: "+221-00-000-00-00",
+    contactType: "customer service",
+    availableLanguage: ["French", "English"],
+  },
+  sameAs: [],
+  areaServed: {
+    "@type": "Place",
+    name: "Africa",
+  },
+  serviceType: [
+    "Import Export Afrique",
+    "Transit douanier",
+    "Transport multimodal",
+    "Stockage",
+    "Consignation maritime",
+    "Groupage",
+    "Dédouanement marchandises",
+    "Commissionnaire en douane",
+  ],
+};
 import HeroSlider from "@/components/public/HeroSlider";
 import PartnersCarousel from "@/components/public/PartnersCarousel";
+import RatesSummary from "@/components/public/RatesSummary";
+import { getRates } from "@/lib/rates";
 import Link from "next/link";
 import {
   Plane,
@@ -21,84 +73,29 @@ import {
   Award,
 } from "lucide-react";
 
-/* ── DATA ─────────────────────────────────────────────────── */
+/* ── DATA (icônes / couleurs / liens — les textes viennent du dictionnaire) ── */
 
-const services = [
-  {
-    icon: Plane,
-    title: "Transit",
-    description:
-      "Gestion complète des formalités douanières et acheminement de vos marchandises sur l'ensemble du territoire africain.",
-    href: "/services#transit",
-    color: "#1A3A6B",
-  },
-  {
-    icon: Truck,
-    title: "Transport Multimodal",
-    description:
-      "Combinaison optimale des modes de transport — aérien, maritime, routier — pour une livraison efficace et économique.",
-    href: "/services#transport",
-    color: "#E8520A",
-  },
-  {
-    icon: Warehouse,
-    title: "Stockage",
-    description:
-      "Entrepôts sécurisés et gestion logistique de vos stocks avec suivi en temps réel de vos inventaires.",
-    href: "/services#stockage",
-    color: "#1A3A6B",
-  },
-  {
-    icon: Ship,
-    title: "Consignation Maritime",
-    description:
-      "Représentation et gestion de vos intérêts dans les ports africains, de l'accostage à la livraison.",
-    href: "/services#consignation",
-    color: "#E8520A",
-  },
-  {
-    icon: Package,
-    title: "Groupage",
-    description:
-      "Optimisation des coûts par regroupement de vos expéditions avec d'autres marchandises vers la même destination.",
-    href: "/services#groupage",
-    color: "#1A3A6B",
-  },
-];
+const serviceMeta = [
+  { key: "transit", icon: Plane, href: "/services#transit", color: "#1A3A6B" },
+  { key: "multimodal", icon: Truck, href: "/services#transport", color: "#E8520A" },
+  { key: "storage", icon: Warehouse, href: "/services#stockage", color: "#1A3A6B" },
+  { key: "consignment", icon: Ship, href: "/services#consignation", color: "#E8520A" },
+  { key: "groupage", icon: Package, href: "/services#groupage", color: "#1A3A6B" },
+] as const;
 
-const stats = [
-  { value: "500+", label: "Expéditions réalisées", icon: TrendingUp },
-  { value: "20+", label: "Pays couverts", icon: Globe },
-  { value: "10+", label: "Années d'expérience", icon: Award },
-  { value: "98%", label: "Clients satisfaits", icon: ShieldCheck },
-];
+const statMeta = [
+  { key: "shipments", value: "500+", icon: TrendingUp },
+  { key: "countries", value: "20+", icon: Globe },
+  { key: "experience", value: "10+", icon: Award },
+  { key: "satisfaction", value: "98%", icon: ShieldCheck },
+] as const;
 
-const atouts = [
-  {
-    icon: ShieldCheck,
-    title: "Expertise locale",
-    description:
-      "Une connaissance approfondie des marchés africains et des réglementations douanières pour éviter tout blocage.",
-  },
-  {
-    icon: Clock,
-    title: "Réactivité 24/7",
-    description:
-      "Nos équipes sont disponibles à tout moment pour répondre à vos urgences et assurer le suivi de vos dossiers.",
-  },
-  {
-    icon: FileText,
-    title: "Documents sécurisés",
-    description:
-      "Gestion et archivage numérique de tous vos documents douaniers, factures et connaissements.",
-  },
-  {
-    icon: MapPin,
-    title: "Suivi en temps réel",
-    description:
-      "Localisez vos marchandises à chaque étape grâce à notre plateforme de tracking et nos alertes automatiques.",
-  },
-];
+const atoutMeta = [
+  { key: "expertise", icon: ShieldCheck },
+  { key: "reactivity", icon: Clock },
+  { key: "documents", icon: FileText },
+  { key: "realtime", icon: MapPin },
+] as const;
 
 /* ─────────────────────────────────────────────────────────── */
 
@@ -125,8 +122,17 @@ async function fetchPartners(): Promise<Partner[]> {
 
 export default async function HomePage() {
   const partners = await fetchPartners();
+  const rates = await getRates();
+  const t = await getServerDict();
+  const h = t.home;
   return (
     <>
+      {/* JSON-LD Organisation — signale à Google la structure de l'entreprise */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+      />
+
       <Navbar />
 
       <main className="pt-16">
@@ -145,30 +151,29 @@ export default async function HomePage() {
                 }}
               >
                 <span className="w-2 h-2 rounded-full bg-orange-400 animate-pulse" />
-                EXPRESS AFRICA CARGO LTD
+                {h.hero.badge}
               </div>
 
               <h1
                 className="text-5xl md:text-6xl lg:text-7xl font-black text-white leading-[1.05] mb-6 uppercase"
                 style={{ fontFamily: "var(--font-montserrat)", letterSpacing: "-0.01em" }}
               >
-                Votre partenaire{" "}
+                {h.hero.titlePre}{" "}
                 <span
                   className="relative inline-block"
                   style={{ color: "#E8520A" }}
                 >
-                  logistique
+                  {h.hero.titleHighlight}
                 </span>
                 <br />
-                en Afrique
+                {h.hero.titlePost}
               </h1>
 
               <p
                 className="text-lg md:text-xl text-blue-100 mb-10 leading-relaxed max-w-xl"
                 style={{ fontFamily: "var(--font-lato)" }}
               >
-                Transit · Transport Multimodal · Stockage · Consignation Maritime.
-                EXPAC gère vos expéditions de A à Z avec expertise et réactivité.
+                {h.hero.subtitle}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 mb-14">
@@ -180,7 +185,7 @@ export default async function HomePage() {
                     fontFamily: "var(--font-montserrat)",
                   }}
                 >
-                  Demander un devis
+                  {h.hero.ctaQuote}
                   <ArrowRight size={18} />
                 </Link>
                 <Link
@@ -188,7 +193,7 @@ export default async function HomePage() {
                   className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-xl font-bold text-white border border-white/30 hover:bg-white/10 transition-all text-base uppercase tracking-wide"
                   style={{ fontFamily: "var(--font-montserrat)" }}
                 >
-                  Nos services
+                  {h.hero.ctaServices}
                   <ChevronRight size={18} />
                 </Link>
               </div>
@@ -199,12 +204,12 @@ export default async function HomePage() {
                   className="text-blue-200 text-xs font-bold uppercase tracking-widest mb-3"
                   style={{ fontFamily: "var(--font-montserrat)" }}
                 >
-                  Suivi rapide d&apos;expédition
+                  {h.hero.trackLabel}
                 </p>
                 <div className="flex gap-2">
                   <input
                     type="text"
-                    placeholder="Ex : EXPAC-2026-00142"
+                    placeholder={h.hero.trackPlaceholder}
                     className="flex-1 bg-white/10 border border-white/25 rounded-xl px-4 py-3 text-sm text-white placeholder-blue-300 outline-none focus:border-orange-400 transition-colors"
                   />
                   <Link
@@ -216,7 +221,7 @@ export default async function HomePage() {
                     }}
                   >
                     <Search size={16} />
-                    <span className="hidden sm:inline text-sm">Suivre</span>
+                    <span className="hidden sm:inline text-sm">{h.hero.trackBtn}</span>
                   </Link>
                 </div>
               </div>
@@ -238,11 +243,11 @@ export default async function HomePage() {
 
           <div className="container-custom relative z-10">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-0 divide-x divide-white/10">
-              {stats.map((s, i) => {
+              {statMeta.map((s) => {
                 const Icon = s.icon;
                 return (
                   <div
-                    key={s.label}
+                    key={s.key}
                     className="flex flex-col items-center text-center px-6 py-4"
                   >
                     <div
@@ -268,7 +273,7 @@ export default async function HomePage() {
                       className="text-sm text-blue-200 font-medium uppercase tracking-wider"
                       style={{ fontFamily: "var(--font-montserrat)" }}
                     >
-                      {s.label}
+                      {h.stats[s.key]}
                     </div>
                   </div>
                 );
@@ -286,13 +291,13 @@ export default async function HomePage() {
                   className="text-xs font-black uppercase tracking-[0.2em] mb-3"
                   style={{ color: "#E8520A", fontFamily: "var(--font-montserrat)" }}
                 >
-                  ▪ Nos expertises
+                  ▪ {h.services.eyebrow}
                 </p>
                 <h2
                   className="text-3xl md:text-4xl font-black uppercase leading-tight"
                   style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}
                 >
-                  Des solutions<br />logistiques complètes
+                  {h.services.title}
                 </h2>
               </div>
               <Link
@@ -300,18 +305,19 @@ export default async function HomePage() {
                 className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wide transition-all hover:gap-3"
                 style={{ color: "#E8520A", fontFamily: "var(--font-montserrat)" }}
               >
-                Voir tous les services
+                {h.services.seeAll}
                 <ArrowRight size={16} />
               </Link>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {services.map((service) => {
+              {serviceMeta.map((service, i) => {
                 const Icon = service.icon;
                 const isOrange = service.color === "#E8520A";
+                const item = h.services.items[service.key];
                 return (
                   <Link
-                    key={service.title}
+                    key={service.key}
                     href={service.href}
                     className="group relative bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                   >
@@ -343,7 +349,7 @@ export default async function HomePage() {
                             fontFamily: "var(--font-montserrat)",
                           }}
                         >
-                          {String(services.indexOf(service) + 1).padStart(2, "0")}
+                          {String(i + 1).padStart(2, "0")}
                         </span>
                       </div>
 
@@ -354,13 +360,13 @@ export default async function HomePage() {
                           fontFamily: "var(--font-montserrat)",
                         }}
                       >
-                        {service.title}
+                        {item.title}
                       </h3>
                       <p
                         className="text-sm text-gray-500 leading-relaxed mb-6"
                         style={{ fontFamily: "var(--font-lato)" }}
                       >
-                        {service.description}
+                        {item.description}
                       </p>
 
                       <div
@@ -370,7 +376,7 @@ export default async function HomePage() {
                           fontFamily: "var(--font-montserrat)",
                         }}
                       >
-                        En savoir plus
+                        {h.services.learnMore}
                         <ArrowRight size={14} />
                       </div>
                     </div>
@@ -402,20 +408,19 @@ export default async function HomePage() {
                     className="text-xs font-black uppercase tracking-[0.15em] mb-3"
                     style={{ color: "#fba563", fontFamily: "var(--font-montserrat)" }}
                   >
-                    ▪ Sur mesure
+                    ▪ {h.services.ctaEyebrow}
                   </p>
                   <h3
                     className="text-white font-black text-xl uppercase leading-tight mb-3"
                     style={{ fontFamily: "var(--font-montserrat)" }}
                   >
-                    Besoin d&apos;une solution adaptée ?
+                    {h.services.ctaTitle}
                   </h3>
                   <p
                     className="text-blue-200 text-sm leading-relaxed"
                     style={{ fontFamily: "var(--font-lato)" }}
                   >
-                    Nos experts étudient votre besoin et vous proposent une offre
-                    personnalisée sous 24h.
+                    {h.services.ctaDesc}
                   </p>
                 </div>
                 <Link
@@ -426,7 +431,7 @@ export default async function HomePage() {
                     fontFamily: "var(--font-montserrat)",
                   }}
                 >
-                  Obtenir un devis
+                  {h.services.ctaBtn}
                   <ArrowRight size={16} />
                 </Link>
               </div>
@@ -450,25 +455,24 @@ export default async function HomePage() {
               className="text-orange-100 text-xs font-black uppercase tracking-[0.2em] mb-4"
               style={{ fontFamily: "var(--font-montserrat)" }}
             >
-              ▪ Suivi en temps réel
+              ▪ {h.tracking.eyebrow}
             </p>
             <h2
               className="text-3xl md:text-4xl font-black text-white uppercase mb-4"
               style={{ fontFamily: "var(--font-montserrat)" }}
             >
-              Localisez votre expédition
+              {h.tracking.title}
             </h2>
             <p
               className="text-orange-100 mb-8 max-w-md mx-auto"
               style={{ fontFamily: "var(--font-lato)" }}
             >
-              Entrez votre numéro de référence EXPAC pour suivre votre
-              marchandise à chaque étape.
+              {h.tracking.desc}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
               <input
                 type="text"
-                placeholder="EXPAC-2026-00142"
+                placeholder={h.tracking.placeholder}
                 className="flex-1 px-4 py-4 rounded-xl text-sm text-gray-800 placeholder-gray-400 outline-none bg-white shadow-sm font-medium"
               />
               <Link
@@ -480,7 +484,7 @@ export default async function HomePage() {
                 }}
               >
                 <Search size={16} />
-                Suivre
+                {h.tracking.btn}
               </Link>
             </div>
           </div>
@@ -494,23 +498,23 @@ export default async function HomePage() {
                 className="text-xs font-black uppercase tracking-[0.2em] mb-4"
                 style={{ color: "#E8520A", fontFamily: "var(--font-montserrat)" }}
               >
-                ▪ Pourquoi nous choisir
+                ▪ {h.why.eyebrow}
               </p>
               <h2
                 className="text-3xl md:text-4xl font-black uppercase"
                 style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}
               >
-                L&apos;excellence au service
-                <br />de votre logistique
+                {h.why.title}
               </h2>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {atouts.map((a) => {
+              {atoutMeta.map((a) => {
                 const Icon = a.icon;
+                const item = h.why.items[a.key];
                 return (
                   <div
-                    key={a.title}
+                    key={a.key}
                     className="bg-white rounded-2xl p-7 border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
                   >
                     <div
@@ -526,7 +530,7 @@ export default async function HomePage() {
                         fontFamily: "var(--font-montserrat)",
                       }}
                     >
-                      {a.title}
+                      {item.title}
                     </h3>
                     <div
                       className="w-8 h-0.5 mb-4"
@@ -536,7 +540,7 @@ export default async function HomePage() {
                       className="text-sm text-gray-500 leading-relaxed"
                       style={{ fontFamily: "var(--font-lato)" }}
                     >
-                      {a.description}
+                      {item.description}
                     </p>
                   </div>
                 );
@@ -564,20 +568,19 @@ export default async function HomePage() {
                     className="text-xs font-black uppercase tracking-[0.2em] mb-4"
                     style={{ color: "#fba563", fontFamily: "var(--font-montserrat)" }}
                   >
-                    ▪ Contactez-nous
+                    ▪ {h.contactCta.eyebrow}
                   </p>
                   <h2
                     className="text-3xl md:text-4xl font-black text-white uppercase mb-4 leading-tight"
                     style={{ fontFamily: "var(--font-montserrat)" }}
                   >
-                    Prêt à expédier<br />vos marchandises ?
+                    {h.contactCta.title}
                   </h2>
                   <p
                     className="text-blue-200 max-w-md"
                     style={{ fontFamily: "var(--font-lato)" }}
                   >
-                    Contactez nos experts dès aujourd&apos;hui pour une prise en
-                    charge rapide et professionnelle.
+                    {h.contactCta.desc}
                   </p>
                 </div>
                 <div className="flex flex-col sm:flex-row md:flex-col gap-4 shrink-0">
@@ -589,7 +592,7 @@ export default async function HomePage() {
                       fontFamily: "var(--font-montserrat)",
                     }}
                   >
-                    Demander un devis
+                    {h.contactCta.ctaQuote}
                     <ArrowRight size={18} />
                   </Link>
                   <Link
@@ -597,13 +600,16 @@ export default async function HomePage() {
                     className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-xl font-bold text-white border border-white/30 hover:bg-white/10 transition-all whitespace-nowrap uppercase tracking-wide text-sm"
                     style={{ fontFamily: "var(--font-montserrat)" }}
                   >
-                    Nous contacter
+                    {h.contactCta.ctaContact}
                   </Link>
                 </div>
               </div>
             </div>
           </div>
         </section>
+        {/* ── TAUX DU JOUR (résumé) ─────────────────────────── */}
+        {rates && <RatesSummary rates={rates.rates} />}
+
         {/* ── PARTENAIRES ───────────────────────────────────── */}
         {partners.length > 0 && (
           <section className="bg-white py-16 border-t border-gray-100">
@@ -612,13 +618,13 @@ export default async function HomePage() {
                 className="text-xs font-black uppercase tracking-[0.2em] mb-3"
                 style={{ color: "#E8520A", fontFamily: "var(--font-montserrat)" }}
               >
-                ▪ Ils nous font confiance
+                ▪ {h.partners.eyebrow}
               </p>
               <h2
                 className="text-2xl md:text-3xl font-black uppercase"
                 style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}
               >
-                Nos partenaires
+                {h.partners.title}
               </h2>
             </div>
             <PartnersCarousel partners={partners} />

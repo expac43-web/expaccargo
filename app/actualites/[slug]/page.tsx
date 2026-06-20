@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
 import Link from "next/link";
@@ -32,6 +33,45 @@ async function fetchPost(slug: string): Promise<Post | null> {
   } catch {
     return null;
   }
+}
+
+/* ── generateMetadata : titre + description uniques par article ─────────── */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const post = await fetchPost(slug);
+
+  if (!post) {
+    return {
+      title: "Article introuvable",
+      description: "Cet article n'existe pas ou a été supprimé.",
+    };
+  }
+
+  const title = `${post.title}`;
+  const description = post.excerpt?.slice(0, 160) ?? "Article EXPAC — Logistique Afrique";
+  const url = `https://expaccargoltd.com/actualites/${post.slug}`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: "article",
+      publishedTime: post.createdAt,
+    },
+    twitter: {
+      card: "summary",
+      title,
+      description,
+    },
+  };
 }
 
 function formatDate(dateStr: string) {

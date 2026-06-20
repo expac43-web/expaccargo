@@ -1,6 +1,30 @@
+import type { Metadata } from "next";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
 import Link from "next/link";
+import { getServerDict } from "@/lib/i18n/server";
+
+export const metadata: Metadata = {
+  title: "Nos Services — Transit, Transport Multimodal & Logistique",
+  description:
+    "Découvrez tous les services EXPAC : transit douanier, transport multimodal aérien/maritime/routier, stockage, consignation maritime et groupage en Afrique.",
+  alternates: { canonical: "https://expaccargoltd.com/services" },
+  openGraph: {
+    title: "Services Logistiques EXPAC en Afrique",
+    description:
+      "Transit, transport multimodal, stockage et consignation maritime. Des solutions logistiques complètes pour vos marchandises en Afrique.",
+    url: "https://expaccargoltd.com/services",
+  },
+  keywords: [
+    "transit douanier Afrique",
+    "transport multimodal",
+    "stockage marchandises Afrique",
+    "consignation maritime",
+    "groupage maritime Afrique",
+    "fret aérien Afrique",
+    "logistique internationale",
+  ],
+};
 import {
   Plane,
   Truck,
@@ -11,109 +35,21 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
-/* ── DATA ─────────────────────────────────────────────────── */
-
-const services = [
-  {
-    id: "transit",
-    icon: Plane,
-    title: "Transit",
-    tagline: "Fluidifiez vos opérations douanières",
-    description:
-      "EXPAC prend en charge l'intégralité de vos démarches douanières à l'import et à l'export. Notre équipe d'experts maîtrise les réglementations de chaque pays africain et vous garantit un transit rapide et sans blocage.",
-    features: [
-      "Déclarations douanières import et export",
-      "Gestion des licences d'importation",
-      "Pré-dédouanement et mainlevée rapide",
-      "Suivi des dossiers en temps réel",
-      "Assistance en cas de litiges douaniers",
-      "Traitement des marchandises sous régimes suspensifs",
-    ],
-    color: "#1A3A6B",
-    bgColor: "rgba(26,58,107,0.06)",
-    href: "/devis",
-  },
-  {
-    id: "transport",
-    icon: Truck,
-    title: "Transport Multimodal",
-    tagline: "La solution optimale pour chaque trajet",
-    description:
-      "Nous combinons les meilleurs modes de transport — aérien, maritime et routier — pour concevoir le schéma logistique le plus efficace et économique pour vos marchandises. Chaque itinéraire est optimisé selon vos contraintes de délai et de budget.",
-    features: [
-      "Fret aérien (express et économique)",
-      "Fret maritime (FCL et LCL)",
-      "Transport routier régional",
-      "Gestion des ruptures de charge",
-      "Couverture de l'ensemble de l'Afrique",
-      "Suivi GPS et reporting client",
-    ],
-    color: "#E8520A",
-    bgColor: "rgba(232,82,10,0.06)",
-    href: "/devis",
-  },
-  {
-    id: "stockage",
-    icon: Warehouse,
-    title: "Stockage & Entreposage",
-    tagline: "Sécurisez et gérez vos stocks",
-    description:
-      "Nos entrepôts sécurisés offrent des solutions de stockage adaptées à tous types de marchandises. Qu'il s'agisse de produits généraux, de marchandises réfrigérées ou de matières dangereuses, nous disposons des infrastructures et certifications nécessaires.",
-    features: [
-      "Entrepôts sécurisés 24h/24 et 7j/7",
-      "Stockage sous douane (entrepôt agréé)",
-      "Gestion des stocks (WMS)",
-      "Préparation de commandes",
-      "Conditionnement et étiquetage",
-      "Inventaires réguliers avec reporting",
-    ],
-    color: "#1A3A6B",
-    bgColor: "rgba(26,58,107,0.06)",
-    href: "/devis",
-  },
-  {
-    id: "consignation",
-    icon: Ship,
-    title: "Consignation Maritime",
-    tagline: "Votre représentant dans les ports africains",
-    description:
-      "En tant que consignataire agréé, EXPAC représente les armateurs et les chargeurs dans les ports africains. Nous gérons l'accueil des navires, les opérations de manutention et la livraison des marchandises dans les meilleures conditions.",
-    features: [
-      "Représentation des armateurs (ship agency)",
-      "Accueil et assistance des navires",
-      "Gestion des opérations portuaires",
-      "Coordination avec les autorités portuaires",
-      "Émission des connaissements (BL)",
-      "Suivi des chargements et déchargements",
-    ],
-    color: "#E8520A",
-    bgColor: "rgba(232,82,10,0.06)",
-    href: "/devis",
-  },
-  {
-    id: "groupage",
-    icon: Package,
-    title: "Groupage",
-    tagline: "Réduisez vos coûts, optimisez vos envois",
-    description:
-      "Le groupage permet aux expéditeurs de partager les coûts de transport en regroupant leurs marchandises avec d'autres cargaisons à destination du même port ou de la même région. Une solution idéale pour les petits volumes.",
-    features: [
-      "Groupage maritime LCL (Less than Container Load)",
-      "Groupage aérien consolidé",
-      "Départ hebdomadaire sur les axes principaux",
-      "Tarifs compétitifs pour petits volumes",
-      "Emballage et conditionnement inclus",
-      "Suivi individualisé de chaque expédition",
-    ],
-    color: "#1A3A6B",
-    bgColor: "rgba(26,58,107,0.06)",
-    href: "/devis",
-  },
-];
+/* ── DATA (icônes / couleurs / liens — textes via dictionnaire) ─────────── */
+const serviceMeta = [
+  { id: "transit", icon: Plane, color: "#1A3A6B", bgColor: "rgba(26,58,107,0.06)", href: "/devis" },
+  { id: "transport", icon: Truck, color: "#E8520A", bgColor: "rgba(232,82,10,0.06)", href: "/devis" },
+  { id: "stockage", icon: Warehouse, color: "#1A3A6B", bgColor: "rgba(26,58,107,0.06)", href: "/devis" },
+  { id: "consignation", icon: Ship, color: "#E8520A", bgColor: "rgba(232,82,10,0.06)", href: "/devis" },
+  { id: "groupage", icon: Package, color: "#1A3A6B", bgColor: "rgba(26,58,107,0.06)", href: "/devis" },
+] as const;
 
 /* ─────────────────────────────────────────────────────────── */
 
-export default function ServicesPage() {
+export default async function ServicesPage() {
+  const t = await getServerDict();
+  const sp = t.servicesPage;
+
   return (
     <>
       <Navbar />
@@ -139,22 +75,21 @@ export default function ServicesPage() {
               className="text-xs font-black uppercase tracking-[0.25em] mb-5"
               style={{ color: "#fba563", fontFamily: "var(--font-montserrat)" }}
             >
-              ▪ EXPAC — Express Africa Cargo Ltd
+              ▪ {sp.eyebrow}
             </p>
             <h1
               className="text-4xl md:text-5xl lg:text-6xl font-black text-white uppercase leading-tight mb-6"
               style={{ fontFamily: "var(--font-montserrat)" }}
             >
-              Nos services
+              {sp.titleLine1}
               <br />
-              <span style={{ color: "#E8520A" }}>logistiques</span>
+              <span style={{ color: "#E8520A" }}>{sp.titleHighlight}</span>
             </h1>
             <p
               className="text-blue-200 text-lg max-w-xl mx-auto"
               style={{ fontFamily: "var(--font-lato)" }}
             >
-              De la prise en charge à la livraison finale, EXPAC couvre
-              l&apos;ensemble de vos besoins logistiques en Afrique.
+              {sp.subtitle}
             </p>
           </div>
         </section>
@@ -163,7 +98,7 @@ export default function ServicesPage() {
         <div className="sticky top-16 z-30 bg-white border-b border-gray-100 shadow-sm">
           <div className="container-custom">
             <nav className="flex overflow-x-auto gap-0 scrollbar-none">
-              {services.map((s) => {
+              {serviceMeta.map((s) => {
                 const Icon = s.icon;
                 return (
                   <a
@@ -173,7 +108,7 @@ export default function ServicesPage() {
                     style={{ fontFamily: "var(--font-montserrat)" }}
                   >
                     <Icon size={15} />
-                    {s.title}
+                    {sp.items[s.id].title}
                   </a>
                 );
               })}
@@ -183,9 +118,10 @@ export default function ServicesPage() {
 
         {/* ── SERVICES LIST ─────────────────────────────────── */}
         <div className="bg-gray-50">
-          {services.map((service, index) => {
+          {serviceMeta.map((service, index) => {
             const Icon = service.icon;
             const isEven = index % 2 === 0;
+            const item = sp.items[service.id];
 
             return (
               <section
@@ -229,13 +165,13 @@ export default function ServicesPage() {
                             fontFamily: "var(--font-montserrat)",
                           }}
                         >
-                          {service.title}
+                          {item.title}
                         </h3>
                         <p
                           className="text-sm mt-2 font-medium"
                           style={{ color: service.color, opacity: 0.7 }}
                         >
-                          {service.tagline}
+                          {item.tagline}
                         </p>
                       </div>
                     </div>
@@ -249,7 +185,7 @@ export default function ServicesPage() {
                           fontFamily: "var(--font-montserrat)",
                         }}
                       >
-                        ▪ {service.tagline}
+                        ▪ {item.tagline}
                       </p>
                       <h2
                         className="text-3xl md:text-4xl font-black uppercase leading-tight mb-6"
@@ -258,18 +194,18 @@ export default function ServicesPage() {
                           fontFamily: "var(--font-montserrat)",
                         }}
                       >
-                        {service.title}
+                        {item.title}
                       </h2>
                       <p
                         className="text-gray-600 leading-relaxed mb-8 text-base"
                         style={{ fontFamily: "var(--font-lato)" }}
                       >
-                        {service.description}
+                        {item.description}
                       </p>
 
                       {/* Features list */}
                       <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
-                        {service.features.map((feature) => (
+                        {item.features.map((feature) => (
                           <li
                             key={feature}
                             className="flex items-start gap-3 text-sm"
@@ -293,7 +229,7 @@ export default function ServicesPage() {
                           fontFamily: "var(--font-montserrat)",
                         }}
                       >
-                        Demander un devis
+                        {sp.requestQuote}
                         <ArrowRight size={16} />
                       </Link>
                     </div>
@@ -317,20 +253,19 @@ export default function ServicesPage() {
               className="text-orange-100 text-xs font-black uppercase tracking-[0.2em] mb-4"
               style={{ fontFamily: "var(--font-montserrat)" }}
             >
-              ▪ Besoin d&apos;un service spécifique ?
+              ▪ {sp.cta.eyebrow}
             </p>
             <h2
               className="text-3xl md:text-4xl font-black text-white uppercase mb-4"
               style={{ fontFamily: "var(--font-montserrat)" }}
             >
-              Obtenez un devis personnalisé
+              {sp.cta.title}
             </h2>
             <p
               className="text-orange-100 mb-8 max-w-md mx-auto"
               style={{ fontFamily: "var(--font-lato)" }}
             >
-              Décrivez votre besoin et nos experts vous répondent sous 24h avec
-              une offre adaptée à vos contraintes.
+              {sp.cta.desc}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
@@ -341,7 +276,7 @@ export default function ServicesPage() {
                   fontFamily: "var(--font-montserrat)",
                 }}
               >
-                Demander un devis gratuit
+                {sp.cta.primary}
                 <ArrowRight size={18} />
               </Link>
               <Link
@@ -349,7 +284,7 @@ export default function ServicesPage() {
                 className="inline-flex items-center justify-center gap-2 px-7 py-4 rounded-xl font-bold text-white border-2 border-white/40 hover:bg-white/10 transition-all uppercase tracking-wide text-sm"
                 style={{ fontFamily: "var(--font-montserrat)" }}
               >
-                Nous contacter
+                {sp.cta.secondary}
               </Link>
             </div>
           </div>
