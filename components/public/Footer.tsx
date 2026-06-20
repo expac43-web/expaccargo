@@ -101,10 +101,16 @@ export default function Footer() {
                     +242 06 436 38 82
                   </a>
                 </div>
-                <div className="flex items-center gap-2.5 text-sm text-blue-200">
+                <div className="flex items-center gap-2.5 text-sm text-blue-200 mb-1">
                   <Phone size={13} className="shrink-0 text-[#E8520A]" />
                   <a href="tel:+242050526043" className="hover:text-white transition-colors" style={{ fontFamily: "var(--font-lato)" }}>
                     +242 05 052 60 43
+                  </a>
+                </div>
+                <div className="flex items-center gap-2.5 text-sm text-blue-200">
+                  <Mail size={13} className="shrink-0 text-[#E8520A]" />
+                  <a href="mailto:agence.pn@expaccargo.com" className="hover:text-white transition-colors" style={{ fontFamily: "var(--font-lato)" }}>
+                    agence.pn@expaccargo.com
                   </a>
                 </div>
               </li>
@@ -134,8 +140,8 @@ export default function Footer() {
                 </div>
                 <div className="flex items-center gap-2.5 text-sm text-blue-200 mb-1">
                   <Mail size={13} className="shrink-0 text-[#E8520A]" />
-                  <a href="mailto:expacargo@gmail.com" className="hover:text-white transition-colors" style={{ fontFamily: "var(--font-lato)" }}>
-                    expacargo@gmail.com
+                  <a href="mailto:agence.bz@expaccargo.com" className="hover:text-white transition-colors" style={{ fontFamily: "var(--font-lato)" }}>
+                    agence.bz@expaccargo.com
                   </a>
                 </div>
                 <div className="flex items-center gap-2.5 text-sm text-blue-200">
