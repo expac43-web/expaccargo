@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Montserrat, Lato } from "next/font/google";
 import { cookies } from "next/headers";
+import Script from "next/script";
 import Providers from "@/components/Providers";
 import LanguageProvider from "@/components/i18n/LanguageProvider";
 import { getDictionary, normalizeLocale } from "@/lib/i18n";
@@ -171,6 +172,7 @@ export default async function RootLayout({
   const cookieStore = await cookies();
   const locale = normalizeLocale(cookieStore.get("locale")?.value);
   const dict = getDictionary(locale);
+  const gaId = process.env.NEXT_PUBLIC_GA_ID;
 
   return (
     <html
@@ -186,11 +188,31 @@ export default async function RootLayout({
           href={process.env.NEXT_PUBLIC_SUPABASE_URL}
           crossOrigin="anonymous"
         />
+        {gaId && <link rel="preconnect" href="https://www.googletagmanager.com" />}
       </head>
       <body className="min-h-full flex flex-col">
         <Providers>
           <LanguageProvider locale={locale} dict={dict}>{children}</LanguageProvider>
         </Providers>
+
+        {/* Google Analytics 4 — chargé après l'hydratation (ne bloque pas le rendu),
+            uniquement si NEXT_PUBLIC_GA_ID est défini. */}
+        {gaId && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga4-init" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${gaId}');
+              `}
+            </Script>
+          </>
+        )}
       </body>
     </html>
   );
