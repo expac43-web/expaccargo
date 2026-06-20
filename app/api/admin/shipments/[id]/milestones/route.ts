@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { sbGet, sbPost, sbDelete, enc } from "@/lib/supabase-admin";
+import { sbGet, sbPost, sbPatch, sbDelete, enc } from "@/lib/supabase-admin";
 import { sendShipmentStatusEmail } from "@/lib/email";
 import { notifyShipmentUpdate } from "@/lib/notify";
+import { logShipmentAudit, statusFr } from "@/lib/audit";
 
 function isAdmin(role?: string) {
   return ["SUPER_ADMIN", "MANAGER", "AGENCY"].includes(role ?? "");
@@ -23,7 +24,8 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
-  const role = (session?.user as { role?: string })?.role;
+  const su = session?.user as { id?: string; name?: string; role?: string } | undefined;
+  const role = su?.role;
   if (!session || !isAdmin(role)) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
   const { id: shipmentId } = await params;
@@ -45,6 +47,15 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   });
 
   if (!milestone) return NextResponse.json({ error: "Erreur lors de la création" }, { status: 500 });
+
+  // Le jalon fait avancer le statut de l'expédition + trace l'historique (admin/gérant).
+  await sbPatch("Shipment", `id=eq.${enc(shipmentId)}`, { status, updatedAt: new Date().toISOString() });
+  await logShipmentAudit({
+    shipmentId,
+    action: "update",
+    detail: `Statut → ${statusFr(status)} (jalon : ${label.trim()})`,
+    by: { id: su?.id, name: su?.name, role: su?.role },
+  });
 
   // Notifier le client de cet événement de suivi (no-op tant que Resend n'est pas configuré).
   // Reply-To = l'email de l'agence de l'expédition → les réponses arrivent chez l'agence.
