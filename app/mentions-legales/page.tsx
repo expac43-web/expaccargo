@@ -48,10 +48,19 @@ export default function MentionsLegalesPage() {
               <Section title="Éditeur du site">
                 <p>
                   Le présent site est édité par <strong>Express Africa Cargo Ltd (EXPAC)</strong>,
-                  commissionnaire agréé en douane.
+                  <strong> commissionnaire agréé en douane</strong>.
+                </p>
+                <p>
+                  Agrément en qualité de commissionnaire en douane : <strong>N° CDA 265</strong>
+                  {" "}(Décision CEMAC N° 24 125-CEMAC-A-C.P-DMC).
                 </p>
                 <p>Registre de commerce (RC) : <strong>CG-BZV-01-2021-B12-00199</strong></p>
                 <p>Numéro d&apos;identification unique (NIU) : <strong>M21000002026220</strong></p>
+                <p>
+                  EXPAC intervient exclusivement comme <strong>intermédiaire agréé en douane</strong> entre
+                  l&apos;importateur et l&apos;exportateur. La société n&apos;exerce pas d&apos;activité
+                  d&apos;importation ou d&apos;exportation pour son propre compte.
+                </p>
               </Section>
 
               <Section title="Coordonnées">

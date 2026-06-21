@@ -112,7 +112,7 @@ function shell(opts: { accent: string; preheader?: string; inner: string }): str
         <tr><td style="padding:0 40px 32px;">
           <hr style="border:none;border-top:1px solid #e5e7eb;margin:0 0 20px;">
           <p style="margin:0;color:#9ca3af;font-size:11px;text-align:center;line-height:1.6;">
-            Express Africa Cargo Ltd (EXPAC) · RC : CG-BZV-01-2021-B12-00199 · NIU : M21000002026220<br>
+            Express Africa Cargo Ltd (EXPAC) · Commissionnaire agréé en douane N° CDA 265 · RC : CG-BZV-01-2021-B12-00199 · NIU : M21000002026220<br>
             ${FROM_EMAIL}
           </p>
         </td></tr>

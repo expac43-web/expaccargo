@@ -5,14 +5,14 @@ import { getServerDict } from "@/lib/i18n/server";
 
 /* ── SEO — Métadonnées spécifiques à la page d'accueil ──────────────────── */
 export const metadata: Metadata = {
-  title: "EXPAC — Société d'Import-Export, Transit & Logistique en Afrique",
+  title: "EXPAC — Commissionnaire Agréé en Douane, Transit & Logistique en Afrique",
   description:
-    "EXPAC, société d'import-export et expert en transit douanier, transport multimodal et logistique en Afrique (Congo Brazzaville). Suivi d'expéditions en temps réel. Devis gratuit sous 24h.",
+    "EXPAC (Express Africa Cargo Ltd), commissionnaire agréé en douane (N° CDA 265) au Congo Brazzaville : transit douanier, transport multimodal, stockage et consignation maritime en Afrique. Suivi d'expéditions en temps réel. Devis gratuit sous 24h.",
   alternates: { canonical: "https://expaccargo.com" },
   openGraph: {
-    title: "EXPAC — Société d'Import-Export & Logistique en Afrique",
+    title: "EXPAC — Commissionnaire Agréé en Douane & Logistique en Afrique",
     description:
-      "Société d'import-export : transit douanier, transport multimodal, stockage et consignation maritime en Afrique. Express Africa Cargo Ltd — votre partenaire de confiance.",
+      "Commissionnaire agréé en douane (N° CDA 265) : transit douanier, transport multimodal, stockage et consignation maritime en Afrique. Express Africa Cargo Ltd — votre partenaire de confiance.",
     url: "https://expaccargo.com",
     type: "website",
   },
@@ -36,11 +36,11 @@ const structuredData = {
       logo: `${SITE}/images/logo.jpeg`,
       email: "contact@expaccargo.com",
       description:
-        "Société d'import-export, transit douanier, transport multimodal et logistique en Afrique (Congo Brazzaville).",
+        "Commissionnaire agréé en douane (N° CDA 265) : transit douanier, transport multimodal et logistique en Afrique (Congo Brazzaville).",
       areaServed: { "@type": "Place", name: "Afrique centrale" },
       sameAs: [], // ← ajouter ici les URLs réseaux sociaux (LinkedIn, Facebook…)
       knowsAbout: [
-        "Import-export",
+        "Commissionnaire agréé en douane",
         "Transit douanier",
         "Transport multimodal",
         "Stockage",

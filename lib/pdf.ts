@@ -99,7 +99,7 @@ function footer(doc: Doc) {
     doc.setFontSize(7);
     doc.setTextColor(...GREY);
     doc.text(
-      "Express Africa Cargo Ltd (EXPAC) · RC : CG-BZV-01-2021-B12-00199 · NIU : M21000002026220 · expacargo@gmail.com",
+      "Express Africa Cargo Ltd (EXPAC) · Commissionnaire agréé en douane N° CDA 265 · RC : CG-BZV-01-2021-B12-00199 · NIU : M21000002026220",
       MARGIN,
       h - 9
     );

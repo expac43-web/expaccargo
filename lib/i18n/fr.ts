@@ -21,7 +21,7 @@ const fr = {
   footer: {
     tagline:
       "Commissionnaire agréé en douane — CEMAC 2023. Votre partenaire en logistique internationale, transit et transport multimodal en Afrique.",
-    legalLine: "NIU : M21000002026220 · Capital : 50 000 000 FCFA",
+    legalLine: "Agrément commissionnaire en douane N° CDA 265 · NIU : M21000002026220 · Capital : 50 000 000 FCFA",
     servicesTitle: "Services",
     linksTitle: "Liens utiles",
     officesTitle: "Nos bureaux",
@@ -177,7 +177,7 @@ const fr = {
         description:
           "EXPAC prend en charge l'intégralité de vos démarches douanières à l'import et à l'export. Notre équipe d'experts maîtrise les réglementations de chaque pays africain et vous garantit un transit rapide et sans blocage.",
         features: [
-          "Déclarations douanières import et export",
+          "Déclarations et formalités en douane (entrée et sortie)",
           "Gestion des licences d'importation",
           "Pré-dédouanement et mainlevée rapide",
           "Suivi des dossiers en temps réel",
@@ -367,7 +367,7 @@ const fr = {
     cofTitleHighlight: "logistique",
     cofTitlePost: " africaine.",
     cofBody1:
-      "Depuis Congo Brazzaville, notre équipe s'engage chaque jour à vous offrir une logistique fiable, transparente et adaptée aux réalités africaines. Mon expérience en dédouanement et en supply chain me permet de vous garantir un accompagnement expert à chaque étape de votre projet d'import-export.",
+      "Depuis Congo Brazzaville, notre équipe s'engage chaque jour à vous offrir une logistique fiable, transparente et adaptée aux réalités africaines. Mon expérience en dédouanement et en supply chain me permet de vous garantir un accompagnement expert à chaque étape de vos opérations logistiques et douanières.",
     cofBody2:
       "N'hésitez pas à nous contacter directement — je reste disponible pour les dossiers qui nécessitent une attention particulière.",
     cofRole: "Commissionnaire agréé en douane · Transitaire assermenté · Supply chain Manager",
@@ -447,7 +447,7 @@ const fr = {
     titlePre: "Actualités",
     titleHighlight: "logistique",
     subtitle:
-      "Les dernières nouvelles de l'import-export et de la logistique en Afrique, ainsi que les publications de notre équipe.",
+      "Les dernières nouvelles du transit douanier et de la logistique en Afrique, ainsi que les publications de notre équipe.",
     expacArticles: "Articles EXPAC",
     sectorNews: "Actualités du secteur",
     autoUpdate: "Mise à jour automatique toutes les heures",

@@ -20,7 +20,7 @@ const en: Dict = {
   footer: {
     tagline:
       "Licensed customs broker — CEMAC 2023. Your partner for international logistics, customs clearance and multimodal transport in Africa.",
-    legalLine: "TIN: M21000002026220 · Capital: 50,000,000 FCFA",
+    legalLine: "Licensed customs broker No. CDA 265 · TIN: M21000002026220 · Capital: 50,000,000 FCFA",
     servicesTitle: "Services",
     linksTitle: "Useful links",
     officesTitle: "Our offices",
@@ -365,7 +365,7 @@ const en: Dict = {
     cofTitleHighlight: "logistics",
     cofTitlePost: ".",
     cofBody1:
-      "From Congo Brazzaville, our team is committed every day to providing reliable, transparent logistics tailored to African realities. My experience in customs clearance and supply chain lets me guarantee expert support at every step of your import-export project.",
+      "From Congo Brazzaville, our team is committed every day to providing reliable, transparent logistics tailored to African realities. My experience in customs clearance and supply chain lets me guarantee expert support at every step of your logistics and customs operations.",
     cofBody2:
       "Feel free to contact us directly — I remain available for files that require special attention.",
     cofRole: "Licensed customs broker · Sworn freight forwarder · Supply chain Manager",
@@ -445,7 +445,7 @@ const en: Dict = {
     titlePre: "Logistics",
     titleHighlight: "news",
     subtitle:
-      "The latest import-export and logistics news in Africa, plus our team's publications.",
+      "The latest customs and logistics news in Africa, plus our team's publications.",
     expacArticles: "EXPAC articles",
     sectorNews: "Industry news",
     autoUpdate: "Updated automatically every hour",
