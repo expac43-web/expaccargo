@@ -5,14 +5,14 @@ import { getServerDict } from "@/lib/i18n/server";
 
 /* ── SEO — Métadonnées spécifiques à la page d'accueil ──────────────────── */
 export const metadata: Metadata = {
-  title: "EXPAC — Commissionnaire Agréé en Douane, Transit & Logistique en Afrique",
+  title: "EXPAC — Commissionnaire Agréé en Douane — Agrément N° CDA 265",
   description:
-    "EXPAC (Express Africa Cargo Ltd), commissionnaire agréé en douane (N° CDA 265) au Congo Brazzaville : transit douanier, transport multimodal, stockage et consignation maritime en Afrique. Suivi d'expéditions en temps réel. Devis gratuit sous 24h.",
+    "EXPAC, commissionnaire agréé en douane (Agrément N° CDA 265) en République du Congo (Brazzaville, Pointe-Noire) et en Afrique : transit douanier, transport multimodal, stockage et consignation maritime. Suivi d'expéditions en temps réel. Devis gratuit sous 24h.",
   alternates: { canonical: "https://expaccargo.com" },
   openGraph: {
-    title: "EXPAC — Commissionnaire Agréé en Douane & Logistique en Afrique",
+    title: "EXPAC — Commissionnaire Agréé en Douane — Agrément N° CDA 265",
     description:
-      "Commissionnaire agréé en douane (N° CDA 265) : transit douanier, transport multimodal, stockage et consignation maritime en Afrique. Express Africa Cargo Ltd — votre partenaire de confiance.",
+      "Commissionnaire agréé en douane (Agrément N° CDA 265) en République du Congo et en Afrique : transit douanier, transport multimodal, stockage et consignation maritime. Express Africa Cargo Ltd.",
     url: "https://expaccargo.com",
     type: "website",
   },
@@ -87,6 +87,7 @@ const structuredData = {
   ],
 };
 import HeroSlider from "@/components/public/HeroSlider";
+import AgrementBadge from "@/components/public/AgrementBadge";
 import PartnersCarousel from "@/components/public/PartnersCarousel";
 import RatesSummary from "@/components/public/RatesSummary";
 import { getRates } from "@/lib/rates";
@@ -176,18 +177,21 @@ export default async function HomePage() {
         <HeroSlider>
           <div className="container-custom py-28 lg:py-36">
             <div className="max-w-3xl">
-              {/* Badge */}
-              <div
-                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold mb-8 border border-orange-400/40"
-                style={{
-                  backgroundColor: "rgba(232,82,10,0.18)",
-                  color: "#fba563",
-                  fontFamily: "var(--font-montserrat)",
-                  letterSpacing: "0.05em",
-                }}
-              >
-                <span className="w-2 h-2 rounded-full bg-orange-400 animate-pulse" />
-                {h.hero.badge}
+              {/* Badges */}
+              <div className="flex flex-wrap items-center gap-3 mb-8">
+                <span
+                  className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold border border-orange-400/40"
+                  style={{
+                    backgroundColor: "rgba(232,82,10,0.18)",
+                    color: "#fba563",
+                    fontFamily: "var(--font-montserrat)",
+                    letterSpacing: "0.05em",
+                  }}
+                >
+                  <span className="w-2 h-2 rounded-full bg-orange-400 animate-pulse" />
+                  {h.hero.badge}
+                </span>
+                <AgrementBadge tone="dark" />
               </div>
 
               <h1

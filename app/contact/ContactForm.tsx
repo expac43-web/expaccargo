@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { MapPin, Phone, Mail, Clock, Send, User, MessageSquare, AlertCircle, CheckCircle, ChevronDown } from "lucide-react";
 import { useT } from "@/components/i18n/LanguageProvider";
+import AgrementBadge from "@/components/public/AgrementBadge";
 
 const labelCls = "block text-xs font-black uppercase tracking-wider mb-1.5 text-gray-600";
 const inputCls = "w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#1A3A6B] focus:ring-2 focus:ring-[#1A3A6B]/10 transition-all bg-white";
@@ -57,6 +58,9 @@ export default function ContactForm() {
           <p className="text-blue-200 max-w-xl" style={{ fontFamily: "var(--font-lato)" }}>
             {c.subtitle}
           </p>
+          <div className="mt-5">
+            <AgrementBadge tone="dark" />
+          </div>
         </div>
       </div>
 
