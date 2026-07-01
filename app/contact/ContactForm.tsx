@@ -5,9 +5,11 @@ import Image from "next/image";
 import { MapPin, Phone, Mail, Clock, Send, User, MessageSquare, AlertCircle, CheckCircle, ChevronDown } from "lucide-react";
 import { useT } from "@/components/i18n/LanguageProvider";
 import AgrementBadge from "@/components/public/AgrementBadge";
+import Reveal from "@/components/public/Reveal";
 
 const labelCls = "block text-xs font-black uppercase tracking-wider mb-1.5 text-gray-600";
 const inputCls = "w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#1A3A6B] focus:ring-2 focus:ring-[#1A3A6B]/10 transition-all bg-white";
+const CONTACT_HEADER = "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1600&q=55";
 
 export default function ContactForm() {
   const { t } = useT();
@@ -46,8 +48,10 @@ export default function ContactForm() {
 
   return (
     <main className="flex-1 pt-16">
-      {/* Header */}
-      <div className="relative py-16 overflow-hidden" style={{ background: "linear-gradient(135deg, #0e2248 0%, #1A3A6B 60%, #2a5298 100%)" }}>
+      {/* Header — image de fond (équipe en échange) + voile navy */}
+      <div className="relative py-20 overflow-hidden">
+        <Image src={CONTACT_HEADER} alt="Contact — équipe EXPAC" fill priority sizes="100vw" className="object-cover" />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(120deg, rgba(14,34,72,0.95) 0%, rgba(26,58,107,0.88) 55%, rgba(42,82,152,0.74) 100%)" }} />
         <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full opacity-10" style={{ backgroundColor: "#E8520A" }} />
         <div className="absolute -left-10 bottom-0 w-56 h-56 rounded-full opacity-10" style={{ backgroundColor: "#E8520A" }} />
         <div className="container-custom relative z-10">
@@ -190,94 +194,109 @@ export default function ContactForm() {
         <div className="container-custom">
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
 
-            {/* ── Gauche : texte ── */}
+            {/* ── Gauche : texte (chaque bloc animé en cascade) ── */}
             <div className="flex-1 max-w-xl">
 
-              <p className="text-xs font-black uppercase tracking-[0.25em] mb-5 text-gray-400"
-                style={{ fontFamily: "var(--font-montserrat)" }}>
-                ▪ {c.cofounderEyebrow}
-              </p>
-
-              <h2 className="font-black leading-tight mb-6"
-                style={{ fontSize: "clamp(1.75rem, 4vw, 2.75rem)", color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>
-                {c.cofTitlePre}{" "}
-                <span className="relative inline-block">
-                  {c.cofTitleHighlight}
-                  <span className="absolute left-0 -bottom-1 h-1.5 w-full rounded-full"
-                    style={{ backgroundColor: "#E8520A" }} />
-                </span>{c.cofTitlePost}
-              </h2>
-
-              <p className="text-gray-500 text-base lg:text-lg leading-relaxed mb-4"
-                style={{ fontFamily: "var(--font-lato)" }}>
-                {c.cofBody1}
-              </p>
-              <p className="text-gray-500 text-base lg:text-lg leading-relaxed mb-8"
-                style={{ fontFamily: "var(--font-lato)" }}>
-                {c.cofBody2}
-              </p>
-
-              <div className="mb-7">
-                <p className="font-black text-base lg:text-lg uppercase"
-                  style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>
-                  DOUCOURE MAKAN
+              <Reveal>
+                <p className="text-xs font-black uppercase tracking-[0.25em] mb-5 text-gray-400"
+                  style={{ fontFamily: "var(--font-montserrat)" }}>
+                  ▪ {c.cofounderEyebrow}
                 </p>
-                <p className="text-sm text-gray-400 mt-1" style={{ fontFamily: "var(--font-lato)" }}>
-                  {c.cofRole}
-                </p>
-              </div>
+              </Reveal>
 
-              <a
-                href="https://www.linkedin.com/in/makan-doucoure-b5b781151/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-black border-2 transition-all hover:text-white hover:shadow-lg"
-                style={{
-                  borderColor: "#0077b5",
-                  color: "#0077b5",
-                  fontFamily: "var(--font-montserrat)",
-                }}
-                onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#0077b5"; }}
-                onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "transparent"; }}
-              >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-                  <rect x="2" y="9" width="4" height="12" />
-                  <circle cx="4" cy="4" r="2" />
-                </svg>
-                {c.linkedin}
-              </a>
+              <Reveal delay={90}>
+                <h2 className="font-black leading-tight mb-6"
+                  style={{ fontSize: "clamp(1.75rem, 4vw, 2.75rem)", color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>
+                  {c.cofTitlePre}{" "}
+                  <span className="relative inline-block">
+                    {c.cofTitleHighlight}
+                    <span className="absolute left-0 -bottom-1 h-1.5 w-full rounded-full"
+                      style={{ backgroundColor: "#E8520A" }} />
+                  </span>{c.cofTitlePost}
+                </h2>
+              </Reveal>
+
+              <Reveal delay={160}>
+                <p className="text-gray-500 text-base lg:text-lg leading-relaxed mb-4"
+                  style={{ fontFamily: "var(--font-lato)" }}>
+                  {c.cofBody1}
+                </p>
+              </Reveal>
+
+              <Reveal delay={220}>
+                <p className="text-gray-500 text-base lg:text-lg leading-relaxed mb-8"
+                  style={{ fontFamily: "var(--font-lato)" }}>
+                  {c.cofBody2}
+                </p>
+              </Reveal>
+
+              <Reveal delay={290}>
+                <div className="mb-7">
+                  <p className="font-black text-base lg:text-lg uppercase"
+                    style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>
+                    DOUCOURE MAKAN
+                  </p>
+                  <p className="text-sm text-gray-400 mt-1" style={{ fontFamily: "var(--font-lato)" }}>
+                    {c.cofRole}
+                  </p>
+                </div>
+              </Reveal>
+
+              <Reveal delay={350}>
+                <a
+                  href="https://www.linkedin.com/in/makan-doucoure-b5b781151/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-black border-2 transition-all hover:text-white hover:shadow-lg"
+                  style={{
+                    borderColor: "#0077b5",
+                    color: "#0077b5",
+                    fontFamily: "var(--font-montserrat)",
+                  }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#0077b5"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "transparent"; }}
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                    <rect x="2" y="9" width="4" height="12" />
+                    <circle cx="4" cy="4" r="2" />
+                  </svg>
+                  {c.linkedin}
+                </a>
+              </Reveal>
             </div>
 
-            {/* ── Droite : photo circulaire + déco ── */}
-            <div className="shrink-0 relative flex items-center justify-center"
-              style={{ width: "clamp(280px, 36vw, 420px)", height: "clamp(280px, 36vw, 420px)" }}>
+            {/* ── Droite : photo circulaire + déco (animée) ── */}
+            <Reveal delay={130} className="shrink-0">
+              <div className="relative flex items-center justify-center"
+                style={{ width: "clamp(280px, 36vw, 420px)", height: "clamp(280px, 36vw, 420px)" }}>
 
-              <div className="absolute bottom-0 left-0 rounded-full pointer-events-none"
-                style={{
-                  width: "65%", height: "65%",
-                  backgroundColor: "#1A3A6B",
-                  transform: "translate(-18%, 18%)",
-                }} />
+                <div className="absolute bottom-0 left-0 rounded-full pointer-events-none"
+                  style={{
+                    width: "65%", height: "65%",
+                    backgroundColor: "#1A3A6B",
+                    transform: "translate(-18%, 18%)",
+                  }} />
 
-              <div className="absolute bottom-4 right-0 pointer-events-none opacity-25"
-                style={{
-                  width: "38%", height: "38%",
-                  backgroundImage: "radial-gradient(circle, #1A3A6B 1.8px, transparent 1.8px)",
-                  backgroundSize: "11px 11px",
-                }} />
+                <div className="absolute bottom-4 right-0 pointer-events-none opacity-25"
+                  style={{
+                    width: "38%", height: "38%",
+                    backgroundImage: "radial-gradient(circle, #1A3A6B 1.8px, transparent 1.8px)",
+                    backgroundSize: "11px 11px",
+                  }} />
 
-              <div className="relative z-10 rounded-full overflow-hidden shadow-2xl border-4 border-white"
-                style={{ width: "82%", height: "82%" }}>
-                <Image
-                  src="/images/doucoure.jpeg"
-                  alt="DOUCOURE MAKAN — Co-fondateur EXPAC"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 768px) 280px, 380px"
-                />
+                <div className="relative z-10 rounded-full overflow-hidden shadow-2xl border-4 border-white"
+                  style={{ width: "82%", height: "82%" }}>
+                  <Image
+                    src="/images/doucoure.jpeg"
+                    alt="DOUCOURE MAKAN — Co-fondateur EXPAC"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 280px, 380px"
+                  />
+                </div>
               </div>
-            </div>
+            </Reveal>
 
           </div>
         </div>

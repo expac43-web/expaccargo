@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
 import Link from "next/link";
+import Image from "next/image";
+import Reveal from "@/components/public/Reveal";
 
 export const metadata: Metadata = {
   title: "Actualités — Logistique & Transport en Afrique",
@@ -18,6 +20,9 @@ export const metadata: Metadata = {
 import { ExternalLink, Calendar, Tag, ArrowRight, Newspaper, PenLine } from "lucide-react";
 import { getServerLocale } from "@/lib/i18n/server";
 import { getDictionary } from "@/lib/i18n";
+
+/* ── Image d'en-tête (Unsplash, optimisée par next/image) — machine à écrire « News » ── */
+const NEWS_HEADER = "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=1600&q=55";
 
 /* ── Types ─────────────────────────────────────────────── */
 
@@ -131,11 +136,13 @@ export default async function ActualitesPage() {
       <Navbar />
       <main className="flex-1 pt-16">
 
-        {/* Header */}
-        <div
-          className="relative py-16 overflow-hidden"
-          style={{ background: "linear-gradient(135deg, #0e2248 0%, #1A3A6B 60%, #2a5298 100%)" }}
-        >
+        {/* Header — image de fond (machine à écrire « News ») + voile navy */}
+        <div className="relative py-20 overflow-hidden">
+          <Image src={NEWS_HEADER} alt="Actualités & presse — EXPAC" fill priority sizes="100vw" className="object-cover" />
+          <div
+            className="absolute inset-0"
+            style={{ background: "linear-gradient(120deg, rgba(14,34,72,0.95) 0%, rgba(26,58,107,0.88) 55%, rgba(42,82,152,0.72) 100%)" }}
+          />
           <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full opacity-10" style={{ backgroundColor: "#E8520A" }} />
           <div className="container-custom relative z-10">
             <p className="text-xs font-black uppercase tracking-[0.2em] mb-4" style={{ color: "#fba563", fontFamily: "var(--font-montserrat)" }}>
@@ -162,37 +169,38 @@ export default async function ActualitesPage() {
                     {n.expacArticles}
                   </h2>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                  {dbPosts.map((post) => (
-                    <Link
-                      key={post.id}
-                      href={`/actualites/${post.slug}`}
-                      className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all hover:-translate-y-1"
-                    >
-                      <div className="h-1" style={{ backgroundColor: "#E8520A" }} />
-                      <div className="p-6">
-                        <div className="flex items-center gap-2 mb-3">
-                          <span className="text-xs font-black uppercase px-2 py-1 rounded-lg" style={{ backgroundColor: "rgba(232,82,10,0.1)", color: "#E8520A", fontFamily: "var(--font-montserrat)" }}>
-                            {post.category}
-                          </span>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {dbPosts.map((post, i) => (
+                    <Reveal key={post.id} delay={(i % 3) * 70} className="h-full">
+                      <Link
+                        href={`/actualites/${post.slug}`}
+                        className="group relative flex flex-col h-full bg-white rounded-2xl border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1.5 hover:border-[#E8520A]/40"
+                      >
+                        <span className="absolute top-0 left-0 h-1 w-full" style={{ backgroundColor: "#E8520A" }} />
+                        <div className="p-6 flex flex-col flex-1">
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="text-[11px] font-black uppercase tracking-wide px-2.5 py-1 rounded-full" style={{ backgroundColor: "rgba(232,82,10,0.1)", color: "#E8520A", fontFamily: "var(--font-montserrat)" }}>
+                              {post.category}
+                            </span>
+                          </div>
+                          <h3 className="font-black text-base uppercase leading-tight mb-3 group-hover:text-[#E8520A] transition-colors" style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>
+                            {post.title}
+                          </h3>
+                          <p className="text-sm text-gray-500 leading-relaxed mb-5 line-clamp-3 flex-1" style={{ fontFamily: "var(--font-lato)" }}>
+                            {post.excerpt}
+                          </p>
+                          <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                            <span className="flex items-center gap-1.5 text-xs text-gray-400" style={{ fontFamily: "var(--font-lato)" }}>
+                              <Calendar size={12} />
+                              {formatDate(post.createdAt, dl)}
+                            </span>
+                            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-black uppercase tracking-wide border-2 border-[#E8520A] text-[#E8520A] group-hover:bg-[#E8520A] group-hover:text-white transition-all duration-300" style={{ fontFamily: "var(--font-montserrat)" }}>
+                              {n.read} <ArrowRight size={12} className="transition-transform duration-300 group-hover:translate-x-1" />
+                            </span>
+                          </div>
                         </div>
-                        <h3 className="font-black text-base uppercase leading-tight mb-3 group-hover:text-[#E8520A] transition-colors" style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>
-                          {post.title}
-                        </h3>
-                        <p className="text-sm text-gray-500 leading-relaxed mb-4 line-clamp-3" style={{ fontFamily: "var(--font-lato)" }}>
-                          {post.excerpt}
-                        </p>
-                        <div className="flex items-center justify-between">
-                          <span className="flex items-center gap-1.5 text-xs text-gray-400" style={{ fontFamily: "var(--font-lato)" }}>
-                            <Calendar size={12} />
-                            {formatDate(post.createdAt, dl)}
-                          </span>
-                          <span className="flex items-center gap-1 text-xs font-black uppercase" style={{ color: "#E8520A", fontFamily: "var(--font-montserrat)" }}>
-                            {n.read} <ArrowRight size={12} />
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
+                      </Link>
+                    </Reveal>
                   ))}
                 </div>
               </div>
@@ -217,42 +225,43 @@ export default async function ActualitesPage() {
                   </p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {rssArticles.map((article, i) => (
-                    <a
-                      key={i}
-                      href={article.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-lg transition-all hover:-translate-y-1"
-                    >
-                      <div className="h-1" style={{ backgroundColor: "#1A3A6B" }} />
-                      <div className="p-6">
-                        <div className="flex items-center gap-2 mb-3">
-                          <Tag size={12} style={{ color: "#1A3A6B" }} />
-                          <span className="text-xs text-gray-400 truncate" style={{ fontFamily: "var(--font-lato)" }}>
-                            {article.source}
-                          </span>
+                    <Reveal key={i} delay={(i % 3) * 70} className="h-full">
+                      <a
+                        href={article.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group relative flex flex-col h-full bg-white rounded-2xl border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1.5 hover:border-[#1A3A6B]/40"
+                      >
+                        <span className="absolute top-0 left-0 h-1 w-full" style={{ backgroundColor: "#1A3A6B" }} />
+                        <div className="p-6 flex flex-col flex-1">
+                          <div className="flex items-center gap-2 mb-3">
+                            <Tag size={12} style={{ color: "#1A3A6B" }} />
+                            <span className="text-xs text-gray-400 truncate" style={{ fontFamily: "var(--font-lato)" }}>
+                              {article.source}
+                            </span>
+                          </div>
+                          <h3 className="font-black text-sm uppercase leading-tight mb-3 group-hover:text-[#1A3A6B] transition-colors line-clamp-3" style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>
+                            {article.title}
+                          </h3>
+                          {article.description && (
+                            <p className="text-sm text-gray-500 leading-relaxed mb-5 line-clamp-3 flex-1" style={{ fontFamily: "var(--font-lato)" }}>
+                              {article.description}
+                            </p>
+                          )}
+                          <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-auto">
+                            <span className="flex items-center gap-1.5 text-xs text-gray-400" style={{ fontFamily: "var(--font-lato)" }}>
+                              <Calendar size={12} />
+                              {formatDate(article.pubDate, dl)}
+                            </span>
+                            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-black uppercase tracking-wide border-2 border-[#1A3A6B] text-[#1A3A6B] group-hover:bg-[#1A3A6B] group-hover:text-white transition-all duration-300" style={{ fontFamily: "var(--font-montserrat)" }}>
+                              {n.read} <ExternalLink size={11} className="transition-transform duration-300 group-hover:translate-x-0.5" />
+                            </span>
+                          </div>
                         </div>
-                        <h3 className="font-black text-sm uppercase leading-tight mb-3 group-hover:text-[#1A3A6B] transition-colors line-clamp-3" style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>
-                          {article.title}
-                        </h3>
-                        {article.description && (
-                          <p className="text-sm text-gray-500 leading-relaxed mb-4 line-clamp-3" style={{ fontFamily: "var(--font-lato)" }}>
-                            {article.description}
-                          </p>
-                        )}
-                        <div className="flex items-center justify-between mt-auto">
-                          <span className="flex items-center gap-1.5 text-xs text-gray-400" style={{ fontFamily: "var(--font-lato)" }}>
-                            <Calendar size={12} />
-                            {formatDate(article.pubDate, dl)}
-                          </span>
-                          <span className="flex items-center gap-1 text-xs font-black uppercase" style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>
-                            {n.read} <ExternalLink size={11} />
-                          </span>
-                        </div>
-                      </div>
-                    </a>
+                      </a>
+                    </Reveal>
                   ))}
                 </div>
               )}
