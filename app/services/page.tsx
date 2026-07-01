@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
+import Reveal from "@/components/public/Reveal";
 import Link from "next/link";
 import { getServerDict } from "@/lib/i18n/server";
 
@@ -126,6 +127,7 @@ export default async function ServicesPage() {
         <div className="bg-gray-50">
           {serviceMeta.map((service, index) => {
             const isEven = index % 2 === 0;
+            const isOrange = service.color === "#E8520A";
             const item = sp.items[service.id];
 
             return (
@@ -135,6 +137,7 @@ export default async function ServicesPage() {
                 className={`py-20 ${isEven ? "bg-white" : "bg-gray-50"}`}
               >
                 <div className="container-custom">
+                  <Reveal>
                   <div
                     className={`flex flex-col ${isEven ? "lg:flex-row" : "lg:flex-row-reverse"} gap-12 lg:gap-20 items-center`}
                   >
@@ -142,7 +145,7 @@ export default async function ServicesPage() {
                     <div className="w-full lg:w-2/5 shrink-0">
                       <div className="relative rounded-3xl overflow-hidden min-h-[320px] flex flex-col items-center justify-center text-center p-8 shadow-md">
                         <Image src={service.photo} alt={item.title} fill sizes="(max-width:1024px) 100vw, 40vw" className="object-cover" />
-                        <div className="absolute inset-0" style={{ background: "linear-gradient(160deg, rgba(11,30,64,0.82) 0%, rgba(26,58,107,0.9) 100%)" }} />
+                        <div className="absolute inset-0" style={{ background: isOrange ? "linear-gradient(160deg, rgba(196,68,8,0.82) 0%, rgba(232,82,10,0.92) 100%)" : "linear-gradient(160deg, rgba(11,30,64,0.82) 0%, rgba(26,58,107,0.9) 100%)" }} />
                         <span className="absolute right-5 top-3 text-7xl font-black opacity-15 text-white leading-none select-none" style={{ fontFamily: "var(--font-montserrat)" }}>
                           {String(index + 1).padStart(2, "0")}
                         </span>
@@ -216,6 +219,7 @@ export default async function ServicesPage() {
                       </Link>
                     </div>
                   </div>
+                  </Reveal>
                 </div>
               </section>
             );
@@ -232,7 +236,7 @@ export default async function ServicesPage() {
           <div
             className="absolute -right-16 -top-16 w-80 h-80 rounded-full opacity-10 bg-white"
           />
-          <div className="container-custom text-center relative z-10">
+          <Reveal className="container-custom text-center relative z-10">
             <p
               className="text-orange-100 text-xs font-black uppercase tracking-[0.2em] mb-4"
               style={{ fontFamily: "var(--font-montserrat)" }}
@@ -271,7 +275,7 @@ export default async function ServicesPage() {
                 {sp.cta.secondary}
               </Link>
             </div>
-          </div>
+          </Reveal>
         </section>
       </main>
 

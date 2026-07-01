@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
 import { getRates } from "@/lib/rates";
@@ -29,7 +30,17 @@ export default async function TauxPage() {
   const dl = locale === "en" ? "en-US" : "fr-FR";
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div
+      className="min-h-screen flex flex-col"
+      style={{
+        backgroundColor: "#f4f6f9",
+        backgroundImage: "url('/illustrations/fond.webp')",
+        backgroundSize: "cover",
+        backgroundPosition: "center top",
+        backgroundAttachment: "fixed",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
       <Navbar />
       <main className="flex-1 pt-16">
         {/* Header */}
@@ -48,8 +59,10 @@ export default async function TauxPage() {
           </div>
         </div>
 
-        <div className="bg-gray-50 py-12">
-          <div className="container-custom">
+        <div className="relative overflow-hidden py-14">
+          <Image src="/illustrations/change.webp" alt="Taux de change — devises internationales" fill sizes="100vw" className="object-cover" />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(244,246,249,0.90) 0%, rgba(244,246,249,0.84) 100%)" }} />
+          <div className="container-custom relative z-10">
             {!data ? (
               <div className="bg-white rounded-2xl border border-gray-100 p-10 text-center">
                 <AlertCircle size={32} className="mx-auto mb-3 text-gray-300" />
