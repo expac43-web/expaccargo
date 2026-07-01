@@ -137,12 +137,11 @@ export default async function ServicesPage() {
                 className={`py-20 ${isEven ? "bg-white" : "bg-gray-50"}`}
               >
                 <div className="container-custom">
-                  <Reveal>
                   <div
                     className={`flex flex-col ${isEven ? "lg:flex-row" : "lg:flex-row-reverse"} gap-12 lg:gap-20 items-center`}
                   >
                     {/* Visual block — photo + icône 3D */}
-                    <div className="w-full lg:w-2/5 shrink-0">
+                    <Reveal className="w-full lg:w-2/5 shrink-0">
                       <div className="relative rounded-3xl overflow-hidden min-h-[320px] flex flex-col items-center justify-center text-center p-8 shadow-md">
                         <Image src={service.photo} alt={item.title} fill sizes="(max-width:1024px) 100vw, 40vw" className="object-cover" />
                         <div className="absolute inset-0" style={{ background: isOrange ? "linear-gradient(160deg, rgba(196,68,8,0.82) 0%, rgba(232,82,10,0.92) 100%)" : "linear-gradient(160deg, rgba(11,30,64,0.82) 0%, rgba(26,58,107,0.9) 100%)" }} />
@@ -159,10 +158,10 @@ export default async function ServicesPage() {
                           {item.tagline}
                         </p>
                       </div>
-                    </div>
+                    </Reveal>
 
                     {/* Content */}
-                    <div className="flex-1">
+                    <Reveal delay={140} className="flex-1">
                       <p
                         className="text-xs font-black uppercase tracking-[0.2em] mb-4"
                         style={{
@@ -217,9 +216,8 @@ export default async function ServicesPage() {
                         {sp.requestQuote}
                         <ArrowRight size={16} />
                       </Link>
-                    </div>
+                    </Reveal>
                   </div>
-                  </Reveal>
                 </div>
               </section>
             );

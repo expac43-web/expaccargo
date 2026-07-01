@@ -39,9 +39,11 @@ export default function RatesTable({ rates }: { rates: Record<string, number> })
       .filter((c) => c !== "XAF")
       .map((code) => ({ code, name: currencyName(code), xaf: xafPerUnit(rates, code) }))
       .filter((i): i is Row => i.xaf != null);
-    items.sort((a, b) => a.name.localeCompare(b.name, locale));
+    // Tri par CODE (déterministe SSR↔client) : les noms via Intl.DisplayNames
+    // peuvent différer entre Node et le navigateur → un tri par nom casse l'hydratation.
+    items.sort((a, b) => a.code.localeCompare(b.code));
     return items;
-  }, [rates, currencyName, locale]);
+  }, [rates, currencyName]);
 
   const featured = useMemo(
     () => FEATURED_CURRENCIES.map((code) => all.find((row) => row.code === code)).filter((row): row is Row => !!row),
@@ -73,7 +75,7 @@ export default function RatesTable({ rates }: { rates: Record<string, number> })
               <p className="text-2xl font-black relative z-10" style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>
                 {nf.format(row.xaf)} <span className="text-xs text-gray-400 font-normal">FCFA</span>
               </p>
-              <p className="text-xs text-gray-400 mt-0.5 capitalize relative z-10" style={{ fontFamily: "var(--font-lato)" }}>
+              <p suppressHydrationWarning className="text-xs text-gray-400 mt-0.5 capitalize relative z-10" style={{ fontFamily: "var(--font-lato)" }}>
                 1 {row.code} · {row.name}
               </p>
             </div>
@@ -115,7 +117,7 @@ export default function RatesTable({ rates }: { rates: Record<string, number> })
                       <td className="px-4 py-3">
                         <span className="flex items-center gap-2.5">
                           <CurrencyFlag code={i.code} size={22} />
-                          <span className="text-gray-700 capitalize" style={{ fontFamily: "var(--font-lato)" }}>{i.name}</span>
+                          <span suppressHydrationWarning className="text-gray-700 capitalize" style={{ fontFamily: "var(--font-lato)" }}>{i.name}</span>
                           {isFeatured && <Star size={11} className="shrink-0" style={{ color: "#E8520A" }} fill="#E8520A" />}
                         </span>
                       </td>

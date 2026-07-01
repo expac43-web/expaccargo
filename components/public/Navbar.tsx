@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import Logo from "@/components/ui/Logo";
 import { useState } from "react";
 import { Menu, X, LayoutDashboard, ChevronDown } from "lucide-react";
@@ -16,6 +17,9 @@ export default function Navbar() {
   const { t } = useT();
   const isLoading = status === "loading";
   const isLoggedIn = status === "authenticated";
+  const pathname = usePathname();
+  const isPath = (h: string) => (h === "/" ? pathname === "/" : pathname === h || pathname.startsWith(h + "/"));
+  const groupActive = (l: NavLink) => isPath(l.href) || (l.children?.some((c) => isPath(c.href)) ?? false);
 
   const links: NavLink[] = [
     { label: t.nav.home, href: "/" },
@@ -49,11 +53,12 @@ export default function Navbar() {
               <div key={l.href} className="relative group">
                 <Link
                   href={l.href}
-                  className="flex items-center gap-1 text-xs font-black uppercase tracking-wider text-gray-500 hover:text-[#1A3A6B] transition-colors"
+                  className={`relative flex items-center gap-1 text-xs font-black uppercase tracking-wider transition-colors ${groupActive(l) ? "text-[#1A3A6B]" : "text-gray-500 hover:text-[#1A3A6B]"}`}
                   style={{ fontFamily: "var(--font-montserrat)" }}
                 >
                   {l.label}
                   <ChevronDown size={13} className="transition-transform duration-200 group-hover:rotate-180" />
+                  {groupActive(l) && <span className="absolute -bottom-2 left-0 right-0 h-[2px] rounded-full" style={{ backgroundColor: "#E8520A" }} />}
                 </Link>
                 {/* pt-3 fait le pont sous le lien pour ne pas perdre le survol */}
                 <div className="absolute left-0 top-full pt-3 opacity-0 invisible translate-y-1 group-hover:opacity-100 group-hover:visible group-hover:translate-y-0 transition-all duration-150 z-50">
@@ -62,7 +67,7 @@ export default function Navbar() {
                       <Link
                         key={c.href}
                         href={c.href}
-                        className="block px-4 py-2.5 text-xs font-black uppercase tracking-wider text-gray-500 hover:text-[#1A3A6B] hover:bg-gray-50 transition-colors"
+                        className={`block px-4 py-2.5 text-xs font-black uppercase tracking-wider transition-colors ${isPath(c.href) ? "text-[#1A3A6B] bg-gray-50" : "text-gray-500 hover:text-[#1A3A6B] hover:bg-gray-50"}`}
                         style={{ fontFamily: "var(--font-montserrat)" }}
                       >
                         {c.label}
@@ -75,10 +80,11 @@ export default function Navbar() {
               <Link
                 key={l.href}
                 href={l.href}
-                className="text-xs font-black uppercase tracking-wider text-gray-500 hover:text-[#1A3A6B] transition-colors"
+                className={`relative text-xs font-black uppercase tracking-wider transition-colors ${isPath(l.href) ? "text-[#1A3A6B]" : "text-gray-500 hover:text-[#1A3A6B]"}`}
                 style={{ fontFamily: "var(--font-montserrat)" }}
               >
                 {l.label}
+                {isPath(l.href) && <span className="absolute -bottom-2 left-0 right-0 h-[2px] rounded-full" style={{ backgroundColor: "#E8520A" }} />}
               </Link>
             )
           )}
@@ -143,7 +149,7 @@ export default function Navbar() {
                       key={c.href}
                       href={c.href}
                       onClick={() => setOpen(false)}
-                      className="text-xs font-black uppercase tracking-wider text-gray-600 hover:text-[#1A3A6B]"
+                      className={`text-xs font-black uppercase tracking-wider ${isPath(c.href) ? "text-[#E8520A]" : "text-gray-600 hover:text-[#1A3A6B]"}`}
                       style={{ fontFamily: "var(--font-montserrat)" }}
                     >
                       {c.label}
@@ -156,7 +162,7 @@ export default function Navbar() {
                 key={l.href}
                 href={l.href}
                 onClick={() => setOpen(false)}
-                className="text-xs font-black uppercase tracking-wider text-gray-600 hover:text-[#1A3A6B]"
+                className={`text-xs font-black uppercase tracking-wider ${isPath(l.href) ? "text-[#E8520A]" : "text-gray-600 hover:text-[#1A3A6B]"}`}
                 style={{ fontFamily: "var(--font-montserrat)" }}
               >
                 {l.label}
