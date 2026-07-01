@@ -16,10 +16,10 @@ const ORANGE = "#E8520A";
 // Images de fond (optimisées AVIF/WebP par next/image, source volontairement modérée).
 const HERO_BG = "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=1600&q=55";
 const PILLARS_BG = "https://images.unsplash.com/photo-1759216373394-91146ca977c7?auto=format&fit=crop&w=1600&q=55";
-// Mosaïque de photos (style « service sur mesure »).
-const MOSAIC_TALL = "https://images.unsplash.com/photo-1759216373394-91146ca977c7?auto=format&fit=crop&w=800&q=55";
-const MOSAIC_A = "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=700&q=55";
-const MOSAIC_B = "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=700&q=55";
+// Mosaïque de photos (style « service sur mesure ») — variées.
+const MOSAIC_TALL = "https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&w=800&q=55"; // entrepôt rayonnages
+const MOSAIC_A = "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=700&q=55"; // camion
+const MOSAIC_B = "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=700&q=55"; // entrepôt colis
 
 const capabilities = [
   { img: "/illustrations/transit.webp", label: "Transit douanier" },
