@@ -4,9 +4,11 @@ import Image from "next/image";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
 import AgrementBadge from "@/components/public/AgrementBadge";
+import Reveal from "@/components/public/Reveal";
 import {
   Handshake, Target, ShieldCheck, CheckCircle2, MapPin, FileCheck2,
   AlertTriangle, Leaf, TrendingUp, Download, ArrowRight, Anchor,
+  Truck, Warehouse, Boxes, Ship,
 } from "lucide-react";
 
 const NAVY = "#1A3A6B";
@@ -15,6 +17,28 @@ const ORANGE = "#E8520A";
 // Images de fond (optimisées AVIF/WebP par next/image, source volontairement modérée).
 const HERO_BG = "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=1600&q=55";
 const PILLARS_BG = "https://images.unsplash.com/photo-1759216373394-91146ca977c7?auto=format&fit=crop&w=1600&q=55";
+// Mosaïque de photos (style « service sur mesure »).
+const MOSAIC_TALL = "https://images.unsplash.com/photo-1759216373394-91146ca977c7?auto=format&fit=crop&w=800&q=55";
+const MOSAIC_A = "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=700&q=55";
+const MOSAIC_B = "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=700&q=55";
+
+const capabilities = [
+  { icon: FileCheck2, label: "Transit douanier" },
+  { icon: Truck, label: "Transport multimodal" },
+  { icon: Warehouse, label: "Stockage sécurisé" },
+  { icon: Ship, label: "Consignation maritime" },
+  { icon: Boxes, label: "Groupage" },
+  { icon: MapPin, label: "Suivi en temps réel" },
+];
+
+const benefits = [
+  "Expédition internationale",
+  "Dédouanement maîtrisé",
+  "Suivi en temps réel",
+  "Support dédié et à l'écoute",
+  "Coûts logistiques optimisés",
+  "Livraison rapide et soignée",
+];
 
 export const metadata: Metadata = {
   title: "À propos — EXPAC, commissionnaire agréé en douane au Congo",
@@ -64,8 +88,8 @@ export default function AProposPage() {
           <Image src={HERO_BG} alt="Porte-conteneurs au port — EXPAC" fill priority sizes="100vw" className="object-cover" />
           <div className="absolute inset-0" style={{ background: "linear-gradient(120deg, rgba(11,30,64,0.94) 0%, rgba(26,58,107,0.86) 52%, rgba(36,77,134,0.55) 100%)" }} />
           <div className="absolute -right-24 -top-24 w-96 h-96 rounded-full opacity-10" style={{ backgroundColor: ORANGE }} />
-          <div className="container-custom relative z-10 py-24 lg:py-32">
-            <div className="max-w-3xl">
+          <div className="container-custom relative z-10 py-28 lg:py-44">
+            <div className="max-w-3xl px-1 sm:px-2">
               <h1 className="text-4xl md:text-6xl font-black text-white uppercase leading-[1.05] mb-6" style={{ fontFamily: "var(--font-montserrat)" }}>
                 Qui sommes-<span style={{ color: ORANGE }}>nous</span> ?
               </h1>
@@ -102,6 +126,27 @@ export default function AProposPage() {
           </div>
         </section>
 
+        {/* ── CAPACITÉS (bande d'icônes) ───────────────────── */}
+        <section className="bg-white pb-16 lg:pb-20">
+          <div className="container-custom">
+            <Reveal>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8">
+                {capabilities.map((c) => {
+                  const Icon = c.icon;
+                  return (
+                    <div key={c.label} className="flex flex-col items-center text-center gap-3">
+                      <div className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-sm transition-transform hover:-translate-y-1" style={{ background: "linear-gradient(135deg, rgba(26,58,107,0.08), rgba(232,82,10,0.10))" }}>
+                        <Icon size={28} strokeWidth={1.75} style={{ color: NAVY }} />
+                      </div>
+                      <span className="text-sm font-black uppercase tracking-wide leading-tight" style={{ color: NAVY, fontFamily: "var(--font-montserrat)" }}>{c.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </Reveal>
+          </div>
+        </section>
+
         {/* ── 4 ENGAGEMENTS (cartes numérotées) ────────────── */}
         <section className="bg-gray-50 py-20 lg:py-24">
           <div className="container-custom">
@@ -120,6 +165,48 @@ export default function AProposPage() {
                   </p>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── SERVICE SUR MESURE (mosaïque + checklist) ────── */}
+        <section className="bg-white py-16 lg:py-24">
+          <div className="container-custom">
+            <div className="rounded-[2rem] p-6 md:p-10 lg:p-12" style={{ background: "linear-gradient(135deg, rgba(26,58,107,0.05) 0%, rgba(232,82,10,0.05) 100%)" }}>
+              <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+                {/* Mosaïque de photos */}
+                <Reveal className="grid grid-cols-2 gap-4">
+                  <div className="relative rounded-2xl overflow-hidden aspect-[3/4] shadow-sm">
+                    <Image src={MOSAIC_TALL} alt="Terminal à conteneurs" fill sizes="(max-width:1024px) 45vw, 24vw" className="object-cover" />
+                  </div>
+                  <div className="flex flex-col gap-4">
+                    <div className="relative rounded-2xl overflow-hidden shadow-sm aspect-[4/3]">
+                      <Image src={MOSAIC_A} alt="Fret maritime" fill sizes="(max-width:1024px) 45vw, 24vw" className="object-cover" />
+                    </div>
+                    <div className="relative rounded-2xl overflow-hidden shadow-sm aspect-[4/3]">
+                      <Image src={MOSAIC_B} alt="Fret aérien" fill sizes="(max-width:1024px) 45vw, 24vw" className="object-cover" />
+                    </div>
+                  </div>
+                </Reveal>
+
+                {/* Texte + checklist */}
+                <Reveal delay={120}>
+                  <h2 className="text-3xl md:text-4xl font-black leading-tight mb-6" style={{ color: NAVY, fontFamily: "var(--font-montserrat)" }}>
+                    Nous répondons à vos besoins par un <span style={{ color: ORANGE }}>service sur mesure</span>
+                  </h2>
+                  <div className="grid sm:grid-cols-2 gap-x-6 gap-y-4 mb-8">
+                    {benefits.map((b) => (
+                      <div key={b} className="flex items-center gap-2.5">
+                        <CheckCircle2 size={20} className="shrink-0" style={{ color: ORANGE }} />
+                        <span className="text-base text-gray-700" style={{ fontFamily: "var(--font-lato)" }}>{b}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <Link href="/services" className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-black text-white uppercase tracking-wide text-sm transition-all hover:scale-105" style={{ backgroundColor: NAVY, fontFamily: "var(--font-montserrat)" }}>
+                    En savoir plus <ArrowRight size={16} />
+                  </Link>
+                </Reveal>
+              </div>
             </div>
           </div>
         </section>
