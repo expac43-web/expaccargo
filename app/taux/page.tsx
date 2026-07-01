@@ -30,17 +30,19 @@ export default async function TauxPage() {
   const dl = locale === "en" ? "en-US" : "fr-FR";
 
   return (
-    <div
-      className="min-h-screen flex flex-col"
-      style={{
-        backgroundColor: "#f4f6f9",
-        backgroundImage: "url('/illustrations/fond.webp')",
-        backgroundSize: "cover",
-        backgroundPosition: "center top",
-        backgroundAttachment: "fixed",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
+    <div className="min-h-screen flex flex-col relative">
+      {/* Fond planisphère — couche fixe plein écran, discrète et non étirée */}
+      <div
+        aria-hidden
+        className="fixed inset-0 -z-10 pointer-events-none"
+        style={{
+          backgroundColor: "#eef1f6",
+          backgroundImage: "url('/illustrations/fond.webp')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      />
       <Navbar />
       <main className="flex-1 pt-16">
         {/* Header */}
@@ -59,9 +61,31 @@ export default async function TauxPage() {
           </div>
         </div>
 
-        <div className="relative overflow-hidden py-14">
-          <Image src="/illustrations/change.webp" alt="Taux de change — devises internationales" fill sizes="100vw" className="object-cover" />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(244,246,249,0.90) 0%, rgba(244,246,249,0.84) 100%)" }} />
+        {/* Bandeau illustration devises — change.webp est ici pleinement visible */}
+        <div className="relative h-56 md:h-72 overflow-hidden">
+          <Image
+            src="/illustrations/change.webp"
+            alt="Devises internationales — dollar, euro, livre, yen, roupie"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+            style={{ objectPosition: "center 40%" }}
+          />
+          {/* Voile léger, uniquement en bas, pour fondre le bandeau dans la section */}
+          <div
+            className="absolute inset-0"
+            style={{ background: "linear-gradient(180deg, rgba(11,30,64,0.12) 0%, rgba(238,241,246,0) 42%, rgba(238,241,246,0.55) 78%, #eef1f6 100%)" }}
+          />
+          <div className="container-custom relative z-10 h-full flex items-end pb-6">
+            <p className="text-sm md:text-base font-black uppercase tracking-[0.15em]" style={{ color: "#0e2248", fontFamily: "var(--font-montserrat)" }}>
+              {locale === "en" ? "International currencies" : "Devises internationales"}
+            </p>
+          </div>
+        </div>
+
+        {/* Section table — fond translucide : le planisphère reste visible derrière */}
+        <div className="relative pt-10 pb-16">
           <div className="container-custom relative z-10">
             {!data ? (
               <div className="bg-white rounded-2xl border border-gray-100 p-10 text-center">
@@ -70,7 +94,7 @@ export default async function TauxPage() {
               </div>
             ) : (
               <>
-                <div className="flex items-center gap-2 mb-5 text-xs text-gray-500" style={{ fontFamily: "var(--font-lato)" }}>
+                <div className="flex items-center gap-2 mb-5 text-xs text-gray-600" style={{ fontFamily: "var(--font-lato)" }}>
                   <TrendingUp size={14} style={{ color: "#16a34a" }} />
                   {r.indicative}
                 </div>
