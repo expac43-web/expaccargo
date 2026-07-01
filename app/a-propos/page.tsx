@@ -5,7 +5,6 @@ import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
 import AgrementBadge from "@/components/public/AgrementBadge";
 import Reveal from "@/components/public/Reveal";
-import IsoIcon from "@/components/public/IsoIcon";
 import {
   Handshake, Target, ShieldCheck, CheckCircle2, MapPin, FileCheck2,
   AlertTriangle, Leaf, TrendingUp, Download, ArrowRight, Anchor,
@@ -23,12 +22,12 @@ const MOSAIC_A = "https://images.unsplash.com/photo-1578575437130-527eed3abbec?a
 const MOSAIC_B = "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=700&q=55";
 
 const capabilities = [
-  { iso: "transit", label: "Transit douanier" },
-  { iso: "transport", label: "Transport multimodal" },
-  { iso: "stockage", label: "Stockage sécurisé" },
-  { iso: "maritime", label: "Consignation maritime" },
-  { iso: "groupage", label: "Groupage" },
-  { iso: "suivi", label: "Suivi en temps réel" },
+  { img: "/illustrations/transit.webp", label: "Transit douanier" },
+  { img: "/illustrations/transport.webp", label: "Transport multimodal" },
+  { img: "/illustrations/stockage.webp", label: "Stockage sécurisé" },
+  { img: "/illustrations/consignation.webp", label: "Consignation maritime" },
+  { img: "/illustrations/groupage.webp", label: "Groupage" },
+  { img: "/illustrations/suivi.webp", label: "Suivi en temps réel" },
 ];
 
 const benefits = [
@@ -84,11 +83,11 @@ export default function AProposPage() {
 
       <main className="flex-1 pt-16">
         {/* ── HERO « Qui sommes-nous » (image de fond) ─────── */}
-        <section className="relative overflow-hidden">
+        <section className="relative overflow-hidden py-24 lg:py-36">
           <Image src={HERO_BG} alt="Porte-conteneurs au port — EXPAC" fill priority sizes="100vw" className="object-cover" />
           <div className="absolute inset-0" style={{ background: "linear-gradient(120deg, rgba(11,30,64,0.94) 0%, rgba(26,58,107,0.86) 52%, rgba(36,77,134,0.55) 100%)" }} />
           <div className="absolute -right-24 -top-24 w-96 h-96 rounded-full opacity-10" style={{ backgroundColor: ORANGE }} />
-          <div className="container-custom relative z-10 py-24 lg:py-32">
+          <div className="container-custom relative z-10">
             <div className="max-w-3xl">
               <h1 className="text-4xl md:text-6xl font-black text-white uppercase leading-[1.05] mb-6" style={{ fontFamily: "var(--font-montserrat)" }}>
                 Qui sommes-<span style={{ color: ORANGE }}>nous</span> ?
@@ -133,7 +132,7 @@ export default function AProposPage() {
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-x-6 gap-y-10">
                 {capabilities.map((c) => (
                   <div key={c.label} className="flex flex-col items-center text-center gap-3">
-                    <IsoIcon name={c.iso} size={76} className="transition-transform duration-200 hover:-translate-y-1.5" />
+                    <Image src={c.img} alt={c.label} width={104} height={104} className="w-24 h-24 object-contain transition-transform duration-200 hover:-translate-y-1.5" />
                     <span className="text-sm font-black uppercase tracking-wide leading-tight" style={{ color: NAVY, fontFamily: "var(--font-montserrat)" }}>{c.label}</span>
                   </div>
                 ))}
