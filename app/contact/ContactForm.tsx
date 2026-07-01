@@ -9,7 +9,7 @@ import Reveal from "@/components/public/Reveal";
 
 const labelCls = "block text-xs font-black uppercase tracking-wider mb-1.5 text-gray-600";
 const inputCls = "w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#1A3A6B] focus:ring-2 focus:ring-[#1A3A6B]/10 transition-all bg-white";
-const CONTACT_HEADER = "https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1600&q=55";
+const CONTACT_HEADER = "https://images.unsplash.com/photo-1759216373394-91146ca977c7?auto=format&fit=crop&w=1600&q=55";
 
 export default function ContactForm() {
   const { t } = useT();
@@ -50,7 +50,7 @@ export default function ContactForm() {
     <main className="flex-1 pt-16">
       {/* Header — image de fond (équipe en échange) + voile navy */}
       <div className="relative py-20 overflow-hidden">
-        <Image src={CONTACT_HEADER} alt="Contact — équipe EXPAC" fill priority sizes="100vw" className="object-cover" />
+        <Image src={CONTACT_HEADER} alt="Contact — terminal à conteneurs EXPAC" fill priority sizes="100vw" className="object-cover" />
         <div className="absolute inset-0" style={{ background: "linear-gradient(120deg, rgba(14,34,72,0.95) 0%, rgba(26,58,107,0.88) 55%, rgba(42,82,152,0.74) 100%)" }} />
         <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full opacity-10" style={{ backgroundColor: "#E8520A" }} />
         <div className="absolute -left-10 bottom-0 w-56 h-56 rounded-full opacity-10" style={{ backgroundColor: "#E8520A" }} />
