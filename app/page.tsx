@@ -88,6 +88,8 @@ const structuredData = {
 };
 import HeroSlider from "@/components/public/HeroSlider";
 import AgrementBadge from "@/components/public/AgrementBadge";
+import Reveal from "@/components/public/Reveal";
+import CountUp from "@/components/public/CountUp";
 import PartnersCarousel from "@/components/public/PartnersCarousel";
 import RatesSummary from "@/components/public/RatesSummary";
 import { getRates } from "@/lib/rates";
@@ -176,7 +178,7 @@ export default async function HomePage() {
         {/* ── HERO ─────────────────────────────────────────── */}
         <HeroSlider>
           <div className="container-custom py-28 lg:py-36">
-            <div className="max-w-3xl">
+            <div className="max-w-3xl animate-fade-in-up">
               {/* Badges */}
               <div className="flex flex-wrap items-center gap-3 mb-8">
                 <span
@@ -199,10 +201,7 @@ export default async function HomePage() {
                 style={{ fontFamily: "var(--font-montserrat)", letterSpacing: "-0.01em" }}
               >
                 {h.hero.titlePre}{" "}
-                <span
-                  className="relative inline-block"
-                  style={{ color: "#E8520A" }}
-                >
+                <span className="relative inline-block text-gradient-brand">
                   {h.hero.titleHighlight}
                 </span>
                 <br />
@@ -283,13 +282,11 @@ export default async function HomePage() {
 
           <div className="container-custom relative z-10">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-0 divide-x divide-white/10">
-              {statMeta.map((s) => {
+              {statMeta.map((s, i) => {
                 const Icon = s.icon;
                 return (
-                  <div
-                    key={s.key}
-                    className="flex flex-col items-center text-center px-6 py-4"
-                  >
+                  <Reveal key={s.key} delay={i * 90}>
+                  <div className="flex flex-col items-center text-center px-6 py-4">
                     <div
                       className="w-10 h-10 rounded-lg flex items-center justify-center mb-4"
                       style={{ backgroundColor: "rgba(232,82,10,0.2)" }}
@@ -303,7 +300,7 @@ export default async function HomePage() {
                         fontFamily: "var(--font-montserrat)",
                       }}
                     >
-                      {s.value}
+                      <CountUp value={s.value} />
                     </div>
                     <div
                       className="w-8 h-0.5 mb-3"
@@ -316,6 +313,7 @@ export default async function HomePage() {
                       {h.stats[s.key]}
                     </div>
                   </div>
+                  </Reveal>
                 );
               })}
             </div>
@@ -325,6 +323,7 @@ export default async function HomePage() {
         {/* ── SERVICES ─────────────────────────────────────── */}
         <section className="bg-white py-24">
           <div className="container-custom">
+            <Reveal>
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-4">
               <div>
                 <p
@@ -476,6 +475,7 @@ export default async function HomePage() {
                 </Link>
               </div>
             </div>
+            </Reveal>
           </div>
         </section>
 
@@ -485,12 +485,13 @@ export default async function HomePage() {
           className="relative overflow-hidden py-20"
         >
           <div
-            className="absolute -right-16 -bottom-16 w-72 h-72 rounded-full opacity-10 bg-white"
+            className="absolute -right-16 -bottom-16 w-72 h-72 rounded-full opacity-10 bg-white float-slow"
           />
           <div
-            className="absolute -left-8 -top-8 w-48 h-48 rounded-full opacity-10 bg-white"
+            className="absolute -left-8 -top-8 w-48 h-48 rounded-full opacity-10 bg-white float-slow"
+            style={{ animationDelay: "1.5s" }}
           />
-          <div className="container-custom text-center relative z-10">
+          <Reveal className="container-custom text-center relative z-10">
             <p
               className="text-orange-100 text-xs font-black uppercase tracking-[0.2em] mb-4"
               style={{ fontFamily: "var(--font-montserrat)" }}
@@ -527,12 +528,13 @@ export default async function HomePage() {
                 {h.tracking.btn}
               </Link>
             </div>
-          </div>
+          </Reveal>
         </section>
 
         {/* ── POURQUOI EXPAC ────────────────────────────────── */}
         <section className="bg-gray-50 py-24">
           <div className="container-custom">
+            <Reveal>
             <div className="text-center mb-16">
               <p
                 className="text-xs font-black uppercase tracking-[0.2em] mb-4"
@@ -586,12 +588,14 @@ export default async function HomePage() {
                 );
               })}
             </div>
+            </Reveal>
           </div>
         </section>
 
         {/* ── CONTACT CTA ──────────────────────────────────── */}
         <section className="bg-white py-24">
           <div className="container-custom">
+            <Reveal>
             <div
               className="rounded-3xl p-10 md:p-16 relative overflow-hidden"
               style={{
@@ -645,6 +649,7 @@ export default async function HomePage() {
                 </div>
               </div>
             </div>
+            </Reveal>
           </div>
         </section>
         {/* ── TAUX DU JOUR (résumé) ─────────────────────────── */}

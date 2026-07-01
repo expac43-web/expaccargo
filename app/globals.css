@@ -209,10 +209,45 @@ html {
 .img-zoom { transition: transform 0.45s ease; }
 .group:hover .img-zoom { transform: scale(1.06); }
 
+/* ── Révélation au défilement (JS ajoute .is-visible via IntersectionObserver) ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transition-delay: var(--reveal-delay, 0s);
+  will-change: opacity, transform;
+}
+.reveal.is-visible { opacity: 1; transform: none; }
+
+/* Lévitation lente des éléments décoratifs (blobs) */
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-18px); }
+}
+.float-slow { animation: floatSlow 9s ease-in-out infinite; }
+
+/* Dégradé de marque animé pour un mot mis en avant */
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+.text-gradient-brand {
+  background: linear-gradient(90deg, #E8520A, #fba563, #E8520A);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: gradientShift 6s ease infinite;
+}
+
 /* Accessibilité + perf : on coupe tout si l'utilisateur préfère moins d'animations */
 @media (prefers-reduced-motion: reduce) {
   .animate-fade-in-up { animation: none; }
   .card-lift, .img-zoom { transition: none; }
   .card-lift:hover { transform: none; box-shadow: none; }
   .group:hover .img-zoom { transform: none; }
+  .reveal { opacity: 1; transform: none; transition: none; }
+  .float-slow { animation: none; }
+  .text-gradient-brand { animation: none; }
 }
