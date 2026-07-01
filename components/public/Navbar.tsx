@@ -28,7 +28,7 @@ export default function Navbar() {
         { label: t.nav.requestQuote, href: "/devis" },
       ],
     },
-    { label: t.nav.tracking, href: "/tracking" },
+    { label: t.nav.about, href: "/a-propos" },
     { label: t.nav.rates, href: "/taux" },
     { label: t.nav.news, href: "/actualites" },
     { label: t.nav.contact, href: "/contact" },

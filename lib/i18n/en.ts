@@ -9,6 +9,7 @@ const en: Dict = {
     calculator: "Quote calculator",
     requestQuote: "Request a quote",
     tracking: "Tracking",
+    about: "About",
     rates: "Rates",
     news: "News",
     contact: "Contact",

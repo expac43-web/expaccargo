@@ -10,6 +10,7 @@ const fr = {
     calculator: "Calculateur de devis",
     requestQuote: "Demander un devis",
     tracking: "Suivi",
+    about: "À propos",
     rates: "Taux",
     news: "Actualités",
     contact: "Contact",

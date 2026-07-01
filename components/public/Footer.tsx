@@ -4,10 +4,12 @@ import Link from "next/link";
 import Logo from "@/components/ui/Logo";
 import { MapPin, Phone, Mail, Globe } from "lucide-react";
 import { useT } from "@/components/i18n/LanguageProvider";
+import WhatsAppFloat from "@/components/public/WhatsAppFloat";
 
 export default function Footer() {
   const { t } = useT();
   return (
+    <>
     <footer style={{ backgroundColor: "#1A3A6B" }} className="text-white">
       {/* Top accent line */}
       <div style={{ backgroundColor: "#E8520A" }} className="h-1 w-full" />
@@ -172,5 +174,7 @@ export default function Footer() {
         </div>
       </div>
     </footer>
+    <WhatsAppFloat />
+    </>
   );
 }
