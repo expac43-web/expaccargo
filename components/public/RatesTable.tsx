@@ -110,10 +110,10 @@ export default function RatesTable({ rates }: { rates: Record<string, number> })
               {filtered.length === 0 ? (
                 <tr><td colSpan={3} className="px-4 py-8 text-center text-sm text-gray-400" style={{ fontFamily: "var(--font-lato)" }}>{r.none}</td></tr>
               ) : (
-                filtered.map((i) => {
+                filtered.map((i, idx) => {
                   const isFeatured = FEATURED_CURRENCIES.includes(i.code);
                   return (
-                    <tr key={i.code} className="border-b border-gray-50 hover:bg-[#1A3A6B]/[0.03] transition-colors">
+                    <tr key={i.code} className={`border-b border-gray-100 transition-colors hover:bg-[#1A3A6B]/[0.06] ${idx % 2 === 1 ? "bg-gray-50" : "bg-white"}`}>
                       <td className="px-4 py-3">
                         <span className="flex items-center gap-2.5">
                           <CurrencyFlag code={i.code} size={22} />

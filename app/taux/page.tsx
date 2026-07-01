@@ -45,8 +45,22 @@ export default async function TauxPage() {
       />
       <Navbar />
       <main className="flex-1 pt-16">
-        {/* Header */}
-        <div className="relative py-16 overflow-hidden" style={{ background: "linear-gradient(135deg, #0e2248 0%, #1A3A6B 60%, #2a5298 100%)" }}>
+        {/* Header — illustration devises (change.webp) en arrière-plan de la section */}
+        <div className="relative py-20 overflow-hidden">
+          <Image
+            src="/illustrations/change.webp"
+            alt="Devises internationales — dollar, euro, livre, yen, roupie"
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+            style={{ objectPosition: "center 42%" }}
+          />
+          {/* Voile navy : dense à gauche (lisibilité du texte) → plus clair à droite (on voit les pièces) */}
+          <div
+            className="absolute inset-0"
+            style={{ background: "linear-gradient(100deg, rgba(14,34,72,0.96) 0%, rgba(18,42,84,0.92) 36%, rgba(26,58,107,0.66) 66%, rgba(42,82,152,0.42) 100%)" }}
+          />
           <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full opacity-10" style={{ backgroundColor: "#E8520A" }} />
           <div className="container-custom relative z-10">
             <p className="text-xs font-black uppercase tracking-[0.2em] mb-4" style={{ color: "#fba563", fontFamily: "var(--font-montserrat)" }}>
@@ -61,31 +75,8 @@ export default async function TauxPage() {
           </div>
         </div>
 
-        {/* Bandeau illustration devises — change.webp est ici pleinement visible */}
-        <div className="relative h-56 md:h-72 overflow-hidden">
-          <Image
-            src="/illustrations/change.webp"
-            alt="Devises internationales — dollar, euro, livre, yen, roupie"
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-            style={{ objectPosition: "center 40%" }}
-          />
-          {/* Voile léger, uniquement en bas, pour fondre le bandeau dans la section */}
-          <div
-            className="absolute inset-0"
-            style={{ background: "linear-gradient(180deg, rgba(11,30,64,0.12) 0%, rgba(238,241,246,0) 42%, rgba(238,241,246,0.55) 78%, #eef1f6 100%)" }}
-          />
-          <div className="container-custom relative z-10 h-full flex items-end pb-6">
-            <p className="text-sm md:text-base font-black uppercase tracking-[0.15em]" style={{ color: "#0e2248", fontFamily: "var(--font-montserrat)" }}>
-              {locale === "en" ? "International currencies" : "Devises internationales"}
-            </p>
-          </div>
-        </div>
-
         {/* Section table — fond translucide : le planisphère reste visible derrière */}
-        <div className="relative pt-10 pb-16">
+        <div className="relative pt-12 pb-16">
           <div className="container-custom relative z-10">
             {!data ? (
               <div className="bg-white rounded-2xl border border-gray-100 p-10 text-center">
