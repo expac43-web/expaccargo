@@ -34,13 +34,13 @@ const SERVICE_MAP: Record<string, string> = {
   GROUPAGE: "GROUPAGE",
 };
 
-// id + icône (les libellés viennent du dictionnaire).
+// id + icône 3D (les libellés viennent du dictionnaire ; icône lucide gardée en repli).
 const serviceMeta = [
-  { id: "TRANSIT", icon: Plane },
-  { id: "TRANSPORT", icon: Truck },
-  { id: "STOCKAGE", icon: Warehouse },
-  { id: "CONSIGNATION", icon: Ship },
-  { id: "GROUPAGE", icon: Package },
+  { id: "TRANSIT", icon: Plane, iso: "/illustrations/transit.webp" },
+  { id: "TRANSPORT", icon: Truck, iso: "/illustrations/transport.webp" },
+  { id: "STOCKAGE", icon: Warehouse, iso: "/illustrations/stockage.webp" },
+  { id: "CONSIGNATION", icon: Ship, iso: "/illustrations/consignation.webp" },
+  { id: "GROUPAGE", icon: Package, iso: "/illustrations/groupage.webp" },
 ] as const;
 
 // Valeurs stables (stockées dans la note interne) ; affichage traduit via le dico.
@@ -140,8 +140,15 @@ export default function DevisForm() {
 
   return (
     <main className="flex-1 pt-16">
-      {/* Header */}
-      <div className="relative py-16 overflow-hidden" style={{ background: "linear-gradient(135deg, #0e2248 0%, #1A3A6B 60%, #2a5298 100%)" }}>
+      {/* Header — slider d'images cargo en arrière-plan + voile navy */}
+      <div className="relative py-20 overflow-hidden">
+        {sliderImages.map((img, i) => (
+          <div key={i} className="absolute inset-0 transition-opacity duration-1000 ease-in-out" style={{ opacity: i === slide ? 1 : 0 }}>
+            <Image src={img.src} alt={img.alt} fill priority={i === 0} className="object-cover" sizes="100vw" />
+          </div>
+        ))}
+        {/* Voile navy : dense à gauche (texte lisible) → plus clair à droite (on voit le cargo) */}
+        <div className="absolute inset-0" style={{ background: "linear-gradient(115deg, rgba(14,34,72,0.95) 0%, rgba(20,45,90,0.9) 42%, rgba(26,58,107,0.68) 72%, rgba(42,82,152,0.5) 100%)" }} />
         <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full opacity-10" style={{ backgroundColor: "#E8520A" }} />
         <div className="absolute -left-10 bottom-0 w-56 h-56 rounded-full opacity-10" style={{ backgroundColor: "#E8520A" }} />
         <div className="container-custom relative z-10">
@@ -159,21 +166,11 @@ export default function DevisForm() {
           >
             <Calculator size={14} /> {df.estimateFirst}
           </Link>
-        </div>
-      </div>
 
-      {/* Mini slider */}
-      <div className="relative h-48 overflow-hidden">
-        {sliderImages.map((img, i) => (
-          <div key={i} className="absolute inset-0 transition-opacity duration-1000 ease-in-out" style={{ opacity: i === slide ? 1 : 0 }}>
-            <Image src={img.src} alt={img.alt} fill className="object-cover" sizes="100vw" />
-          </div>
-        ))}
-        <div className="absolute inset-0 z-10" style={{ backgroundColor: "rgba(14, 34, 72, 0.75)" }} />
-        <div className="absolute inset-0 z-20 flex items-center justify-center">
-          <div className="flex flex-wrap items-center justify-center gap-6 px-4">
+          {/* Badges de réassurance */}
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 mt-8">
             {badges.map(({ icon: Icon, text }) => (
-              <div key={text} className="flex items-center gap-3">
+              <div key={text} className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ backgroundColor: "#E8520A" }}>
                   <Icon size={16} className="text-white" />
                 </div>
@@ -181,12 +178,14 @@ export default function DevisForm() {
               </div>
             ))}
           </div>
-        </div>
-        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-30 flex gap-1.5">
-          {sliderImages.map((_, i) => (
-            <button key={i} onClick={() => setSlide(i)} aria-label={`Slide ${i + 1}`} className="rounded-full transition-all duration-300"
-              style={{ width: i === slide ? "1.25rem" : "0.375rem", height: "0.375rem", backgroundColor: i === slide ? "#E8520A" : "rgba(255,255,255,0.4)" }} />
-          ))}
+
+          {/* Points du slider */}
+          <div className="flex gap-1.5 mt-6">
+            {sliderImages.map((_, i) => (
+              <button key={i} onClick={() => setSlide(i)} aria-label={`Image ${i + 1}`} className="rounded-full transition-all duration-300"
+                style={{ width: i === slide ? "1.25rem" : "0.375rem", height: "0.375rem", backgroundColor: i === slide ? "#E8520A" : "rgba(255,255,255,0.4)" }} />
+            ))}
+          </div>
         </div>
       </div>
 
@@ -214,16 +213,14 @@ export default function DevisForm() {
                 <div className="bg-white rounded-2xl border border-gray-100 p-7 shadow-sm">
                   <SectionTitle number="01" title={df.s1} />
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-5">
-                    {serviceMeta.map(({ id, icon: Icon }) => {
+                    {serviceMeta.map(({ id, iso }) => {
                       const active = selectedService === id;
                       return (
                         <button key={id} type="button" onClick={() => setSelectedService(id)}
-                          className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all text-center"
+                          className="group flex flex-col items-center gap-2.5 p-4 rounded-xl border-2 transition-all text-center hover:-translate-y-0.5"
                           style={{ borderColor: active ? "#1A3A6B" : "#e5e7eb", backgroundColor: active ? "rgba(26,58,107,0.05)" : "white" }}>
-                          <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: active ? "#1A3A6B" : "#f3f4f6" }}>
-                            <Icon size={18} style={{ color: active ? "white" : "#9ca3af" }} />
-                          </div>
-                          <span className="text-xs font-black uppercase leading-tight" style={{ color: active ? "#1A3A6B" : "#9ca3af", fontFamily: "var(--font-montserrat)" }}>{df.services[id]}</span>
+                          <Image src={iso} alt="" width={56} height={56} className="w-14 h-14 object-contain transition-transform duration-300 group-hover:scale-110" style={{ filter: active ? "none" : "grayscale(0.2) opacity(0.85)" }} />
+                          <span className="text-xs font-black uppercase leading-tight" style={{ color: active ? "#1A3A6B" : "#6b7280", fontFamily: "var(--font-montserrat)" }}>{df.services[id]}</span>
                         </button>
                       );
                     })}
