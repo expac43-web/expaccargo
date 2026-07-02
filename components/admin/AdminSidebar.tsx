@@ -13,6 +13,7 @@ import {
   FileText,
   Newspaper,
   Handshake,
+  MessageSquareQuote,
   LogOut,
   ChevronRight,
   ShieldCheck,
@@ -34,6 +35,7 @@ const navItems = [
   { label: "Devis",           href: "/dashboard/admin/devis", icon: FileText },
   { label: "Tarifs",          href: "/dashboard/admin/tarifs", icon: Calculator },
   { label: "Actualités",      href: "/dashboard/admin/actualites", icon: Newspaper },
+  { label: "Commentaires",    href: "/dashboard/admin/commentaires", icon: MessageSquareQuote },
   { label: "Partenaires",     href: "/dashboard/admin/partenaires", icon: Handshake },
   { label: "Mon profil",      href: "/dashboard/admin/profil", icon: UserCircle },
 ];

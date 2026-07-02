@@ -92,6 +92,7 @@ import Reveal from "@/components/public/Reveal";
 import CountUp from "@/components/public/CountUp";
 import PartnersCarousel from "@/components/public/PartnersCarousel";
 import RatesSummary from "@/components/public/RatesSummary";
+import CommentsSection from "@/components/public/CommentsSection";
 import { getRates } from "@/lib/rates";
 import Link from "next/link";
 import Image from "next/image";
@@ -167,9 +168,34 @@ async function fetchPartners(): Promise<Partner[]> {
   }
 }
 
+type PublicComment = {
+  id: string; authorName: string; authorRole: string | null;
+  rating: number | null; content: string; createdAt: string;
+};
+
+async function fetchComments(): Promise<PublicComment[]> {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/Comment?status=eq.APPROVED&order=createdAt.desc&limit=9&select=id,authorName,authorRole,rating,content,createdAt`,
+      {
+        headers: {
+          apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
+        },
+        next: { revalidate: 60 },
+      }
+    );
+    if (!res.ok) return [];
+    return res.json();
+  } catch {
+    return [];
+  }
+}
+
 export default async function HomePage() {
   const partners = await fetchPartners();
   const rates = await getRates();
+  const comments = await fetchComments();
   const t = await getServerDict();
   const h = t.home;
   return (
@@ -631,6 +657,9 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* ── AVIS CLIENTS (commentaires modérés) ──────────── */}
+        <CommentsSection initial={comments} />
 
         {/* ── CONTACT CTA ──────────────────────────────────── */}
         <section className="bg-white py-24">

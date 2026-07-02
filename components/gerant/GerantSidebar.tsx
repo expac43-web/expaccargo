@@ -7,7 +7,7 @@ import { signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import {
   LayoutDashboard, Users, Package, FolderOpen,
-  MessageSquare, UserCircle, LogOut, Menu, X, Gauge, Newspaper, Calculator, FileText,
+  MessageSquare, MessageSquareQuote, UserCircle, LogOut, Menu, X, Gauge, Newspaper, Calculator, FileText,
 } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 import GlobalSearch from "@/components/GlobalSearch";
@@ -22,6 +22,7 @@ const navItems = [
   { label: "Documents",       href: "/dashboard/gerant/documents",   icon: FolderOpen },
   { label: "Devis",           href: "/dashboard/gerant/devis",       icon: FileText },
   { label: "Actualités",      href: "/dashboard/gerant/actualites",  icon: Newspaper },
+  { label: "Commentaires",    href: "/dashboard/gerant/commentaires", icon: MessageSquareQuote },
   { label: "Tarifs",          href: "/dashboard/gerant/tarifs",      icon: Calculator },
   { label: "Messages",        href: "/dashboard/gerant/messages",    icon: MessageSquare },
   { label: "Mon profil",      href: "/dashboard/gerant/profil",      icon: UserCircle },
