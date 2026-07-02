@@ -2,6 +2,7 @@ import type { ElementType } from "react";
 import type { Metadata } from "next";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
+import Image from "next/image";
 import StorageSearch from "@/components/public/StorageSearch";
 import { getServerLocale } from "@/lib/i18n/server";
 import { getDictionary } from "@/lib/i18n";
@@ -19,6 +20,7 @@ export const metadata: Metadata = {
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const STORAGE_HEADER = "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=1600&q=55"; // entrepôt / colis
 
 type StorageItem = {
   id: string;
@@ -74,8 +76,10 @@ export default async function StoragePage(props: { searchParams: Promise<{ ref?:
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-1 pt-16">
-        {/* Header */}
-        <div className="relative py-16 overflow-hidden" style={{ background: "linear-gradient(135deg, #0e2248 0%, #1A3A6B 60%, #2a5298 100%)" }}>
+        {/* Header — image de fond (entrepôt) + voile navy */}
+        <div className="relative py-20 overflow-hidden">
+          <Image src={STORAGE_HEADER} alt="Entrepôt — colis stockés" fill priority sizes="100vw" className="object-cover" />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(120deg, rgba(14,34,72,0.95) 0%, rgba(26,58,107,0.88) 55%, rgba(42,82,152,0.7) 100%)" }} />
           <div className="absolute -right-20 -top-20 w-80 h-80 rounded-full opacity-10" style={{ backgroundColor: "#E8520A" }} />
           <div className="absolute -left-10 bottom-0 w-56 h-56 rounded-full opacity-10" style={{ backgroundColor: "#E8520A" }} />
           <div className="container-custom relative z-10">

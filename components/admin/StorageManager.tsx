@@ -20,6 +20,8 @@ type StorageItem = {
   location: "BZV" | "PN";
   notes: string | null;
   agencyId: string | null;
+  agencyName?: string | null;
+  creatorName?: string | null;
 };
 
 const labelCls = "block text-xs font-black uppercase tracking-wider mb-1.5 text-gray-600";
@@ -54,14 +56,17 @@ const emptyForm = {
   reference: "", clientName: "", description: "",
   entryDate: new Date().toISOString().slice(0, 10),
   expectedExitDate: "", status: "AWAITING" as StorageStatus, location: "PN" as "BZV" | "PN", notes: "",
+  agencyId: "",
 };
 
 export default function StorageManager({
   canManageAll = true,
   myAgencyId = null,
+  agencies = [],
 }: {
   canManageAll?: boolean;
   myAgencyId?: string | null;
+  agencies?: { id: string; name: string }[];
 }) {
   const [items, setItems] = useState<StorageItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,12 +79,12 @@ export default function StorageManager({
   const [error, setError] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetch("/api/admin/storage")
-      .then((r) => r.json())
-      .then((d) => setItems(Array.isArray(d) ? d : []))
-      .finally(() => setLoading(false));
-  }, []);
+  async function load() {
+    const r = await fetch("/api/admin/storage");
+    const d = await r.json();
+    setItems(Array.isArray(d) ? d : []);
+  }
+  useEffect(() => { load().finally(() => setLoading(false)); }, []);
 
   const counts = {
     AWAITING: items.filter((i) => effectiveStatus(i) === "AWAITING").length,
@@ -99,6 +104,7 @@ export default function StorageManager({
       reference: it.reference, clientName: it.clientName ?? "", description: it.description ?? "",
       entryDate: toDateInput(it.entryDate), expectedExitDate: toDateInput(it.expectedExitDate),
       status: it.status, location: it.location, notes: it.notes ?? "",
+      agencyId: it.agencyId ?? "",
     });
     setEditing(it); setError(""); setModal("edit");
   }
@@ -106,6 +112,7 @@ export default function StorageManager({
   async function save() {
     if (!form.reference.trim()) { setError("La référence est obligatoire."); return; }
     if (!form.entryDate) { setError("La date d'entrée est obligatoire."); return; }
+    if (canManageAll && !form.agencyId) { setError("Veuillez attribuer le colis à une agence."); return; }
     setSaving(true); setError("");
     try {
       const url = editing ? `/api/admin/storage/${editing.id}` : "/api/admin/storage";
@@ -113,8 +120,7 @@ export default function StorageManager({
       const r = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(form) });
       const data = await r.json();
       if (!r.ok) { setError(data.error ?? "Erreur"); return; }
-      if (editing) setItems((prev) => prev.map((x) => (x.id === editing.id ? { ...x, ...data } : x)));
-      else setItems((prev) => [data, ...prev]);
+      await load();
       setModal(null);
     } finally { setSaving(false); }
   }
@@ -204,6 +210,11 @@ export default function StorageManager({
                     <div className="flex items-center gap-1.5 text-gray-500 col-span-2"><MapPin size={13} style={{ color: "#1A3A6B" }} /> {LOCATION_LABEL[it.location]}</div>
                   </div>
 
+                  <p className="text-[11px] text-gray-400 mb-3" style={{ fontFamily: "var(--font-lato)" }}>
+                    Agence : <span className="font-bold text-gray-500">{it.agencyName ?? "—"}</span>
+                    {it.creatorName ? <> · Ajouté par <span className="font-bold text-gray-500">{it.creatorName}</span></> : null}
+                  </p>
+
                   {it.notes && <p className="text-xs text-gray-400 italic mb-3" style={{ fontFamily: "var(--font-lato)" }}>{it.notes}</p>}
 
                   <div className="flex items-center justify-end gap-1 mt-auto pt-3 border-t border-gray-100">
@@ -272,6 +283,15 @@ export default function StorageManager({
               </select>
             </div>
           </div>
+          {canManageAll && (
+            <div>
+              <label className={labelCls} style={{ fontFamily: "var(--font-montserrat)" }}>Agence * <span className="font-normal normal-case text-gray-400">(l'agence pourra gérer ce colis)</span></label>
+              <select className={inputCls} value={form.agencyId} onChange={(e) => setForm((p) => ({ ...p, agencyId: e.target.value }))} style={{ fontFamily: "var(--font-lato)" }}>
+                <option value="">— Choisir une agence —</option>
+                {agencies.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
+              </select>
+            </div>
+          )}
           <div>
             <label className={labelCls} style={{ fontFamily: "var(--font-montserrat)" }}>Remarques</label>
             <textarea rows={3} className={`${inputCls} resize-none`} value={form.notes} onChange={(e) => setForm((p) => ({ ...p, notes: e.target.value }))} placeholder="Informations complémentaires…" style={{ fontFamily: "var(--font-lato)" }} />

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { sbGet, sbPost, enc } from "@/lib/supabase-admin";
+import { sbGet, sbPost, enc, encList } from "@/lib/supabase-admin";
 
 function isStaff(role?: string) {
   return role === "SUPER_ADMIN" || role === "MANAGER" || role === "AGENCY";
@@ -17,17 +17,34 @@ async function getUserAgencyId(userId?: string): Promise<string | null> {
 const LOCATIONS = ["BZV", "PN"];
 const STATUSES = ["AWAITING", "RELEASED"];
 
-/** Liste des colis stockés — lecture OUVERTE à tous les acteurs (admin / gérant / agence). */
+type StorageRow = { agencyId: string | null; createdById: string | null; [k: string]: unknown };
+
+/** Liste des colis — lecture OUVERTE à tous les acteurs, enrichie du nom d'agence et du créateur. */
 export async function GET() {
   const session = await auth();
   const role = (session?.user as { role?: string })?.role;
   if (!session || !isStaff(role)) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
-  const items = await sbGet("Storage", "select=*&order=entryDate.desc");
-  return NextResponse.json(items);
+  const items = await sbGet<StorageRow>("Storage", "select=*&order=entryDate.desc");
+
+  const agencyIds = [...new Set(items.map((i) => i.agencyId).filter(Boolean))] as string[];
+  const creatorIds = [...new Set(items.map((i) => i.createdById).filter(Boolean))] as string[];
+  const [agencies, creators] = await Promise.all([
+    agencyIds.length ? sbGet<{ id: string; name: string }>("Agency", `id=in.(${encList(agencyIds)})&select=id,name`) : Promise.resolve([]),
+    creatorIds.length ? sbGet<{ id: string; name: string }>("User", `id=in.(${encList(creatorIds)})&select=id,name`) : Promise.resolve([]),
+  ]);
+  const aMap = new Map(agencies.map((a) => [a.id, a.name]));
+  const cMap = new Map(creators.map((c) => [c.id, c.name]));
+
+  const enriched = items.map((i) => ({
+    ...i,
+    agencyName: i.agencyId ? aMap.get(i.agencyId) ?? null : null,
+    creatorName: i.createdById ? cMap.get(i.createdById) ?? null : null,
+  }));
+  return NextResponse.json(enriched);
 }
 
-/** Enregistrement d'un colis. L'agent est limité à SA propre agence ; admin/gérant : tous droits. */
+/** Enregistrement d'un colis. Agent → forcé sur son agence ; admin/gérant → agence obligatoire à choisir. */
 export async function POST(req: NextRequest) {
   const session = await auth();
   const u = session?.user as { id?: string; role?: string } | undefined;
@@ -41,10 +58,11 @@ export async function POST(req: NextRequest) {
   const status = STATUSES.includes(body.status) ? body.status : "AWAITING";
   const location = LOCATIONS.includes(body.location) ? body.location : "PN";
 
-  // Rattachement à l'agence : l'agent est forcé sur SON agence ; admin/gérant peuvent préciser (ou laisser vide).
+  // Rattachement à l'agence
   let agencyId: string | null;
   if (canManageAll(u?.role)) {
     agencyId = body.agencyId?.trim() || null;
+    if (!agencyId) return NextResponse.json({ error: "Veuillez attribuer le colis à une agence." }, { status: 400 });
   } else {
     agencyId = await getUserAgencyId(u?.id);
     if (!agencyId) return NextResponse.json({ error: "Aucune agence n'est associée à votre compte." }, { status: 403 });

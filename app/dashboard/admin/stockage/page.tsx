@@ -1,5 +1,7 @@
+import { sbGet } from "@/lib/supabase-admin";
 import StorageManager from "@/components/admin/StorageManager";
 
-export default function AdminStoragePage() {
-  return <StorageManager canManageAll />;
+export default async function AdminStoragePage() {
+  const agencies = await sbGet<{ id: string; name: string }>("Agency", "select=id,name&order=name.asc");
+  return <StorageManager canManageAll agencies={agencies} />;
 }
