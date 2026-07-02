@@ -5,11 +5,19 @@ import { sbGet, sbPost, enc } from "@/lib/supabase-admin";
 function isStaff(role?: string) {
   return role === "SUPER_ADMIN" || role === "MANAGER" || role === "AGENCY";
 }
+function canManageAll(role?: string) {
+  return role === "SUPER_ADMIN" || role === "MANAGER";
+}
+async function getUserAgencyId(userId?: string): Promise<string | null> {
+  if (!userId) return null;
+  const rows = await sbGet<{ agencyId: string | null }>("User", `id=eq.${enc(userId)}&select=agencyId&limit=1`);
+  return rows[0]?.agencyId ?? null;
+}
 
 const LOCATIONS = ["BZV", "PN"];
 const STATUSES = ["AWAITING", "RELEASED"];
 
-/** Liste des colis stockés — admin / gérant / agence. */
+/** Liste des colis stockés — lecture OUVERTE à tous les acteurs (admin / gérant / agence). */
 export async function GET() {
   const session = await auth();
   const role = (session?.user as { role?: string })?.role;
@@ -19,7 +27,7 @@ export async function GET() {
   return NextResponse.json(items);
 }
 
-/** Enregistrement d'un nouveau colis stocké. */
+/** Enregistrement d'un colis. L'agent est limité à SA propre agence ; admin/gérant : tous droits. */
 export async function POST(req: NextRequest) {
   const session = await auth();
   const u = session?.user as { id?: string; role?: string } | undefined;
@@ -33,7 +41,15 @@ export async function POST(req: NextRequest) {
   const status = STATUSES.includes(body.status) ? body.status : "AWAITING";
   const location = LOCATIONS.includes(body.location) ? body.location : "PN";
 
-  // Unicité de la référence (insensible à la casse)
+  // Rattachement à l'agence : l'agent est forcé sur SON agence ; admin/gérant peuvent préciser (ou laisser vide).
+  let agencyId: string | null;
+  if (canManageAll(u?.role)) {
+    agencyId = body.agencyId?.trim() || null;
+  } else {
+    agencyId = await getUserAgencyId(u?.id);
+    if (!agencyId) return NextResponse.json({ error: "Aucune agence n'est associée à votre compte." }, { status: 403 });
+  }
+
   const existing = await sbGet<{ id: string }>("Storage", `reference=eq.${enc(reference)}&select=id&limit=1`);
   if (existing.length > 0) return NextResponse.json({ error: "Cette référence existe déjà." }, { status: 409 });
 
@@ -48,6 +64,7 @@ export async function POST(req: NextRequest) {
     status,
     location,
     notes: body.notes?.trim() || null,
+    agencyId,
     createdById: u!.id ?? null,
     createdAt: now,
     updatedAt: now,

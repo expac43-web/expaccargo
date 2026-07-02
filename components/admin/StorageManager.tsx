@@ -5,7 +5,7 @@ import AdminHeader from "@/components/admin/AdminHeader";
 import Modal from "@/components/admin/Modal";
 import {
   Warehouse, Plus, Pencil, Trash2, AlertCircle, MapPin,
-  CalendarDays, CalendarClock,
+  CalendarDays, CalendarClock, Eye,
 } from "lucide-react";
 
 type StorageStatus = "AWAITING" | "RELEASED";
@@ -19,6 +19,7 @@ type StorageItem = {
   status: StorageStatus;
   location: "BZV" | "PN";
   notes: string | null;
+  agencyId: string | null;
 };
 
 const labelCls = "block text-xs font-black uppercase tracking-wider mb-1.5 text-gray-600";
@@ -55,7 +56,13 @@ const emptyForm = {
   expectedExitDate: "", status: "AWAITING" as StorageStatus, location: "PN" as "BZV" | "PN", notes: "",
 };
 
-export default function StorageManager() {
+export default function StorageManager({
+  canManageAll = true,
+  myAgencyId = null,
+}: {
+  canManageAll?: boolean;
+  myAgencyId?: string | null;
+}) {
   const [items, setItems] = useState<StorageItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"ALL" | "AWAITING" | "OVERDUE" | "RELEASED">("ALL");
@@ -80,6 +87,9 @@ export default function StorageManager() {
     RELEASED: items.filter((i) => effectiveStatus(i) === "RELEASED").length,
   };
   const shown = filter === "ALL" ? items : items.filter((i) => effectiveStatus(i) === filter);
+
+  // Droit d'écriture : admin/gérant partout ; un agent seulement sur les colis de son agence.
+  const canWrite = (it: StorageItem) => canManageAll || (!!myAgencyId && it.agencyId === myAgencyId);
 
   function openCreate() {
     setForm(emptyForm); setEditing(null); setError(""); setModal("create");
@@ -197,8 +207,14 @@ export default function StorageManager() {
                   {it.notes && <p className="text-xs text-gray-400 italic mb-3" style={{ fontFamily: "var(--font-lato)" }}>{it.notes}</p>}
 
                   <div className="flex items-center justify-end gap-1 mt-auto pt-3 border-t border-gray-100">
-                    <button onClick={() => openEdit(it)} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-black uppercase text-gray-500 hover:text-[#1A3A6B] hover:bg-gray-100" style={{ fontFamily: "var(--font-montserrat)" }}><Pencil size={13} /> Modifier</button>
-                    <button onClick={() => setDeleteId(it.id)} className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50"><Trash2 size={14} /></button>
+                    {canWrite(it) ? (
+                      <>
+                        <button onClick={() => openEdit(it)} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-black uppercase text-gray-500 hover:text-[#1A3A6B] hover:bg-gray-100" style={{ fontFamily: "var(--font-montserrat)" }}><Pencil size={13} /> Modifier</button>
+                        <button onClick={() => setDeleteId(it.id)} className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50"><Trash2 size={14} /></button>
+                      </>
+                    ) : (
+                      <span className="flex items-center gap-1.5 text-[11px] text-gray-400 uppercase font-black" style={{ fontFamily: "var(--font-montserrat)" }}><Eye size={13} /> Lecture seule</span>
+                    )}
                   </div>
                 </div>
               );
