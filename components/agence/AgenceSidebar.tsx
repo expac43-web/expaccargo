@@ -7,7 +7,7 @@ import { signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import {
   LayoutDashboard, Users, Package, FolderOpen,
-  MessageSquare, UserCircle, LogOut, Menu, X, FileText,
+  MessageSquare, UserCircle, LogOut, Menu, X, FileText, Warehouse,
 } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 import GlobalSearch from "@/components/GlobalSearch";
@@ -18,6 +18,7 @@ const navItems: NavItem[] = [
   { label: "Tableau de bord", href: "/dashboard/agence",              icon: LayoutDashboard },
   { label: "Clients",         href: "/dashboard/agence/clients",      icon: Users },
   { label: "Expéditions",     href: "/dashboard/agence/expeditions",  icon: Package },
+  { label: "Stockage",        href: "/dashboard/agence/stockage",     icon: Warehouse },
   { label: "Devis",           href: "/dashboard/agence/devis",        icon: FileText },
   { label: "Documents",       href: "/dashboard/agence/documents",    icon: FolderOpen },
   { label: "Messages",        href: "/dashboard/agence/messages",     icon: MessageSquare },

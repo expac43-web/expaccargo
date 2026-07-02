@@ -29,6 +29,12 @@ const staticPages: MetadataRoute.Sitemap = [
     priority: 0.8,
   },
   {
+    url: `${BASE_URL}/stockage`,
+    lastModified: new Date(),
+    changeFrequency: "weekly",
+    priority: 0.7,
+  },
+  {
     url: `${BASE_URL}/devis`,
     lastModified: new Date(),
     changeFrequency: "monthly",

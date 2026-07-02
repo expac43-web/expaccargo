@@ -34,6 +34,7 @@ export default function Navbar() {
     },
     { label: t.nav.about, href: "/a-propos" },
     { label: t.nav.rates, href: "/taux" },
+    { label: t.nav.storage, href: "/stockage" },
     { label: t.nav.news, href: "/actualites" },
     { label: t.nav.contact, href: "/contact" },
   ];

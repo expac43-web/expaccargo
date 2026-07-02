@@ -14,6 +14,7 @@ import {
   Newspaper,
   Handshake,
   MessageSquareQuote,
+  Warehouse,
   LogOut,
   ChevronRight,
   ShieldCheck,
@@ -29,6 +30,7 @@ import GlobalSearch from "@/components/GlobalSearch";
 const navItems = [
   { label: "Tableau de bord", href: "/dashboard/admin", icon: LayoutDashboard },
   { label: "Expéditions",     href: "/dashboard/admin/expeditions", icon: Package },
+  { label: "Stockage",        href: "/dashboard/admin/stockage", icon: Warehouse },
   { label: "Clients",         href: "/dashboard/admin/clients", icon: Users },
   { label: "Agences",         href: "/dashboard/admin/agences", icon: Building2 },
   { label: "Comptes",         href: "/dashboard/admin/comptes", icon: UserPlus },
