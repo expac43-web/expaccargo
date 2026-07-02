@@ -573,6 +573,12 @@ const en: Dict = {
     navMessages: "Messages",
     navQuotes: "Quotes",
     navProfile: "My profile",
+    navReviews: "Leave a review",
+    reviews: {
+      eyebrow: "Your review",
+      title: "Leave a review",
+      subtitle: "Share your experience. Your comment will be published after review by our team.",
+    },
     home: {
       eyebrow: "My client area",
       greetMorning: "Good morning",

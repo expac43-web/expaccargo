@@ -7,7 +7,7 @@ import { signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import {
   Package, UserCircle, LogOut, Menu, X,
-  Home, FolderOpen, MessageSquare, FileText,
+  Home, FolderOpen, MessageSquare, FileText, Star,
 } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
 import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
@@ -185,6 +185,7 @@ export default function ClientSidebar({ userName }: { userName: string }) {
     { label: d.navDocuments, href: "/dashboard/documents", icon: FolderOpen },
     { label: d.navMessages,  href: "/dashboard/messages",  icon: MessageSquare, badge: unreadMessages },
     { label: d.navQuotes,    href: "/dashboard/devis",     icon: FileText },
+    { label: d.navReviews,   href: "/dashboard/avis",      icon: Star },
     { label: d.navProfile,   href: "/dashboard/profil",    icon: UserCircle },
   ];
 

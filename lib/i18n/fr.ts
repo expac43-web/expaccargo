@@ -575,6 +575,12 @@ const fr = {
     navMessages: "Messages",
     navQuotes: "Devis",
     navProfile: "Mon profil",
+    navReviews: "Laisser un avis",
+    reviews: {
+      eyebrow: "Votre avis",
+      title: "Laisser un avis",
+      subtitle: "Partagez votre expérience. Votre commentaire sera publié après validation par notre équipe.",
+    },
     home: {
       eyebrow: "Mon espace client",
       greetMorning: "Bonjour",
