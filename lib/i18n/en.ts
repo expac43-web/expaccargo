@@ -150,6 +150,17 @@ const en: Dict = {
         },
       },
     },
+    custom: {
+      title: "We meet your needs with a",
+      titleHighlight: "tailor-made service",
+      benefits: [
+        "Solutions adapted to each case",
+        "End-to-end coordination",
+        "A dedicated contact",
+        "Responsiveness on your urgent needs",
+      ],
+      cta: "Learn more",
+    },
     contactCta: {
       eyebrow: "Contact us",
       title: "Ready to ship your goods?",

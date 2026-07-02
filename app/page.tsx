@@ -94,6 +94,7 @@ import PartnersCarousel from "@/components/public/PartnersCarousel";
 import RatesSummary from "@/components/public/RatesSummary";
 import { getRates } from "@/lib/rates";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Plane,
   Truck,
@@ -110,17 +111,24 @@ import {
   TrendingUp,
   Globe,
   Award,
+  CheckCircle2,
 } from "lucide-react";
 
 /* ── DATA (icônes / couleurs / liens — les textes viennent du dictionnaire) ── */
 
 const serviceMeta = [
-  { key: "transit", icon: Plane, href: "/services#transit", color: "#1A3A6B" },
-  { key: "multimodal", icon: Truck, href: "/services#transport", color: "#E8520A" },
-  { key: "storage", icon: Warehouse, href: "/services#stockage", color: "#1A3A6B" },
-  { key: "consignment", icon: Ship, href: "/services#consignation", color: "#E8520A" },
-  { key: "groupage", icon: Package, href: "/services#groupage", color: "#1A3A6B" },
+  { key: "transit", icon: Plane, iso: "/illustrations/transit.webp", href: "/services#transit", color: "#1A3A6B" },
+  { key: "multimodal", icon: Truck, iso: "/illustrations/transport.webp", href: "/services#transport", color: "#E8520A" },
+  { key: "storage", icon: Warehouse, iso: "/illustrations/stockage.webp", href: "/services#stockage", color: "#1A3A6B" },
+  { key: "consignment", icon: Ship, iso: "/illustrations/consignation.webp", href: "/services#consignation", color: "#E8520A" },
+  { key: "groupage", icon: Package, iso: "/illustrations/groupage.webp", href: "/services#groupage", color: "#1A3A6B" },
 ] as const;
+
+/* ── Images (fond section suivi + mosaïque « service sur mesure ») ── */
+const TRACK_BG = "https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=1600&q=55"; // camion sur route
+const MOSAIC_TALL = "https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&w=800&q=55"; // entrepôt rayonnages
+const MOSAIC_A = "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=700&q=55"; // camion
+const MOSAIC_B = "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=700&q=55"; // entrepôt colis
 
 const statMeta = [
   { key: "shipments", value: "500+", icon: TrendingUp },
@@ -348,17 +356,16 @@ export default async function HomePage() {
                 <ArrowRight size={16} />
               </Link>
             </div>
+            </Reveal>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {serviceMeta.map((service, i) => {
-                const Icon = service.icon;
-                const isOrange = service.color === "#E8520A";
                 const item = h.services.items[service.key];
                 return (
+                  <Reveal key={service.key} delay={i * 70} className="h-full">
                   <Link
-                    key={service.key}
                     href={service.href}
-                    className="group relative bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                    className="group relative flex flex-col h-full bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                   >
                     {/* Top accent bar */}
                     <div
@@ -367,20 +374,9 @@ export default async function HomePage() {
                     />
 
                     <div className="p-7">
-                      {/* Icon + number */}
+                      {/* Icône 3D + numéro */}
                       <div className="flex items-start justify-between mb-6">
-                        <div
-                          className="w-13 h-13 rounded-xl flex items-center justify-center"
-                          style={{
-                            backgroundColor: isOrange
-                              ? "rgba(232,82,10,0.1)"
-                              : "rgba(26,58,107,0.08)",
-                            width: "3.25rem",
-                            height: "3.25rem",
-                          }}
-                        >
-                          <Icon size={24} style={{ color: service.color }} />
-                        </div>
+                        <Image src={service.iso} alt="" width={64} height={64} className="w-16 h-16 object-contain transition-transform duration-300 group-hover:scale-110" />
                         <span
                           className="text-6xl font-black leading-none select-none"
                           style={{
@@ -428,12 +424,14 @@ export default async function HomePage() {
                       }}
                     />
                   </Link>
+                  </Reveal>
                 );
               })}
 
               {/* CTA card */}
+              <Reveal delay={serviceMeta.length * 70} className="h-full">
               <div
-                className="rounded-2xl p-7 flex flex-col justify-between relative overflow-hidden"
+                className="rounded-2xl p-7 flex flex-col justify-between relative overflow-hidden h-full"
                 style={{
                   background: "linear-gradient(135deg, #1A3A6B 0%, #0e2248 100%)",
                 }}
@@ -474,16 +472,15 @@ export default async function HomePage() {
                   <ArrowRight size={16} />
                 </Link>
               </div>
+              </Reveal>
             </div>
-            </Reveal>
           </div>
         </section>
 
-        {/* ── TRACKING CTA ─────────────────────────────────── */}
-        <section
-          style={{ backgroundColor: "#E8520A" }}
-          className="relative overflow-hidden py-20"
-        >
+        {/* ── TRACKING CTA (image de fond + voile orange) ───── */}
+        <section className="relative overflow-hidden py-20">
+          <Image src={TRACK_BG} alt="" fill sizes="100vw" className="object-cover" />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(120deg, rgba(232,82,10,0.94) 0%, rgba(196,68,8,0.9) 55%, rgba(232,82,10,0.82) 100%)" }} />
           <div
             className="absolute -right-16 -bottom-16 w-72 h-72 rounded-full opacity-10 bg-white float-slow"
           />
@@ -549,15 +546,16 @@ export default async function HomePage() {
                 {h.why.title}
               </h2>
             </div>
+            </Reveal>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {atoutMeta.map((a) => {
+              {atoutMeta.map((a, i) => {
                 const Icon = a.icon;
                 const item = h.why.items[a.key];
                 return (
+                  <Reveal key={a.key} delay={i * 80} className="h-full">
                   <div
-                    key={a.key}
-                    className="bg-white rounded-2xl p-7 border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
+                    className="bg-white rounded-2xl p-7 border border-gray-100 shadow-sm hover:shadow-md transition-shadow h-full"
                   >
                     <div
                       className="w-12 h-12 rounded-xl flex items-center justify-center mb-5"
@@ -585,10 +583,52 @@ export default async function HomePage() {
                       {item.description}
                     </p>
                   </div>
+                  </Reveal>
                 );
               })}
             </div>
-            </Reveal>
+          </div>
+        </section>
+
+        {/* ── SERVICE SUR MESURE (mosaïque + checklist) ────── */}
+        <section className="bg-white py-24">
+          <div className="container-custom">
+            <div className="rounded-[2rem] p-6 md:p-10 lg:p-12" style={{ background: "linear-gradient(135deg, rgba(26,58,107,0.05) 0%, rgba(232,82,10,0.05) 100%)" }}>
+              <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+                {/* Mosaïque de photos */}
+                <Reveal className="grid grid-cols-2 gap-4">
+                  <div className="relative rounded-2xl overflow-hidden aspect-[3/4] shadow-sm">
+                    <Image src={MOSAIC_TALL} alt="Terminal à conteneurs" fill sizes="(max-width:1024px) 45vw, 24vw" className="object-cover" />
+                  </div>
+                  <div className="flex flex-col gap-4">
+                    <div className="relative rounded-2xl overflow-hidden shadow-sm aspect-[4/3]">
+                      <Image src={MOSAIC_A} alt="Transport routier" fill sizes="(max-width:1024px) 45vw, 24vw" className="object-cover" />
+                    </div>
+                    <div className="relative rounded-2xl overflow-hidden shadow-sm aspect-[4/3]">
+                      <Image src={MOSAIC_B} alt="Entrepôt logistique" fill sizes="(max-width:1024px) 45vw, 24vw" className="object-cover" />
+                    </div>
+                  </div>
+                </Reveal>
+
+                {/* Texte + checklist */}
+                <Reveal delay={120}>
+                  <h2 className="text-3xl md:text-4xl font-black leading-tight mb-6" style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>
+                    {h.custom.title} <span style={{ color: "#E8520A" }}>{h.custom.titleHighlight}</span>
+                  </h2>
+                  <div className="grid sm:grid-cols-2 gap-x-6 gap-y-4 mb-8">
+                    {h.custom.benefits.map((b) => (
+                      <div key={b} className="flex items-center gap-2.5">
+                        <CheckCircle2 size={20} className="shrink-0" style={{ color: "#E8520A" }} />
+                        <span className="text-base text-gray-700" style={{ fontFamily: "var(--font-lato)" }}>{b}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <Link href="/services" className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-black text-white uppercase tracking-wide text-sm transition-all hover:scale-105" style={{ backgroundColor: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>
+                    {h.custom.cta} <ArrowRight size={16} />
+                  </Link>
+                </Reveal>
+              </div>
+            </div>
           </div>
         </section>
 

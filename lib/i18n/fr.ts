@@ -152,6 +152,17 @@ const fr = {
         },
       },
     },
+    custom: {
+      title: "Nous répondons à vos besoins par un",
+      titleHighlight: "service sur mesure",
+      benefits: [
+        "Solutions adaptées à chaque dossier",
+        "Coordination de bout en bout",
+        "Interlocuteur dédié",
+        "Réactivité sur vos urgences",
+      ],
+      cta: "En savoir plus",
+    },
     contactCta: {
       eyebrow: "Contactez-nous",
       title: "Prêt à expédier vos marchandises ?",
