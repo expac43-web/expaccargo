@@ -36,31 +36,38 @@ export default function SocialLinks({
   className = "",
   itemClassName = "",
   size = 16,
+  disabled = false,
 }: {
   /** Sous-ensemble à afficher (par défaut : tous). */
   networks?: Net[];
   className?: string;
   itemClassName?: string;
   size?: number;
+  /** Affiche les icônes sans lien (placeholder non cliquable, en attente des comptes). */
+  disabled?: boolean;
 }) {
   const items = networks ? ALL.filter((a) => networks.includes(a.key)) : ALL;
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      {items.map((s) => (
-        <a
-          key={s.key}
-          href={s.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label={s.name}
-          title={s.name}
-          className={itemClassName}
-        >
+      {items.map((s) => {
+        const icon = (
           <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d={s.path} />
           </svg>
-        </a>
-      ))}
+        );
+        if (disabled) {
+          return (
+            <span key={s.key} aria-label={`${s.name} (bientôt disponible)`} title="Bientôt disponible" className={`${itemClassName} cursor-not-allowed opacity-50`}>
+              {icon}
+            </span>
+          );
+        }
+        return (
+          <a key={s.key} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.name} title={s.name} className={itemClassName}>
+            {icon}
+          </a>
+        );
+      })}
     </div>
   );
 }
