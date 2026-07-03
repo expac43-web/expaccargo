@@ -5,6 +5,7 @@ import Logo from "@/components/ui/Logo";
 import { MapPin, Phone, Mail, Globe } from "lucide-react";
 import { useT } from "@/components/i18n/LanguageProvider";
 import WhatsAppFloat from "@/components/public/WhatsAppFloat";
+import SocialLinks from "@/components/public/SocialLinks";
 
 export default function Footer() {
   const { t } = useT();
@@ -28,6 +29,11 @@ export default function Footer() {
             <p className="text-xs text-blue-400" style={{ fontFamily: "var(--font-lato)" }}>
               {t.footer.legalLine}
             </p>
+            <SocialLinks
+              className="mt-4"
+              size={15}
+              itemClassName="w-8 h-8 rounded-lg bg-white/10 text-blue-200 hover:bg-[#E8520A] hover:text-white flex items-center justify-center transition-colors"
+            />
           </div>
 
           {/* Services */}

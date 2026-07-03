@@ -6,6 +6,7 @@ import { MapPin, Phone, Mail, Clock, Send, User, MessageSquare, AlertCircle, Che
 import { useT } from "@/components/i18n/LanguageProvider";
 import AgrementBadge from "@/components/public/AgrementBadge";
 import Reveal from "@/components/public/Reveal";
+import SocialLinks from "@/components/public/SocialLinks";
 
 const labelCls = "block text-xs font-black uppercase tracking-wider mb-1.5 text-gray-600";
 const inputCls = "w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#1A3A6B] focus:ring-2 focus:ring-[#1A3A6B]/10 transition-all bg-white";
@@ -243,26 +244,33 @@ export default function ContactForm() {
               </Reveal>
 
               <Reveal delay={350}>
-                <a
-                  href="https://www.linkedin.com/in/makan-doucoure-b5b781151/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-black border-2 transition-all hover:text-white hover:shadow-lg"
-                  style={{
-                    borderColor: "#0077b5",
-                    color: "#0077b5",
-                    fontFamily: "var(--font-montserrat)",
-                  }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#0077b5"; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "transparent"; }}
-                >
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
-                    <rect x="2" y="9" width="4" height="12" />
-                    <circle cx="4" cy="4" r="2" />
-                  </svg>
-                  {c.linkedin}
-                </a>
+                <div className="flex flex-wrap items-center gap-3">
+                  <a
+                    href="https://www.linkedin.com/in/makan-doucoure-b5b781151"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-black border-2 transition-all hover:text-white hover:shadow-lg"
+                    style={{
+                      borderColor: "#0077b5",
+                      color: "#0077b5",
+                      fontFamily: "var(--font-montserrat)",
+                    }}
+                    onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#0077b5"; }}
+                    onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "transparent"; }}
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                      <rect x="2" y="9" width="4" height="12" />
+                      <circle cx="4" cy="4" r="2" />
+                    </svg>
+                    {c.linkedin}
+                  </a>
+                  <SocialLinks
+                    networks={["instagram", "x", "facebook"]}
+                    size={18}
+                    itemClassName="w-11 h-11 rounded-xl border-2 border-gray-200 text-gray-400 hover:text-white hover:border-transparent hover:bg-[#1A3A6B] flex items-center justify-center transition-all"
+                  />
+                </div>
               </Reveal>
             </div>
 
