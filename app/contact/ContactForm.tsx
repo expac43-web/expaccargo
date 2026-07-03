@@ -255,8 +255,8 @@ export default function ContactForm() {
                       color: "#0077b5",
                       fontFamily: "var(--font-montserrat)",
                     }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "#0077b5"; }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.backgroundColor = "transparent"; }}
+                    onMouseEnter={(e) => { const el = e.currentTarget as HTMLAnchorElement; el.style.backgroundColor = "#0077b5"; el.style.color = "#ffffff"; }}
+                    onMouseLeave={(e) => { const el = e.currentTarget as HTMLAnchorElement; el.style.backgroundColor = "transparent"; el.style.color = "#0077b5"; }}
                   >
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />

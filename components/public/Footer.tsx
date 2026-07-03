@@ -40,6 +40,16 @@ export default function Footer() {
                 itemClassName="w-8 h-8 rounded-lg bg-white/10 text-blue-300 flex items-center justify-center"
               />
             </div>
+            {/* Réseaux du co-fondateur DOUCOURE — cliquables, juste après « Nos réseaux » */}
+            <div className="mt-4">
+              <p className="text-[10px] font-black uppercase tracking-widest text-blue-500 mb-2" style={{ fontFamily: "var(--font-montserrat)" }}>
+                Co-fondateur
+              </p>
+              <SocialLinks
+                size={15}
+                itemClassName="w-8 h-8 rounded-lg bg-white/10 text-blue-200 hover:bg-[#E8520A] hover:text-white flex items-center justify-center transition-colors"
+              />
+            </div>
           </div>
 
           {/* Services */}
@@ -171,20 +181,10 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-blue-400">
+        <div className="pt-6 flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-blue-400">
           <p style={{ fontFamily: "var(--font-lato)" }}>
             © {new Date().getFullYear()} Express Africa Cargo Ltd (EXPAC). {t.footer.rights}
           </p>
-          {/* Réseaux du co-fondateur DOUCOURE (cliquables) */}
-          <div className="flex items-center gap-2">
-            <span className="text-blue-400 text-[11px] font-black uppercase tracking-wider" style={{ fontFamily: "var(--font-montserrat)" }}>
-              Co-fondateur
-            </span>
-            <SocialLinks
-              size={14}
-              itemClassName="w-7 h-7 rounded-lg bg-white/10 text-blue-200 hover:bg-[#E8520A] hover:text-white flex items-center justify-center transition-colors"
-            />
-          </div>
           <div className="flex items-center gap-4">
             <p className="text-blue-500 text-xs" style={{ fontFamily: "var(--font-lato)" }}>
               RC : CG-BZV-01-2021-B12-00199
