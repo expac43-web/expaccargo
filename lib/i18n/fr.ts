@@ -20,6 +20,13 @@ const fr = {
     account: "Mon compte",
     quote: "Devis",
   },
+  cookieBanner: {
+    title: "Cookies",
+    text: "Nous utilisons des cookies essentiels au fonctionnement du site (connexion, langue) et, avec votre accord, des cookies de mesure d'audience. Votre choix est mémorisé sur ce navigateur.",
+    learnMore: "En savoir plus",
+    acceptAll: "Tout accepter",
+    essentialOnly: "Essentiels uniquement",
+  },
   footer: {
     tagline:
       "Commissionnaire agréé en douane — CEMAC 2023. Votre partenaire en logistique internationale, transit et transport multimodal en Afrique.",

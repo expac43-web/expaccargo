@@ -19,6 +19,13 @@ const en: Dict = {
     account: "My account",
     quote: "Quote",
   },
+  cookieBanner: {
+    title: "Cookies",
+    text: "We use cookies essential to the site's operation (sign-in, language) and, with your consent, audience measurement cookies. Your choice is remembered on this browser.",
+    learnMore: "Learn more",
+    acceptAll: "Accept all",
+    essentialOnly: "Essentials only",
+  },
   footer: {
     tagline:
       "Licensed customs broker — CEMAC 2023. Your partner for international logistics, customs clearance and multimodal transport in Africa.",

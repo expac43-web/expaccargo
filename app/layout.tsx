@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { Montserrat, Lato } from "next/font/google";
 import { cookies } from "next/headers";
-import Script from "next/script";
 import Providers from "@/components/Providers";
 import LanguageProvider from "@/components/i18n/LanguageProvider";
+import CookieConsent from "@/components/public/CookieConsent";
+import AnalyticsConsent from "@/components/public/AnalyticsConsent";
 import { getDictionary, normalizeLocale } from "@/lib/i18n";
 import "./globals.css";
 
@@ -193,48 +194,18 @@ export default async function RootLayout({
         {(gaId || gtmId) && <link rel="preconnect" href="https://www.googletagmanager.com" />}
       </head>
       <body className="min-h-full flex flex-col">
-        {/* Google Tag Manager (noscript) — juste après l'ouverture de <body> */}
-        {gtmId && (
-          <noscript>
-            <iframe
-              src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
-              height="0"
-              width="0"
-              style={{ display: "none", visibility: "hidden" }}
-            />
-          </noscript>
-        )}
         <Providers>
-          <LanguageProvider locale={locale} dict={dict}>{children}</LanguageProvider>
+          <LanguageProvider locale={locale} dict={dict}>
+            {children}
+            {/* Bandeau cookies — première visite ; choix mémorisé dans le navigateur */}
+            <CookieConsent />
+          </LanguageProvider>
         </Providers>
 
-        {/* Google Analytics 4 — chargé après l'hydratation (ne bloque pas le rendu),
-            uniquement si NEXT_PUBLIC_GA_ID est défini. */}
-        {gaId && (
-          <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
-              strategy="afterInteractive"
-            />
-            <Script id="ga4-init" strategy="afterInteractive">
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', '${gaId}');
-              `}
-            </Script>
-          </>
-        )}
-
-        {/* Google Tag Manager — chargé après l'hydratation (ne bloque pas le rendu).
-            ⚠️ Ne PAS configurer GA4 dans GTM : GA4 est déjà branché en direct ci-dessus
-            (sinon double comptage). GTM sert aux autres tags. */}
-        {gtmId && (
-          <Script id="gtm-init" strategy="afterInteractive">
-            {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','${gtmId}');`}
-          </Script>
-        )}
+        {/* Google Analytics 4 + GTM — chargés UNIQUEMENT si le visiteur a accepté
+            les cookies de mesure d'audience (bandeau ci-dessus, expac_consent=all).
+            ⚠️ Ne PAS configurer GA4 dans GTM (double comptage) : GTM sert aux autres tags. */}
+        <AnalyticsConsent gaId={gaId} gtmId={gtmId} />
       </body>
     </html>
   );
