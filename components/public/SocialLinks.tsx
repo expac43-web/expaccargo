@@ -37,6 +37,7 @@ export default function SocialLinks({
   itemClassName = "",
   size = 16,
   disabled = false,
+  overrides,
 }: {
   /** Sous-ensemble à afficher (par défaut : tous). */
   networks?: Net[];
@@ -45,6 +46,8 @@ export default function SocialLinks({
   size?: number;
   /** Affiche les icônes sans lien (placeholder non cliquable, en attente des comptes). */
   disabled?: boolean;
+  /** URL spécifique par réseau (ex. comptes société). Un réseau présent ici reste cliquable même si `disabled`. */
+  overrides?: Partial<Record<Net, string>>;
 }) {
   const items = networks ? ALL.filter((a) => networks.includes(a.key)) : ALL;
   return (
@@ -55,15 +58,16 @@ export default function SocialLinks({
             <path d={s.path} />
           </svg>
         );
-        if (disabled) {
+        const overrideHref = overrides?.[s.key];
+        if (disabled && !overrideHref) {
           return (
-            <span key={s.key} aria-label={`${s.name} (bientôt disponible)`} title="Bientôt disponible" className={`${itemClassName} cursor-not-allowed opacity-50`}>
+            <span key={s.key} aria-label={`${s.name} (bientôt disponible)`} title="Bientôt disponible" className={`${itemClassName} cursor-not-allowed opacity-50 pointer-events-none`}>
               {icon}
             </span>
           );
         }
         return (
-          <a key={s.key} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.name} title={s.name} className={itemClassName}>
+          <a key={s.key} href={overrideHref ?? s.href} target="_blank" rel="noopener noreferrer" aria-label={s.name} title={s.name} className={itemClassName}>
             {icon}
           </a>
         );

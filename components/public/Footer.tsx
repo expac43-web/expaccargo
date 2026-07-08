@@ -29,15 +29,16 @@ export default function Footer() {
             <p className="text-xs text-blue-400" style={{ fontFamily: "var(--font-lato)" }}>
               {t.footer.legalLine}
             </p>
-            {/* Réseaux de la société — en attente des comptes (placeholder non cliquable) */}
+            {/* Réseaux de la société — LinkedIn actif ; autres réseaux en attente des comptes (placeholder) */}
             <div className="mt-4">
               <p className="text-[10px] font-black uppercase tracking-widest text-blue-500 mb-2" style={{ fontFamily: "var(--font-montserrat)" }}>
                 Nos réseaux
               </p>
               <SocialLinks
                 disabled
+                overrides={{ linkedin: "https://www.linkedin.com/company/expac-cargo-ltd/" }}
                 size={15}
-                itemClassName="w-8 h-8 rounded-lg bg-white/10 text-blue-300 flex items-center justify-center"
+                itemClassName="w-8 h-8 rounded-lg bg-white/10 text-blue-300 hover:bg-[#E8520A] hover:text-white flex items-center justify-center transition-colors"
               />
             </div>
             {/* Réseaux du co-fondateur DOUCOURE — cliquables, juste après « Nos réseaux » */}
