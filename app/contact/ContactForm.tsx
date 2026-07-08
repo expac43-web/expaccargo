@@ -25,7 +25,7 @@ export default function ContactForm() {
     { icon: MapPin, label: c.hq, value: "Croisement Av. de la Tsieme / Rue Mbetis Ouenze SOCECA-SOCEMA BZV" },
     { icon: Phone, label: c.cTelPN, value: "+242 06 436 38 82 / +242 05 052 60 43", href: "tel:+242064363882" },
     { icon: Phone, label: c.cTelBZV, value: "+242 05 511 97 11 / +242 05 640 22 77", href: "tel:+242055119711" },
-    { icon: Mail, label: c.fieldEmail, value: "expacargo@gmail.com", href: "mailto:expacargo@gmail.com" },
+    { icon: Mail, label: c.fieldEmail, value: "support@expaccargo.com", href: "mailto:support@expaccargo.com" },
     { icon: Clock, label: c.cHours, value: c.cHoursValue },
   ];
 

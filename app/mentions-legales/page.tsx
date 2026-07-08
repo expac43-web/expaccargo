@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: "Mentions légales — Express Africa Cargo (EXPAC)",
   description:
     "Mentions légales du site Express Africa Cargo Ltd (EXPAC) : éditeur, coordonnées, hébergement, propriété intellectuelle et protection des données.",
-  alternates: { canonical: "https://expaccargo.com/mentions-legales" },
+  alternates: { canonical: "https://www.expaccargo.com/mentions-legales" },
   robots: { index: true, follow: true },
 };
 
@@ -68,7 +68,7 @@ export default function MentionsLegalesPage() {
                 <p>Tél. : +242 05 511 97 11 — +242 05 640 22 77 · <a href="mailto:agence.bz@expaccargo.com" className="text-[#1A3A6B] underline">agence.bz@expaccargo.com</a></p>
                 <p><strong>Agence — Pointe-Noire :</strong> Résidence les Palmiers, Bât. C, 2ᵉ étage, Appt Caïman, Av. Germain Bikoumat, Centre-Ville.</p>
                 <p>Tél. : +242 06 436 38 82 — +242 05 052 60 43 · <a href="mailto:agence.pn@expaccargo.com" className="text-[#1A3A6B] underline">agence.pn@expaccargo.com</a></p>
-                <p>Contact général : <a href="mailto:contact@expaccargo.com" className="text-[#1A3A6B] underline">contact@expaccargo.com</a></p>
+                <p>Contact général : <a href="mailto:support@expaccargo.com" className="text-[#1A3A6B] underline">support@expaccargo.com</a></p>
               </Section>
 
               <Section title="Directeur de la publication">
@@ -102,7 +102,7 @@ export default function MentionsLegalesPage() {
                 </p>
                 <p>
                   Vous disposez d&apos;un droit d&apos;accès, de rectification et de suppression de vos données.
-                  Pour l&apos;exercer, écrivez à <a href="mailto:contact@expaccargo.com" className="text-[#1A3A6B] underline">contact@expaccargo.com</a>.
+                  Pour l&apos;exercer, écrivez à <a href="mailto:support@expaccargo.com" className="text-[#1A3A6B] underline">support@expaccargo.com</a>.
                 </p>
               </Section>
 

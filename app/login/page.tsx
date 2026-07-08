@@ -263,8 +263,8 @@ export default function LoginPage() {
 
               <p className="text-center text-xs text-gray-400 mt-5" style={{ fontFamily: "var(--font-lato)" }}>
                 {L.staffAccess}{" "}
-                <a href="mailto:contact@expaccargo.com" className="underline hover:text-gray-600">
-                  contact@expaccargo.com
+                <a href="mailto:support@expaccargo.com" className="underline hover:text-gray-600">
+                  support@expaccargo.com
                 </a>
               </p>
             </div>

@@ -8,12 +8,12 @@ export const metadata: Metadata = {
   title: "EXPAC — Commissionnaire Agréé en Douane — Agrément N° CDA 265",
   description:
     "EXPAC, commissionnaire agréé en douane (Agrément N° CDA 265) en République du Congo (Brazzaville, Pointe-Noire) et en Afrique : transit douanier, transport multimodal, stockage et consignation maritime. Suivi d'expéditions en temps réel. Devis gratuit sous 24h.",
-  alternates: { canonical: "https://expaccargo.com" },
+  alternates: { canonical: "https://www.expaccargo.com" },
   openGraph: {
     title: "EXPAC — Commissionnaire Agréé en Douane — Agrément N° CDA 265",
     description:
       "Commissionnaire agréé en douane (Agrément N° CDA 265) en République du Congo et en Afrique : transit douanier, transport multimodal, stockage et consignation maritime. Express Africa Cargo Ltd.",
-    url: "https://expaccargo.com",
+    url: "https://www.expaccargo.com",
     type: "website",
   },
 };
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
 /* ── JSON-LD : Organisation + 2 établissements (données structurées Google) ──
    👉 Infos modifiables ici à tout moment (adresses, téléphones, horaires).
    La source qui fait foi pour le référencement local reste le Profil d'établissement Google. */
-const SITE = "https://expaccargo.com";
+const SITE = "https://www.expaccargo.com";
 const ORG_ID = `${SITE}/#organization`;
 
 const structuredData = {
@@ -34,7 +34,7 @@ const structuredData = {
       alternateName: "EXPAC",
       url: SITE,
       logo: `${SITE}/images/logo.jpeg`,
-      email: "contact@expaccargo.com",
+      email: "support@expaccargo.com",
       description:
         "Commissionnaire agréé en douane (N° CDA 265) : transit douanier, transport multimodal et logistique en Afrique (Congo Brazzaville).",
       areaServed: { "@type": "Place", name: "Afrique centrale" },

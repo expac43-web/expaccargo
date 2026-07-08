@@ -173,8 +173,8 @@ export default function ExpackLoginPage() {
 
           <p className="text-center text-xs text-gray-400 mt-6" style={{ fontFamily: "var(--font-lato)" }}>
             Problème de connexion :{" "}
-            <a href="mailto:contact@expaccargo.com" className="underline hover:text-gray-600">
-              contact@expaccargo.com
+            <a href="mailto:support@expaccargo.com" className="underline hover:text-gray-600">
+              support@expaccargo.com
             </a>
           </p>
         </div>

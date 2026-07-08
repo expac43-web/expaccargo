@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { isValidEmail } from "@/lib/validation";
+import { sendContactMessageEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   try {
@@ -28,8 +29,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Message invalide." }, { status: 400 });
     }
 
-    // TODO: envoi email via Resend quand RESEND_API_KEY sera configurée
-    // if (process.env.RESEND_API_KEY) { ... }
+    const sent = await sendContactMessageEmail({ name, email, phone, subject, message });
+    if (!sent) {
+      return NextResponse.json(
+        { error: "Envoi impossible pour le moment. Réessayez ou écrivez-nous directement." },
+        { status: 502 }
+      );
+    }
 
     return NextResponse.json({ success: true }, { status: 200 });
   } catch {

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   title: "Suivi de stockage — Vérifiez votre colis stocké",
   description:
     "Vérifiez si votre colis est stocké chez EXPAC (Brazzaville ou Pointe-Noire) et connaissez son statut : date d'entrée, sortie prévue, en attente de libération, libéré ou délai dépassé.",
-  alternates: { canonical: "https://expaccargo.com/stockage" },
+  alternates: { canonical: "https://www.expaccargo.com/stockage" },
 };
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;

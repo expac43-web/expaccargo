@@ -51,7 +51,7 @@ export const metadata: Metadata = {
   title: "À propos — EXPAC, commissionnaire agréé en douane au Congo",
   description:
     "EXPAC, commissionnaire agréé en douane et transitaire à Pointe-Noire et Brazzaville : votre partenaire logistique stratégique au Congo. Notre mission, notre expertise et notre engagement Qualité, Sécurité et Environnement (QSE).",
-  alternates: { canonical: "https://expaccargo.com/a-propos" },
+  alternates: { canonical: "https://www.expaccargo.com/a-propos" },
 };
 
 type ContentBlockData = { icon: React.ElementType; title: string; text: string; photo: string; color: string };

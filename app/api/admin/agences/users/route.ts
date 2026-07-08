@@ -90,7 +90,7 @@ export async function POST(req: NextRequest) {
           </p>
 
           <div style="text-align:center;margin-bottom:32px;">
-            <a href="https://expaccargo.com/login" style="display:inline-block;background:#0e5f72;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:12px;font-weight:900;font-size:14px;text-transform:uppercase;letter-spacing:0.05em;">
+            <a href="https://www.expaccargo.com/login" style="display:inline-block;background:#0e5f72;color:#ffffff;text-decoration:none;padding:14px 32px;border-radius:12px;font-weight:900;font-size:14px;text-transform:uppercase;letter-spacing:0.05em;">
               Se connecter à mon espace
             </a>
           </div>
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
           <hr style="border:none;border-top:1px solid #e5e7eb;margin:0 0 24px;">
           <p style="margin:0;color:#9ca3af;font-size:12px;text-align:center;">
             Cet email a été envoyé par EXPAC — Express Africa Cargo Ltd.<br>
-            <a href="https://expaccargo.com" style="color:#0e5f72;">expaccargo.com</a>
+            <a href="https://www.expaccargo.com" style="color:#0e5f72;">expaccargo.com</a>
           </p>
         </td></tr>
       </table>

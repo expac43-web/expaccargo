@@ -9,12 +9,12 @@ export const metadata: Metadata = {
   title: "Actualités — Logistique & Transport en Afrique",
   description:
     "Restez informé des dernières actualités du secteur logistique, transport et transit en Afrique. Articles, analyses et conseils par les experts EXPAC.",
-  alternates: { canonical: "https://expaccargo.com/actualites" },
+  alternates: { canonical: "https://www.expaccargo.com/actualites" },
   openGraph: {
     title: "Actualités Logistique Afrique — EXPAC",
     description:
       "Toute l'actualité du transport international et de la logistique en Afrique par Express Africa Cargo Ltd.",
-    url: "https://expaccargo.com/actualites",
+    url: "https://www.expaccargo.com/actualites",
   },
 };
 import { ExternalLink, Calendar, Tag, ArrowRight, Newspaper, PenLine } from "lucide-react";

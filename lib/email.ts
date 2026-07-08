@@ -17,7 +17,12 @@ const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KE
 // Expéditeur unique de tous les emails système (domaine à vérifier dans Resend).
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "support@expaccargo.com";
 const FROM = `EXPAC — Express Africa Cargo <${FROM_EMAIL}>`;
-const SITE = "https://expaccargo.com";
+// Boîte de réception des messages du formulaire de contact public.
+const CONTACT_INBOX = "support@expaccargo.com";
+// Domaine canonique AVEC www : le non-www renvoie un 308 vers www, et les proxys
+// d'images des messageries (Gmail…) ne suivent pas les redirections → le logo
+// s'affichait cassé. Utiliser www directement garantit un 200 sur l'image et les liens.
+const SITE = "https://www.expaccargo.com";
 const LOGIN_URL = `${SITE}/login`;
 
 const NAVY = "#1A3A6B";
@@ -50,6 +55,15 @@ function htmlToPlain(html: string): string {
     .replace(/[ \t]+\n/g, "\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
+}
+
+/** Échappe le HTML d'un contenu fourni par l'utilisateur avant insertion dans un email. */
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 /** Envoi bas-niveau. Renvoie true si parti, false sinon (clé absente ou erreur). */
@@ -101,10 +115,16 @@ function shell(opts: { accent: string; preheader?: string; inner: string }): str
     <tr><td align="center">
       <table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;border-radius:16px;overflow:hidden;max-width:600px;">
         <tr><td style="background:linear-gradient(135deg,#0e2248 0%,${opts.accent} 100%);padding:28px 40px;">
-          <table cellpadding="0" cellspacing="0" border="0"><tr><td style="background:#ffffff;border-radius:8px;padding:8px 12px;">
-            <img src="${SITE}/images/logo.jpeg" alt="EXPRESS AFRICA CARGO" height="30" style="display:block;border:0;outline:none;height:30px;width:auto;" />
-          </td></tr></table>
-          <p style="margin:12px 0 0;color:rgba(255,255,255,0.8);font-size:12px;">Commissionnaire agréé en douane — Sûr &amp; Rapide</p>
+          <table cellpadding="0" cellspacing="0" border="0"><tr>
+            <td valign="middle" style="background:#ffffff;border-radius:10px;padding:10px;">
+              <img src="${SITE}/images/logo.jpeg" alt="EXPAC — Express Africa Cargo" width="56" height="56" style="display:block;border:0;outline:none;width:56px;height:56px;" />
+            </td>
+            <td valign="middle" style="padding-left:16px;">
+              <div style="color:#ffffff;font-size:18px;font-weight:bold;line-height:1.2;font-family:Arial,Helvetica,sans-serif;">EXPAC Cargo Ltd</div>
+              <div style="margin-top:5px;color:rgba(255,255,255,0.85);font-size:12px;line-height:1.4;font-family:Arial,Helvetica,sans-serif;">Commissionnaire agréé en douane · N° CDA 265</div>
+            </td>
+          </tr></table>
+          <p style="margin:14px 0 0;color:rgba(255,255,255,0.8);font-size:12px;">Sûr &amp; Rapide</p>
         </td></tr>
         <tr><td style="padding:36px 40px;">
           ${opts.inner}
@@ -449,4 +469,26 @@ export async function sendQuoteSignedInternalEmail(opts: {
     button("Ouvrir le back-office", `${SITE}/dashboard`, accent);
   const html = shell({ accent, preheader: `Devis ${opts.reference} signé`, inner });
   return sendEmail({ to: FROM_EMAIL, subject: `✍️ Devis ${opts.reference} signé par ${opts.signerName}`, html });
+}
+
+// ───────────────────────────── 10. Message du formulaire de contact ─────────────────────────────
+
+/** Notification interne (support EXPAC) : un visiteur a envoyé un message via la page contact. */
+export async function sendContactMessageEmail(opts: {
+  name: string; email: string; phone?: string; subject: string; message: string;
+}): Promise<boolean> {
+  const accent = ORANGE;
+  const rows: [string, string][] = [
+    ["Nom", escapeHtml(opts.name)],
+    ["Email", escapeHtml(opts.email)],
+  ];
+  if (opts.phone) rows.push(["Téléphone", escapeHtml(opts.phone)]);
+  rows.push(["Sujet", escapeHtml(opts.subject)]);
+  const inner =
+    heading("Nouveau message — formulaire de contact") +
+    infoBox(rows, accent) +
+    paragraph(escapeHtml(opts.message).replace(/\n/g, "<br>"));
+  const html = shell({ accent, preheader: `Message de ${escapeHtml(opts.name)} — ${escapeHtml(opts.subject)}`, inner });
+  // Reçu sur la boîte support ; « Répondre » écrit directement au visiteur (Reply-To).
+  return sendEmail({ to: CONTACT_INBOX, subject: `📬 Contact — ${opts.subject}`, html, replyTo: opts.email });
 }

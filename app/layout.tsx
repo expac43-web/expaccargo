@@ -30,7 +30,7 @@ const lato = Lato({
 
 /* ── Métadonnées de base (surchargées par chaque page) ─────────────────── */
 const SITE_NAME = "EXPAC — Express Africa Cargo Ltd";
-const SITE_URL = "https://expaccargo.com";
+const SITE_URL = "https://www.expaccargo.com";
 const SITE_DESCRIPTION =
   "Expert en logistique internationale, transit douanier et transport multimodal en Afrique. Suivi d'expéditions en temps réel. Devis gratuit sous 24h.";
 

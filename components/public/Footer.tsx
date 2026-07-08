@@ -171,7 +171,7 @@ export default function Footer() {
                 </div>
                 <div className="flex items-center gap-2.5 text-sm text-blue-200">
                   <Globe size={13} className="shrink-0 text-[#E8520A]" />
-                  <a href="http://expaccargo.com" target="_blank" rel="noopener noreferrer"
+                  <a href="https://www.expaccargo.com" target="_blank" rel="noopener noreferrer"
                     className="hover:text-white transition-colors" style={{ fontFamily: "var(--font-lato)" }}>
                     expaccargo.com
                   </a>
