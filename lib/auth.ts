@@ -50,6 +50,9 @@ async function getUserByEmail(email: string) {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  // Fait confiance à l'hôte de la requête pour construire les URLs de redirection.
+  // Évite les redirections vers localhost si AUTH_URL n'est pas (ou mal) défini en prod.
+  trustHost: true,
   providers: [
     Credentials({
       credentials: {
