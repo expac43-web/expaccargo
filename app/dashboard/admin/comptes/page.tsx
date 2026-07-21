@@ -9,7 +9,7 @@ const PAGE_SIZE = 15;
 import { generatePassword } from "@/lib/password";
 import {
   UserPlus, Users, Building2, Mail, KeyRound, Copy, Check,
-  RefreshCw, Eye, EyeOff, AlertCircle, CheckCircle2, Search, Shield,
+  RefreshCw, Eye, EyeOff, AlertCircle, CheckCircle2, Search, Shield, X, Trash2,
 } from "lucide-react";
 
 type Agency = { id: string; name: string; city: string; country: string };
@@ -21,9 +21,10 @@ type Staff = {
 const ROLE_OPTIONS = [
   { value: "MANAGER", label: "Gérant" },
   { value: "AGENCY", label: "Agent d'agence" },
+  { value: "PARTNER", label: "Partenaire" },
 ];
-const ROLE_LABELS: Record<string, string> = { MANAGER: "Gérant", AGENCY: "Agent", SUPER_ADMIN: "Super admin" };
-const ROLE_COLORS: Record<string, string> = { MANAGER: "#1A3A6B", AGENCY: "#0e5f72", SUPER_ADMIN: "#7c3aed" };
+const ROLE_LABELS: Record<string, string> = { MANAGER: "Gérant", AGENCY: "Agent", SUPER_ADMIN: "Super admin", PARTNER: "Partenaire" };
+const ROLE_COLORS: Record<string, string> = { MANAGER: "#1A3A6B", AGENCY: "#0e5f72", SUPER_ADMIN: "#7c3aed", PARTNER: "#E8520A" };
 
 const labelCls = "block text-xs font-black uppercase tracking-wider mb-1.5 text-gray-600";
 const inputCls = "w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#1A3A6B] focus:ring-2 focus:ring-[#1A3A6B]/10 transition-all bg-white";
@@ -31,6 +32,9 @@ const inputCls = "w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm o
 export default function ComptesPage() {
   const [agencies, setAgencies] = useState<Agency[]>([]);
   const [staff, setStaff] = useState<Staff[]>([]);
+  const [tab, setTab] = useState<"STAFF" | "PARTNER">("STAFF");
+  const [detail, setDetail] = useState<Staff | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -133,15 +137,20 @@ export default function ComptesPage() {
 
   const agencyName = (id: string | null) => agencies.find((a) => a.id === id)?.name ?? null;
 
+  // Comptes de la société (gérants/agents) et comptes partenaires sont séparés.
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
     return staff
       .filter((u) => u.role !== "SUPER_ADMIN")
+      .filter((u) => (tab === "PARTNER" ? u.role === "PARTNER" : u.role !== "PARTNER"))
       .filter((u) => !q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
-  }, [staff, search]);
+  }, [staff, search, tab]);
 
-  // Pagination (revient en page 1 dès que la recherche change).
-  useEffect(() => { setPage(1); }, [search]);
+  const countStaff = staff.filter((u) => u.role !== "SUPER_ADMIN" && u.role !== "PARTNER").length;
+  const countPartners = staff.filter((u) => u.role === "PARTNER").length;
+
+  // Pagination (revient en page 1 dès que la recherche ou l'onglet change).
+  useEffect(() => { setPage(1); }, [search, tab]);
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
@@ -172,6 +181,25 @@ export default function ComptesPage() {
           />
         </div>
 
+        {/* Séparation : comptes de la société / comptes partenaires */}
+        <div className="flex flex-wrap gap-2 mb-5">
+          {([
+            { key: "STAFF", label: "Société", count: countStaff, color: "#1A3A6B" },
+            { key: "PARTNER", label: "Partenaires", count: countPartners, color: "#E8520A" },
+          ] as const).map((t) => (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wide border-2 transition-all"
+              style={tab === t.key
+                ? { borderColor: t.color, backgroundColor: `${t.color}12`, color: t.color, fontFamily: "var(--font-montserrat)" }
+                : { borderColor: "#e5e7eb", color: "#9ca3af", fontFamily: "var(--font-montserrat)" }}
+            >
+              {t.label} ({t.count})
+            </button>
+          ))}
+        </div>
+
         {loading ? (
           <div className="flex justify-center py-20"><span className="w-8 h-8 border-2 border-gray-200 border-t-[#1A3A6B] rounded-full animate-spin" /></div>
         ) : filtered.length === 0 ? (
@@ -183,7 +211,7 @@ export default function ComptesPage() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4" data-list>
             {paged.map((u) => (
               <div key={u.id} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
                 <div className="flex items-start gap-3 mb-3">
@@ -220,6 +248,14 @@ export default function ComptesPage() {
                   >
                     <KeyRound size={13} /> Réinitialiser
                   </button>
+                  <button
+                    onClick={() => setDetail(u)}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-black text-gray-500 hover:text-[#1A3A6B] hover:bg-gray-100 transition-all"
+                    style={{ fontFamily: "var(--font-montserrat)" }}
+                    title="Voir le détail du compte"
+                  >
+                    <Eye size={13} /> Détails
+                  </button>
                 </div>
               </div>
             ))}
@@ -233,6 +269,57 @@ export default function ComptesPage() {
           La gestion fine (modifier / réinitialiser le mot de passe / supprimer) reste disponible dans <strong>Agences &amp; Gérants</strong>, par agence.
         </p>
       </div>
+
+      {/* ── Détail d'un compte + suppression ───────────────────────── */}
+      {detail && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => !deleting && setDetail(null)}>
+          <div className="bg-white rounded-2xl w-full max-w-md p-6" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-start justify-between gap-3 mb-5">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-11 h-11 rounded-xl flex items-center justify-center text-white text-sm font-black shrink-0" style={{ backgroundColor: ROLE_COLORS[detail.role] ?? "#6b7280", fontFamily: "var(--font-montserrat)" }}>
+                  {detail.name.charAt(0).toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-lg font-black truncate" style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>{detail.name}</h3>
+                  <p className="text-xs text-gray-400 truncate" style={{ fontFamily: "var(--font-lato)" }}>{ROLE_LABELS[detail.role] ?? detail.role}</p>
+                </div>
+              </div>
+              <button onClick={() => setDetail(null)} className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 shrink-0"><X size={18} /></button>
+            </div>
+
+            <div className="space-y-2 mb-6">
+              {[
+                ["Email", detail.email],
+                ["Téléphone", detail.phone || "—"],
+                ["Agence", agencyName(detail.agencyId) ?? "—"],
+                ["Statut", detail.isActive ? "Actif" : "Désactivé"],
+                ["Créé le", new Date(detail.createdAt).toLocaleDateString("fr-FR")],
+              ].map(([k, v]) => (
+                <div key={k} className="flex items-start justify-between gap-3 py-2 border-b border-gray-50">
+                  <span className="text-xs font-black uppercase tracking-wider text-gray-400" style={{ fontFamily: "var(--font-montserrat)" }}>{k}</span>
+                  <span className="text-sm text-gray-700 text-right break-all" style={{ fontFamily: "var(--font-lato)" }}>{v}</span>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={async () => {
+                if (!confirm(`Supprimer définitivement le compte de ${detail.name} ? Cette action est irréversible.`)) return;
+                setDeleting(true);
+                const r = await fetch(`/api/admin/users/${detail.id}`, { method: "DELETE" });
+                setDeleting(false);
+                if (r.ok) { setStaff((prev) => prev.filter((u) => u.id !== detail.id)); setDetail(null); }
+                else { const d = await r.json().catch(() => ({})); alert(d.error ?? "Suppression impossible."); }
+              }}
+              disabled={deleting}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-black text-sm uppercase tracking-wide text-red-600 border-2 border-red-200 hover:bg-red-50 transition-all disabled:opacity-60"
+              style={{ fontFamily: "var(--font-montserrat)" }}
+            >
+              <Trash2 size={15} /> {deleting ? "Suppression…" : "Supprimer ce compte"}
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── Modal création ─────────────────────────────────────────── */}
       <Modal open={showForm} onClose={() => setShowForm(false)} title="Créer un compte">

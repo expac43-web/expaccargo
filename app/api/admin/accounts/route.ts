@@ -10,7 +10,8 @@ function isAdmin(role?: string) {
   return role === "SUPER_ADMIN" || role === "MANAGER";
 }
 
-const STAFF_ROLES = ["MANAGER", "AGENCY"];
+// PARTNER = compte partenaire (fournisseur/prestataire) créé par l'admin.
+const STAFF_ROLES = ["MANAGER", "AGENCY", "PARTNER"];
 
 /**
  * Création d'un compte gérant ou agence depuis le menu « Comptes » du super admin.

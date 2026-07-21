@@ -12,7 +12,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   if (!session || !isAdmin(role)) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
   const { id } = await params;
-  const { name, logoUrl, website, isActive, order } = await req.json();
+  const { name, logoUrl, website, isActive, order, type } = await req.json();
 
   if (!name?.trim() || !logoUrl?.trim()) {
     return NextResponse.json({ error: "Nom et URL du logo obligatoires" }, { status: 400 });
@@ -21,6 +21,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   const updated = await sbPatch("Partner", `id=eq.${id}`, {
     name: name.trim(), logoUrl: logoUrl.trim(),
     website: website?.trim() || null,
+    ...(type === "CLIENT" || type === "PARTNER" ? { type } : {}),
     ...(isActive !== undefined ? { isActive } : {}),
     ...(order !== undefined ? { order } : {}),
   });

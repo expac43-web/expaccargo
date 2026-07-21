@@ -196,8 +196,12 @@ const fr = {
       ctaContact: "Nous contacter",
     },
     partners: {
-      eyebrow: "Ils nous font confiance",
+      eyebrow: "Ils travaillent avec nous",
       title: "Nos partenaires",
+    },
+    clients: {
+      eyebrow: "Ils nous font confiance",
+      title: "Nos clients",
     },
   },
   servicesPage: {

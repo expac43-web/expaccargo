@@ -52,6 +52,8 @@ export default function LoginPage() {
         router.push("/dashboard/gerant");
       } else if (role === "SUPER_ADMIN") {
         router.push("/dashboard/admin");
+      } else if (role === "PARTNER") {
+        router.push("/dashboard/partenaire");
       } else {
         router.push("/dashboard");
       }

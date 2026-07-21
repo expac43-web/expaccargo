@@ -194,8 +194,12 @@ const en: Dict = {
       ctaContact: "Contact us",
     },
     partners: {
-      eyebrow: "They trust us",
+      eyebrow: "They work with us",
       title: "Our partners",
+    },
+    clients: {
+      eyebrow: "They trust us",
+      title: "Our clients",
     },
   },
   servicesPage: {

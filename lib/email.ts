@@ -29,7 +29,7 @@ const NAVY = "#1A3A6B";
 const TEAL = "#0e5f72";
 const ORANGE = "#E8520A";
 
-export type StaffRole = "MANAGER" | "AGENCY";
+export type StaffRole = "MANAGER" | "AGENCY" | "PARTNER";
 
 /** Indique si l'envoi d'emails est actif (clé Resend présente). */
 export function isEmailConfigured(): boolean {
@@ -175,16 +175,19 @@ const SERVICE_LABELS: Record<string, string> = {
 export function renderStaffWelcome(opts: {
   name: string; email: string; password: string; role: StaffRole; agencyName?: string | null;
 }): { subject: string; html: string } {
-  const isManager = opts.role === "MANAGER";
-  const space = isManager ? "espace gérant" : "espace agence";
-  const accent = isManager ? NAVY : TEAL;
+  const LABELS: Record<StaffRole, { space: string; title: string; accent: string }> = {
+    MANAGER: { space: "espace gérant", title: "Gérant", accent: NAVY },
+    AGENCY: { space: "espace agence", title: "Agent d'agence", accent: TEAL },
+    PARTNER: { space: "espace partenaire", title: "Partenaire", accent: ORANGE },
+  };
+  const { space, title, accent } = LABELS[opts.role] ?? LABELS.AGENCY;
   const rows: [string, string][] = [];
   if (opts.agencyName) rows.push(["Agence", opts.agencyName]);
   rows.push(["Email", opts.email], ["Mot de passe", `<code style="background:#e0f2fe;padding:2px 8px;border-radius:4px;font-family:monospace;">${opts.password}</code>`]);
 
   const inner =
     heading(`Bienvenue, ${opts.name} !`) +
-    paragraph(`Votre compte <strong>${isManager ? "Gérant" : "Agent d'agence"}</strong> EXPAC a été créé. Connectez-vous à votre ${space} avec les identifiants ci-dessous.`) +
+    paragraph(`Votre compte <strong>${title}</strong> EXPAC a été créé. Connectez-vous à votre ${space} avec les identifiants ci-dessous.`) +
     infoBox(rows, accent) +
     paragraph(`🔒 <strong>Important :</strong> changez votre mot de passe dès la première connexion, depuis votre profil.`) +
     button("Se connecter", LOGIN_URL, accent);

@@ -21,6 +21,11 @@ export default async function ClientDashboardLayout({ children }: { children: Re
     return <>{children}</>;
   }
 
+  // Partenaire: leur layout est dans /dashboard/partenaire/layout.tsx
+  if (role === "PARTNER") {
+    return <>{children}</>;
+  }
+
   // No session or non-CLIENT → redirect to client login
   if (!session || role !== "CLIENT") {
     redirect("/login");

@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
   const role = (session?.user as { role?: string })?.role;
   if (!session || !isAdmin(role)) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
-  const { name, logoUrl, website, isActive, order } = await req.json();
+  const { name, logoUrl, website, isActive, order, type } = await req.json();
 
   if (!name?.trim() || !logoUrl?.trim()) {
     return NextResponse.json({ error: "Nom et URL du logo obligatoires" }, { status: 400 });
@@ -30,6 +30,8 @@ export async function POST(req: NextRequest) {
   const partner = await sbPost("Partner", {
     id, name: name.trim(), logoUrl: logoUrl.trim(),
     website: website?.trim() || null,
+    // CLIENT = client pour qui EXPAC travaille ; PARTNER = partenaire de travail.
+    type: type === "CLIENT" ? "CLIENT" : "PARTNER",
     isActive: isActive ?? true,
     order: order ?? 0,
     createdAt: new Date().toISOString(),

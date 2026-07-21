@@ -147,7 +147,7 @@ const atoutMeta = [
 
 /* ─────────────────────────────────────────────────────────── */
 
-type Partner = { id: string; name: string; logoUrl: string; website?: string | null };
+type Partner = { id: string; name: string; logoUrl: string; website?: string | null; type?: string | null };
 
 async function fetchPartners(): Promise<Partner[]> {
   try {
@@ -194,6 +194,10 @@ async function fetchComments(): Promise<PublicComment[]> {
 
 export default async function HomePage() {
   const partners = await fetchPartners();
+  // Deux carrousels distincts : clients pour qui EXPAC travaille, et partenaires
+  // avec qui EXPAC travaille. Les entrées non typées comptent comme partenaires.
+  const clientLogos = partners.filter((p) => p.type === "CLIENT");
+  const partnerLogos = partners.filter((p) => p.type !== "CLIENT");
   const rates = await getRates();
   const comments = await fetchComments();
   const t = await getServerDict();
@@ -724,9 +728,30 @@ export default async function HomePage() {
         {/* ── TAUX DU JOUR (résumé) ─────────────────────────── */}
         {rates && <RatesSummary rates={rates.rates} />}
 
-        {/* ── PARTENAIRES ───────────────────────────────────── */}
-        {partners.length > 0 && (
+        {/* ── CLIENTS ───────────────────────────────────────── */}
+        {clientLogos.length > 0 && (
           <section className="bg-white py-16 border-t border-gray-100">
+            <div className="container-custom mb-10 text-center">
+              <p
+                className="text-xs font-black uppercase tracking-[0.2em] mb-3"
+                style={{ color: "#E8520A", fontFamily: "var(--font-montserrat)" }}
+              >
+                ▪ {h.clients.eyebrow}
+              </p>
+              <h2
+                className="text-2xl md:text-3xl font-black uppercase"
+                style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}
+              >
+                {h.clients.title}
+              </h2>
+            </div>
+            <PartnersCarousel partners={clientLogos} />
+          </section>
+        )}
+
+        {/* ── PARTENAIRES ───────────────────────────────────── */}
+        {partnerLogos.length > 0 && (
+          <section className="bg-gray-50 py-16 border-t border-gray-100">
             <div className="container-custom mb-10 text-center">
               <p
                 className="text-xs font-black uppercase tracking-[0.2em] mb-3"
@@ -741,7 +766,7 @@ export default async function HomePage() {
                 {h.partners.title}
               </h2>
             </div>
-            <PartnersCarousel partners={partners} />
+            <PartnersCarousel partners={partnerLogos} />
           </section>
         )}
       </main>

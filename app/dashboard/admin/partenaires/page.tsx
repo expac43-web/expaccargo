@@ -12,16 +12,21 @@ import { compressImage } from "@/lib/image-compress";
 
 type Partner = {
   id: string; name: string; logoUrl: string; website: string | null;
+  type: string | null; // "CLIENT" (client d'EXPAC) ou "PARTNER" (partenaire de travail)
   isActive: boolean; order: number; createdAt: string;
 };
+
+const TYPE_LABELS: Record<string, string> = { CLIENT: "Client", PARTNER: "Partenaire" };
+const TYPE_COLORS: Record<string, string> = { CLIENT: "#0e5f72", PARTNER: "#E8520A" };
 
 const labelCls = "block text-xs font-black uppercase tracking-wider mb-1.5 text-gray-600";
 const inputCls = "w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#1A3A6B] focus:ring-2 focus:ring-[#1A3A6B]/10 transition-all bg-white";
 
-const emptyForm = { name: "", logoUrl: "", website: "", isActive: true };
+const emptyForm = { name: "", logoUrl: "", website: "", type: "PARTNER", isActive: true };
 
 export default function PartenairesPage() {
   const [partners, setPartners] = useState<Partner[]>([]);
+  const [typeFilter, setTypeFilter] = useState<"ALL" | "CLIENT" | "PARTNER">("ALL");
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -68,7 +73,7 @@ export default function PartenairesPage() {
   }
 
   function openEdit(p: Partner) {
-    setForm({ name: p.name, logoUrl: p.logoUrl, website: p.website ?? "", isActive: p.isActive });
+    setForm({ name: p.name, logoUrl: p.logoUrl, website: p.website ?? "", type: p.type ?? "PARTNER", isActive: p.isActive });
     setEditing(p); setError("");
     setModal("edit");
   }
@@ -132,7 +137,11 @@ export default function PartenairesPage() {
   }
 
   const sorted = [...partners].sort((a, b) => a.order - b.order);
-  const pagedPartners = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  // Les entrées sans type sont considérées comme partenaires (valeur par défaut en base).
+  const visible = typeFilter === "ALL" ? sorted : sorted.filter((p) => (p.type ?? "PARTNER") === typeFilter);
+  const pagedPartners = visible.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const countClients = sorted.filter((p) => p.type === "CLIENT").length;
+  const countPartners = sorted.length - countClients;
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
@@ -151,6 +160,30 @@ export default function PartenairesPage() {
       />
 
       <div className="flex-1 p-6">
+        {/* Filtre par type : clients / partenaires */}
+        {!loading && sorted.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-5">
+            {([
+              { key: "ALL", label: "Tous", count: sorted.length, color: "#1A3A6B" },
+              { key: "CLIENT", label: "Clients", count: countClients, color: TYPE_COLORS.CLIENT },
+              { key: "PARTNER", label: "Partenaires", count: countPartners, color: TYPE_COLORS.PARTNER },
+            ] as const).map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => { setTypeFilter(tab.key); setPage(1); }}
+                className="px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wide border-2 transition-all"
+                style={
+                  typeFilter === tab.key
+                    ? { borderColor: tab.color, backgroundColor: `${tab.color}12`, color: tab.color, fontFamily: "var(--font-montserrat)" }
+                    : { borderColor: "#e5e7eb", color: "#9ca3af", fontFamily: "var(--font-montserrat)" }
+                }
+              >
+                {tab.label} ({tab.count})
+              </button>
+            ))}
+          </div>
+        )}
+
         {loading ? (
           <div className="flex justify-center py-20"><span className="w-8 h-8 border-2 border-gray-200 border-t-[#1A3A6B] rounded-full animate-spin" /></div>
         ) : sorted.length === 0 ? (
@@ -164,6 +197,16 @@ export default function PartenairesPage() {
               <div key={p.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                 {/* Logo preview */}
                 <div className="relative h-28 bg-gray-50 flex items-center justify-center px-4">
+                  <span
+                    className="absolute top-2 left-2 z-10 text-[10px] font-black uppercase tracking-wide px-2 py-0.5 rounded-lg"
+                    style={{
+                      backgroundColor: `${TYPE_COLORS[p.type ?? "PARTNER"]}18`,
+                      color: TYPE_COLORS[p.type ?? "PARTNER"],
+                      fontFamily: "var(--font-montserrat)",
+                    }}
+                  >
+                    {TYPE_LABELS[p.type ?? "PARTNER"]}
+                  </span>
                   <Image
                     src={p.logoUrl}
                     alt={p.name}
@@ -211,7 +254,7 @@ export default function PartenairesPage() {
           </div>
         )}
 
-        <Pagination page={page} total={sorted.length} pageSize={PAGE_SIZE} onChange={setPage} />
+        <Pagination page={page} total={visible.length} pageSize={PAGE_SIZE} onChange={setPage} />
       </div>
 
       {/* Create/Edit modal */}
@@ -226,6 +269,30 @@ export default function PartenairesPage() {
           <div>
             <label className={labelCls} style={{ fontFamily: "var(--font-montserrat)" }}>Nom du partenaire *</label>
             <input className={inputCls} value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} placeholder="DHL, CMA CGM..." style={{ fontFamily: "var(--font-lato)" }} />
+          </div>
+
+          <div>
+            <label className={labelCls} style={{ fontFamily: "var(--font-montserrat)" }}>Type *</label>
+            <div className="grid grid-cols-2 gap-2">
+              {(["CLIENT", "PARTNER"] as const).map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setForm(p => ({ ...p, type: t }))}
+                  className="px-3 py-2.5 rounded-xl text-xs font-black uppercase tracking-wide border-2 transition-all"
+                  style={
+                    form.type === t
+                      ? { borderColor: TYPE_COLORS[t], backgroundColor: `${TYPE_COLORS[t]}12`, color: TYPE_COLORS[t], fontFamily: "var(--font-montserrat)" }
+                      : { borderColor: "#e5e7eb", color: "#9ca3af", fontFamily: "var(--font-montserrat)" }
+                  }
+                >
+                  {TYPE_LABELS[t]}
+                </button>
+              ))}
+            </div>
+            <p className="text-[11px] text-gray-400 mt-1.5" style={{ fontFamily: "var(--font-lato)" }}>
+              Client = société pour qui EXPAC travaille · Partenaire = société avec qui EXPAC travaille.
+            </p>
           </div>
           <div>
             <label className={labelCls} style={{ fontFamily: "var(--font-montserrat)" }}>Logo *</label>
