@@ -21,6 +21,7 @@ import {
   UserCircle,
   UserPlus,
   Calculator,
+  FolderLock,
   Menu,
   X,
 } from "lucide-react";
@@ -34,6 +35,7 @@ const navItems = [
   { label: "Clients",         href: "/dashboard/admin/clients", icon: Users },
   { label: "Agences",         href: "/dashboard/admin/agences", icon: Building2 },
   { label: "Comptes",         href: "/dashboard/admin/comptes", icon: UserPlus },
+  { label: "Documents internes", href: "/dashboard/admin/documents-internes", icon: FolderLock },
   { label: "Devis",           href: "/dashboard/admin/devis", icon: FileText },
   { label: "Tarifs",          href: "/dashboard/admin/tarifs", icon: Calculator },
   { label: "Actualités",      href: "/dashboard/admin/actualites", icon: Newspaper },
