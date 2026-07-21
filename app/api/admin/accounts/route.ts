@@ -25,7 +25,8 @@ export async function POST(req: NextRequest) {
   if (!session || !isAdmin(role)) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
   const body = await req.json();
-  const { name, email, userRole, agencyId, phone } = body;
+  // contactName / address ne concernent que les comptes partenaires (société).
+  const { name, email, userRole, agencyId, phone, contactName, address } = body;
   let { password } = body;
 
   if (!name?.trim() || !email?.trim() || !userRole) {
@@ -82,6 +83,8 @@ export async function POST(req: NextRequest) {
     agencyId: agencyId || null,
     phone: phone?.trim() || null,
     whatsapp: null,
+    contactName: userRole === "PARTNER" ? contactName?.trim() || null : null,
+    address: userRole === "PARTNER" ? address?.trim() || null : null,
     isActive: true,
     createdAt: now,
     updatedAt: now,

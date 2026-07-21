@@ -41,7 +41,7 @@ export default function ComptesPage() {
 
   // Form
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ userRole: "MANAGER", agencyId: "", name: "", email: "", phone: "", password: "" });
+  const [form, setForm] = useState({ userRole: "MANAGER", agencyId: "", name: "", email: "", phone: "", password: "", contactName: "", address: "" });
   const [showPwd, setShowPwd] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -94,7 +94,7 @@ export default function ComptesPage() {
   useEffect(() => { loadData(); }, []);
 
   function openForm() {
-    setForm({ userRole: "MANAGER", agencyId: "", name: "", email: "", phone: "", password: generatePassword(12) });
+    setForm({ userRole: "MANAGER", agencyId: "", name: "", email: "", phone: "", password: generatePassword(12), contactName: "", address: "" });
     setError("");
     setShowPwd(true);
     setShowForm(true);
@@ -118,6 +118,7 @@ export default function ComptesPage() {
         body: JSON.stringify({
           name: form.name, email: form.email, userRole: form.userRole,
           agencyId: form.agencyId || null, phone: form.phone, password: form.password,
+          contactName: form.contactName, address: form.address,
         }),
       });
       const data = await r.json();
@@ -337,7 +338,7 @@ export default function ComptesPage() {
             </select>
           </div>
 
-          <div>
+          <div className={form.userRole === "PARTNER" ? "hidden" : ""}>
             <label className={labelCls} style={{ fontFamily: "var(--font-montserrat)" }}>
               Agence {form.userRole === "AGENCY" ? "*" : "(optionnel pour un gérant)"}
             </label>
@@ -348,9 +349,25 @@ export default function ComptesPage() {
           </div>
 
           <div>
-            <label className={labelCls} style={{ fontFamily: "var(--font-montserrat)" }}>Nom complet *</label>
-            <input className={inputCls} value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="Prénom Nom" style={{ fontFamily: "var(--font-lato)" }} />
+            <label className={labelCls} style={{ fontFamily: "var(--font-montserrat)" }}>
+              {form.userRole === "PARTNER" ? "Nom de la société *" : "Nom complet *"}
+            </label>
+            <input className={inputCls} value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder={form.userRole === "PARTNER" ? "Ex. Congo Auto Location SARL" : "Prénom Nom"} style={{ fontFamily: "var(--font-lato)" }} />
           </div>
+
+          {form.userRole === "PARTNER" && (
+            <>
+              <div>
+                <label className={labelCls} style={{ fontFamily: "var(--font-montserrat)" }}>Personne de référence</label>
+                <input className={inputCls} value={form.contactName} onChange={(e) => setForm((f) => ({ ...f, contactName: e.target.value }))} placeholder="Prénom Nom de l'interlocuteur" style={{ fontFamily: "var(--font-lato)" }} />
+                <p className="text-[11px] text-gray-400 mt-1" style={{ fontFamily: "var(--font-lato)" }}>Personne qui utilisera le compte.</p>
+              </div>
+              <div>
+                <label className={labelCls} style={{ fontFamily: "var(--font-montserrat)" }}>Adresse de la société</label>
+                <input className={inputCls} value={form.address} onChange={(e) => setForm((f) => ({ ...f, address: e.target.value }))} placeholder="Avenue, quartier, ville" style={{ fontFamily: "var(--font-lato)" }} />
+              </div>
+            </>
+          )}
 
           <div>
             <label className={labelCls} style={{ fontFamily: "var(--font-montserrat)" }}>Adresse email *</label>
