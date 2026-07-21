@@ -45,7 +45,6 @@ export default function ExchangesView({
   const [error, setError] = useState("");
 
   const load = useCallback(() => {
-    setLoading(true);
     fetch("/api/exchanges")
       .then((r) => (r.ok ? r.json() : []))
       .then((d) => setRows(Array.isArray(d) ? d : []))
@@ -91,7 +90,6 @@ export default function ExchangesView({
   }
 
   const shown = filter === "ALL" ? rows : rows.filter((r) => r.status === filter);
-  useEffect(() => { setPage(1); }, [filter]);
   const paged = shown.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const pageCount = Math.max(1, Math.ceil(shown.length / PAGE_SIZE));
 
@@ -126,7 +124,7 @@ export default function ExchangesView({
           ].map((t) => (
             <button
               key={t.key}
-              onClick={() => setFilter(t.key)}
+              onClick={() => { setFilter(t.key); setPage(1); }}
               className="px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wide border-2 transition-all"
               style={filter === t.key
                 ? { borderColor: t.color, backgroundColor: `${t.color}12`, color: t.color, fontFamily: "var(--font-montserrat)" }
