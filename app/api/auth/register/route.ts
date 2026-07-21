@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { sbGet, sbPost, enc } from "@/lib/supabase-admin";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
 import { isValidEmail } from "@/lib/validation";
+import { sendClientWelcomeEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   try {
@@ -67,7 +68,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Erreur lors de la création du compte." }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true }, { status: 201 });
+    // Email de bienvenue. Isolé dans un try/catch : un échec d'envoi ne doit
+    // jamais faire échouer une inscription déjà enregistrée en base.
+    let welcomeSent = false;
+    try {
+      welcomeSent = await sendClientWelcomeEmail({ name: displayName, email: normalizedEmail });
+    } catch (e) {
+      console.error("[register] échec de l'email de bienvenue:", e);
+    }
+
+    return NextResponse.json({ success: true, welcomeSent }, { status: 201 });
   } catch (err) {
     console.error("[register]", err);
     return NextResponse.json({ error: "Erreur serveur. Réessayez plus tard." }, { status: 500 });
