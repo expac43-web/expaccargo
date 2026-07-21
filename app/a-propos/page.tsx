@@ -67,17 +67,6 @@ const engagementQSE = {
   download: { href: "/DI01-POLITIQUE%20QSE%20EXPAC.pdf", label: "Télécharger la politique QSE", filename: "Politique-QSE-EXPAC.pdf" } as DownloadCta,
 };
 
-// ── SECTION 3 — Plate-forme e-EXPAC (texte du document) ──
-const ePlatform = {
-  intro:
-    "Cet espace est réservé au personnel d'EXPAC Cargo. Une fois l'accès autorisé, il se divise en trois parties.",
-  items: [
-    { title: "Info-personnel", text: "Nom et prénom, fonction, n° de téléphone, e-mail." },
-    { title: "Courrier", text: "Courrier inter-entreprise." },
-    { title: "Documentaire", text: "Documents PDF pour assurer le respect de la qualité." },
-  ] as Item[],
-};
-
 export const metadata: Metadata = {
   title: "À propos — EXPAC, commissionnaire agréé en douane au Congo",
   description:
@@ -108,12 +97,12 @@ function SideImages({ images, alt }: { images: string[]; alt: string }) {
 }
 
 /** Section de contenu : grand titre + intro + sous-titres/paragraphes (justifiés), image(s) optionnelle(s) à côté et bouton de téléchargement optionnel en fin. */
-function TextSection({ title, lead, intro, items, images, download, alt = false }: {
-  title: string; lead?: string; intro?: string; items: Item[]; images?: string[]; download?: DownloadCta; alt?: boolean;
+function TextSection({ id, title, lead, intro, items, images, download, alt = false }: {
+  id?: string; title: string; lead?: string; intro?: string; items: Item[]; images?: string[]; download?: DownloadCta; alt?: boolean;
 }) {
   const hasImages = !!images && images.length > 0;
   return (
-    <section className={`py-20 lg:py-24 ${alt ? "bg-gray-50" : "bg-white"}`}>
+    <section id={id} className={`scroll-mt-24 py-20 lg:py-24 ${alt ? "bg-gray-50" : "bg-white"}`}>
       <div className="container-custom">
         <div className={hasImages ? "grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start" : ""}>
           {/* Colonne texte */}
@@ -201,6 +190,7 @@ export default function AProposPage() {
 
         {/* ── SECTION 1 — QUI SOMMES-NOUS ─────────────────────── */}
         <TextSection
+          id="qui-sommes-nous"
           title="Qui sommes-nous"
           lead={quiSommesNous.lead}
           intro={quiSommesNous.intro}
@@ -211,6 +201,7 @@ export default function AProposPage() {
 
         {/* ── SECTION 2 — ENGAGEMENT QSE ──────────────────────── */}
         <TextSection
+          id="engagement-qse"
           title="Engagement QSE"
           lead={engagementQSE.lead}
           intro={engagementQSE.intro}
@@ -218,13 +209,6 @@ export default function AProposPage() {
           images={engagementQSE.images}
           download={engagementQSE.download}
           alt
-        />
-
-        {/* ── SECTION 3 — PLATE-FORME e-EXPAC ─────────────────── */}
-        <TextSection
-          title="Plate-forme e-EXPAC"
-          intro={ePlatform.intro}
-          items={ePlatform.items}
         />
 
         {/* ── BAS DE PAGE : Documentation + téléchargements ───── */}

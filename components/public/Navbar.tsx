@@ -32,7 +32,15 @@ export default function Navbar() {
         { label: t.nav.requestQuote, href: "/devis" },
       ],
     },
-    { label: t.nav.about, href: "/a-propos" },
+    {
+      label: t.nav.about,
+      href: "/a-propos",
+      children: [
+        { label: t.nav.aboutWhoWeAre, href: "/a-propos#qui-sommes-nous" },
+        { label: t.nav.aboutQse, href: "/a-propos#engagement-qse" },
+        { label: t.nav.aboutClaim, href: "/reclamation" },
+      ],
+    },
     { label: t.nav.rates, href: "/taux" },
     { label: t.nav.storage, href: "/stockage" },
     { label: t.nav.news, href: "/actualites" },
