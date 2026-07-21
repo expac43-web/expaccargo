@@ -1,12 +1,9 @@
-import { auth } from "@/lib/auth";
 import ExchangesView from "@/components/exchanges/ExchangesView";
 
-export default async function AdminEchangesPage() {
-  const session = await auth();
-  const userId = (session?.user as { id?: string })?.id ?? "";
+export default function EchangesPage() {
   return (
     <div className="flex-1 flex flex-col min-h-0">
-      <ExchangesView isStaff currentUserId={userId} />
+      <ExchangesView isStaff detailBase="/dashboard/admin/echanges" />
     </div>
   );
 }
