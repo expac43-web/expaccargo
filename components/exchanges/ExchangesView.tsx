@@ -40,6 +40,7 @@ export default function ExchangesView({ isStaff = false, currentUserId }: { isSt
   const [showForm, setShowForm] = useState(false);
   const [partners, setPartners] = useState<Partner[]>([]);
   const [form, setForm] = useState({ title: "", docType: "DEVIS", amount: "", notes: "", partnerId: "" });
+  const [newFile, setNewFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -87,8 +88,15 @@ export default function ExchangesView({ isStaff = false, currentUserId }: { isSt
       });
       const d = await r.json();
       if (!r.ok) throw new Error(d.error || "Erreur");
+      // Pièce jointe optionnelle : déposée sur l'échange qui vient d'être créé.
+      if (newFile && d?.id) {
+        const fd = new FormData();
+        fd.append("file", newFile);
+        await fetch(`/api/exchanges/${d.id}`, { method: "POST", body: fd });
+      }
       setShowForm(false);
       setForm({ title: "", docType: "DEVIS", amount: "", notes: "", partnerId: "" });
+      setNewFile(null);
       load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erreur");
@@ -138,7 +146,7 @@ export default function ExchangesView({ isStaff = false, currentUserId }: { isSt
           </p>
         </div>
         <button
-          onClick={() => { setShowForm(true); setError(""); }}
+          onClick={() => { setShowForm(true); setError(""); setNewFile(null); }}
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-white text-xs font-black uppercase tracking-wide hover:opacity-90 shrink-0"
           style={{ backgroundColor: "#E8520A", fontFamily: "var(--font-montserrat)" }}
         >
@@ -217,6 +225,19 @@ export default function ExchangesView({ isStaff = false, currentUserId }: { isSt
                 <label className={labelCls} style={{ fontFamily: "var(--font-montserrat)" }}>Note (optionnel)</label>
                 <textarea className={inputCls} rows={3} value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} />
               </div>
+              <div>
+                <label className={labelCls} style={{ fontFamily: "var(--font-montserrat)" }}>Document (optionnel)</label>
+                <input
+                  type="file"
+                  onChange={(e) => setNewFile(e.target.files?.[0] ?? null)}
+                  className="w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-black file:bg-gray-100 file:text-[#1A3A6B]"
+                  style={{ fontFamily: "var(--font-lato)" }}
+                />
+                <p className="text-[11px] text-gray-400 mt-1" style={{ fontFamily: "var(--font-lato)" }}>
+                  PDF ou image, 20 Mo max. Vous pourrez en ajouter d&apos;autres ensuite dans l&apos;échange.
+                </p>
+              </div>
+
               <button type="submit" disabled={saving} className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-black text-white text-sm uppercase tracking-wide disabled:opacity-60" style={{ backgroundColor: "#E8520A", fontFamily: "var(--font-montserrat)" }}>
                 {saving ? <Loader2 size={16} className="animate-spin" /> : "Créer l'échange"}
               </button>
