@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import Modal from "@/components/admin/Modal";
+import Pagination from "@/components/admin/Pagination";
+
+const PAGE_SIZE = 12;
 import {
   MessageSquareQuote, Plus, Star, Check, X, Trash2,
   AlertCircle, CheckCircle2, Loader2,
@@ -57,6 +60,7 @@ function Stars({ value, onChange }: { value: number; onChange?: (n: number) => v
 
 export default function CommentsManager() {
   const [comments, setComments] = useState<Comment[]>([]);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<CommentStatus | "ALL">("PENDING");
   const [actioning, setActioning] = useState<string | null>(null);
@@ -80,6 +84,9 @@ export default function CommentsManager() {
     REJECTED: comments.filter((c) => c.status === "REJECTED").length,
   };
   const shown = filter === "ALL" ? comments : comments.filter((c) => c.status === filter);
+  // Pagination (revient en page 1 dès que l'onglet change).
+  useEffect(() => { setPage(1); }, [filter]);
+  const pagedComments = shown.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   async function setStatus(id: string, status: CommentStatus) {
     setActioning(id);
@@ -189,7 +196,7 @@ export default function CommentsManager() {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {shown.map((c) => {
+            {pagedComments.map((c) => {
               const sm = STATUS_META[c.status];
               const busy = actioning === c.id;
               return (
@@ -236,6 +243,8 @@ export default function CommentsManager() {
             })}
           </div>
         )}
+
+        <Pagination page={page} total={shown.length} pageSize={PAGE_SIZE} onChange={setPage} />
       </div>
 
       {/* Créer un commentaire (publié directement) */}

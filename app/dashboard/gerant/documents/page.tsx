@@ -4,6 +4,9 @@ import { useState, useEffect, useRef } from "react";
 import { FolderOpen, Upload, Trash2, Download, Eye, Search, FileText, X, AlertCircle, CheckCircle2, FileDown } from "lucide-react";
 import { exportDocumentsListPDF } from "@/lib/pdf";
 import FileViewButton from "@/components/files/FileViewButton";
+import Pagination from "@/components/admin/Pagination";
+
+const PAGE_SIZE = 15;
 
 type Doc = {
   id: string; name: string; type: string; url: string;
@@ -29,6 +32,7 @@ export default function GerantDocumentsPage() {
   const [clients, setClients] = useState<Client[]>([]);
   const [search, setSearch] = useState("");
   const [filterClient, setFilterClient] = useState("");
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -64,6 +68,10 @@ export default function GerantDocumentsPage() {
   const filtered = search
     ? docs.filter((d) => d.name.toLowerCase().includes(search.toLowerCase()) || d.clientName.toLowerCase().includes(search.toLowerCase()))
     : docs;
+
+  // Pagination (revient en page 1 dès qu'un filtre change).
+  useEffect(() => { setPage(1); }, [search, filterClient]);
+  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   async function handleUpload() {
     if (!uploadFile || !uploadClient) { setUploadError("Sélectionnez un fichier et un client."); return; }
@@ -143,7 +151,7 @@ export default function GerantDocumentsPage() {
       ) : (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
           <div className="divide-y divide-gray-50">
-            {filtered.map((doc) => (
+            {paged.map((doc) => (
               <div key={doc.id} className="flex items-center gap-4 px-5 py-4 hover:bg-gray-50 transition-colors">
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                   style={{ backgroundColor: `${TYPE_COLORS[doc.type] ?? "#6b7280"}18` }}>
@@ -176,6 +184,8 @@ export default function GerantDocumentsPage() {
           </div>
         </div>
       )}
+
+      {!loading && <Pagination page={page} total={filtered.length} pageSize={PAGE_SIZE} onChange={setPage} />}
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">

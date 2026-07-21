@@ -4,6 +4,9 @@ import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import AdminHeader from "@/components/admin/AdminHeader";
 import Modal from "@/components/admin/Modal";
+import Pagination from "@/components/admin/Pagination";
+
+const PAGE_SIZE = 20;
 import { Handshake, Plus, Pencil, Trash2, ChevronUp, ChevronDown, AlertCircle, Globe, Upload, Loader2 } from "lucide-react";
 import { compressImage } from "@/lib/image-compress";
 
@@ -19,6 +22,7 @@ const emptyForm = { name: "", logoUrl: "", website: "", isActive: true };
 
 export default function PartenairesPage() {
   const [partners, setPartners] = useState<Partner[]>([]);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -128,6 +132,7 @@ export default function PartenairesPage() {
   }
 
   const sorted = [...partners].sort((a, b) => a.order - b.order);
+  const pagedPartners = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <div className="flex-1 flex flex-col min-h-0">
@@ -155,7 +160,7 @@ export default function PartenairesPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {sorted.map((p, i) => (
+            {pagedPartners.map((p, i) => (
               <div key={p.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
                 {/* Logo preview */}
                 <div className="relative h-28 bg-gray-50 flex items-center justify-center px-4">
@@ -205,6 +210,8 @@ export default function PartenairesPage() {
             ))}
           </div>
         )}
+
+        <Pagination page={page} total={sorted.length} pageSize={PAGE_SIZE} onChange={setPage} />
       </div>
 
       {/* Create/Edit modal */}

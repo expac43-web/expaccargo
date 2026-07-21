@@ -3,6 +3,9 @@
 import { useState, useEffect, useMemo } from "react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import Modal from "@/components/admin/Modal";
+import Pagination from "@/components/admin/Pagination";
+
+const PAGE_SIZE = 15;
 import { generatePassword } from "@/lib/password";
 import {
   UserPlus, Users, Building2, Mail, KeyRound, Copy, Check,
@@ -28,6 +31,7 @@ const inputCls = "w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm o
 export default function ComptesPage() {
   const [agencies, setAgencies] = useState<Agency[]>([]);
   const [staff, setStaff] = useState<Staff[]>([]);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
@@ -136,6 +140,10 @@ export default function ComptesPage() {
       .filter((u) => !q || u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q));
   }, [staff, search]);
 
+  // Pagination (revient en page 1 dès que la recherche change).
+  useEffect(() => { setPage(1); }, [search]);
+  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
   return (
     <div className="flex-1 flex flex-col min-h-0">
       <AdminHeader
@@ -176,7 +184,7 @@ export default function ComptesPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
-            {filtered.map((u) => (
+            {paged.map((u) => (
               <div key={u.id} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
                 <div className="flex items-start gap-3 mb-3">
                   <div className="w-11 h-11 rounded-xl flex items-center justify-center text-white text-sm font-black shrink-0" style={{ backgroundColor: ROLE_COLORS[u.role] ?? "#6b7280" }}>
@@ -217,6 +225,8 @@ export default function ComptesPage() {
             ))}
           </div>
         )}
+
+        {!loading && <Pagination page={page} total={filtered.length} pageSize={PAGE_SIZE} onChange={setPage} />}
 
         <p className="mt-6 text-xs text-gray-400 flex items-center gap-2" style={{ fontFamily: "var(--font-lato)" }}>
           <Shield size={12} />

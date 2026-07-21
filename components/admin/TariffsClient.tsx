@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import Modal from "@/components/admin/Modal";
+import Pagination from "@/components/admin/Pagination";
+
+const PAGE_SIZE = 15;
 import { Calculator, Plus, Pencil, Trash2, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { TARIFF_SERVICES, SERVICE_LABEL, formatPrice, type Tariff } from "@/lib/tariffs";
 
@@ -17,6 +20,8 @@ const emptyForm = {
 
 export default function TariffsClient() {
   const [tariffs, setTariffs] = useState<Tariff[]>([]);
+  const [page, setPage] = useState(1);
+  const pagedTariffs = tariffs.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -110,7 +115,7 @@ export default function TariffsClient() {
                   </tr>
                 </thead>
                 <tbody>
-                  {tariffs.map((t) => (
+                  {pagedTariffs.map((t) => (
                     <tr key={t.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                       <td className="px-3 py-3 text-xs font-black" style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>{SERVICE_LABEL[t.serviceType] ?? t.serviceType}</td>
                       <td className="px-3 py-3 text-xs text-gray-600" style={{ fontFamily: "var(--font-lato)" }}>{t.origin} → {t.destination}</td>
@@ -136,6 +141,8 @@ export default function TariffsClient() {
             </div>
           </div>
         )}
+
+        <Pagination page={page} total={tariffs.length} pageSize={PAGE_SIZE} onChange={setPage} />
       </div>
 
       {/* Create/Edit modal */}

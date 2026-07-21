@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import Modal from "@/components/admin/Modal";
+import Pagination from "@/components/admin/Pagination";
+
+const PAGE_SIZE = 15;
 import {
   Warehouse, Plus, Pencil, Trash2, AlertCircle, MapPin,
   CalendarDays, CalendarClock, Eye,
@@ -69,6 +72,7 @@ export default function StorageManager({
   agencies?: { id: string; name: string }[];
 }) {
   const [items, setItems] = useState<StorageItem[]>([]);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"ALL" | "AWAITING" | "OVERDUE" | "RELEASED">("ALL");
 
@@ -92,6 +96,9 @@ export default function StorageManager({
     RELEASED: items.filter((i) => effectiveStatus(i) === "RELEASED").length,
   };
   const shown = filter === "ALL" ? items : items.filter((i) => effectiveStatus(i) === filter);
+  // Pagination (revient en page 1 dès que l'onglet change).
+  useEffect(() => { setPage(1); }, [filter]);
+  const pagedItems = shown.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   // Droit d'écriture : admin/gérant partout ; un agent seulement sur les colis de son agence.
   const canWrite = (it: StorageItem) => canManageAll || (!!myAgencyId && it.agencyId === myAgencyId);
@@ -189,7 +196,7 @@ export default function StorageManager({
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {shown.map((it) => {
+            {pagedItems.map((it) => {
               const eff = effectiveStatus(it);
               const sm = EFF_META[eff];
               return (
@@ -232,6 +239,8 @@ export default function StorageManager({
             })}
           </div>
         )}
+
+        <Pagination page={page} total={shown.length} pageSize={PAGE_SIZE} onChange={setPage} />
       </div>
 
       {/* Create / Edit */}

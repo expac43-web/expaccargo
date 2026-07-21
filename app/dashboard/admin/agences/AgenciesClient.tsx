@@ -1,8 +1,11 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import Modal from "@/components/admin/Modal";
+import Pagination from "@/components/admin/Pagination";
+
+const PAGE_SIZE = 15;
 import {
   Building2, Plus, Pencil, Trash2, Users, Phone,
   Mail, MapPin, AlertCircle, CheckCircle2, RefreshCw, Eye, EyeOff, KeyRound, Copy, Check
@@ -50,6 +53,8 @@ function ErrorBanner({ msg }: { msg: string }) {
 
 export default function AgenciesClient({ initialAgencies }: { initialAgencies: Agency[] }) {
   const [agencies, setAgencies] = useState(initialAgencies);
+  const [page, setPage] = useState(1);
+  const pagedAgencies = agencies.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -125,12 +130,14 @@ export default function AgenciesClient({ initialAgencies }: { initialAgencies: A
   } | null>(null);
   const [copied, setCopied] = useState<"email" | "password" | null>(null);
 
-  const fetchUsers = useCallback(async (agency: Agency) => {
+  // Pas de useCallback : la fonction n'est utilisée que par appel direct (jamais
+  // comme dépendance). La mémoïsation est laissée au React Compiler.
+  async function fetchUsers(agency: Agency) {
     setLoadingUsers(true);
     const r = await fetch(`/api/admin/users?agencyId=${agency.id}`);
     if (r.ok) setStaffUsers(await r.json());
     setLoadingUsers(false);
-  }, []);
+  }
 
   function openUsersPanel(a: Agency) {
     setUsersPanel(a);
@@ -258,7 +265,7 @@ export default function AgenciesClient({ initialAgencies }: { initialAgencies: A
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-            {agencies.map((a) => (
+            {pagedAgencies.map((a) => (
               <div key={a.id} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-shadow">
                 <div className="flex items-start justify-between gap-2 mb-4">
                   <div className="flex items-center gap-3">
@@ -309,6 +316,8 @@ export default function AgenciesClient({ initialAgencies }: { initialAgencies: A
             ))}
           </div>
         )}
+
+        <Pagination page={page} total={agencies.length} pageSize={PAGE_SIZE} onChange={setPage} />
       </div>
 
       {/* ── Create/Edit Agency Modal ─────────────────────────────── */}

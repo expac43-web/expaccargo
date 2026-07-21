@@ -7,6 +7,9 @@ import {
 } from "lucide-react";
 import { exportDocumentsListPDF } from "@/lib/pdf";
 import FileViewButton from "@/components/files/FileViewButton";
+import Pagination from "@/components/admin/Pagination";
+
+const PAGE_SIZE = 15;
 import { useT } from "@/components/i18n/LanguageProvider";
 
 type Doc = {
@@ -69,6 +72,7 @@ export default function DocumentsPage() {
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterShipment, setFilterShipment] = useState<string>("ALL");
+  const [page, setPage] = useState(1);
 
   // Upload state
   const [showUpload, setShowUpload] = useState(false);
@@ -152,6 +156,10 @@ export default function DocumentsPage() {
   const filtered = filterShipment === "ALL"
     ? docs
     : docs.filter((d) => d.shipmentId === filterShipment);
+
+  // Pagination (revient en page 1 dès que le filtre change).
+  useEffect(() => { setPage(1); }, [filterShipment]);
+  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <div className="flex-1 overflow-auto">
@@ -262,7 +270,7 @@ export default function DocumentsPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {filtered.map((doc) => {
+            {paged.map((doc) => {
               const shipment = shipments.find((s) => s.id === doc.shipmentId);
               return (
                 <div
@@ -327,6 +335,8 @@ export default function DocumentsPage() {
           </div>
         )}
       </div>
+
+      {!loading && <Pagination page={page} total={filtered.length} pageSize={PAGE_SIZE} onChange={setPage} />}
 
       {/* Upload modal */}
       {showUpload && (

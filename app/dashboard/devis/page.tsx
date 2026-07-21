@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import Pagination from "@/components/admin/Pagination";
 import {
   FileText, Plus, X, Loader2, CheckCircle2, AlertCircle,
   Clock, Send, ChevronRight, ArrowRight, Download,
@@ -56,7 +57,10 @@ export default function ClientDevisPage() {
     Maritime: t.devisForm.modes.maritime, "Aérien": t.devisForm.modes.air,
     Routier: t.devisForm.modes.road, Multimodal: t.devisForm.modes.multimodal,
   } as Record<string, string>)[m] ?? m);
+  const PAGE_SIZE = 10;
   const [quotes, setQuotes] = useState<Quote[]>([]);
+  const [page, setPage] = useState(1);
+  const pagedQuotes = quotes.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -263,7 +267,7 @@ export default function ClientDevisPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {quotes.map((q) => {
+            {pagedQuotes.map((q) => {
               const sm = STATUS_STEP[q.status] ?? STATUS_STEP.NEW;
               const steps = ["NEW","IN_REVIEW","QUOTED","ACCEPTED"];
               return (
@@ -450,6 +454,8 @@ export default function ClientDevisPage() {
             })}
           </div>
         )}
+
+        {!loading && <Pagination page={page} total={quotes.length} pageSize={PAGE_SIZE} onChange={setPage} />}
       </div>
 
       {/* New quote modal */}
