@@ -10,6 +10,7 @@ import {
   Clock, CheckCircle, ArrowRight, Send, Weight, Calculator,
 } from "lucide-react";
 import { useT } from "@/components/i18n/LanguageProvider";
+import { useSession } from "next-auth/react";
 
 const sliderImages = [
   {
@@ -79,6 +80,11 @@ function Field({ label, icon, required, children }: { label: string; icon: React
 export default function DevisForm() {
   const { t } = useT();
   const df = t.devisForm;
+  // Pré-remplissage pour un client connecté : le rattachement du devis à son
+  // espace se fait par email, donc l'email du compte doit être celui envoyé.
+  const { data: session } = useSession();
+  const prefillName = session?.user?.name ?? "";
+  const prefillEmail = session?.user?.email ?? "";
   const [selectedService, setSelectedService] = useState<string | null>(null);
   const [selectedMode, setSelectedMode] = useState<string | null>(null);
   const [urgency, setUrgency] = useState("standard");
@@ -306,13 +312,13 @@ export default function DevisForm() {
                   <SectionTitle number="05" title={df.s5} />
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
                     <Field label={df.fullName} icon={<User size={15} />} required>
-                      <input name="clientName" type="text" required placeholder={df.fullNamePh} className={inputCls} style={{ fontFamily: "var(--font-lato)" }} />
+                      <input key={`name-${prefillName}`} name="clientName" type="text" required defaultValue={prefillName} placeholder={df.fullNamePh} className={inputCls} style={{ fontFamily: "var(--font-lato)" }} />
                     </Field>
                     <Field label={df.company} icon={<Building2 size={15} />}>
                       <input name="company" type="text" placeholder={df.companyPh} className={inputCls} style={{ fontFamily: "var(--font-lato)" }} />
                     </Field>
                     <Field label={df.email} icon={<Mail size={15} />} required>
-                      <input name="email" type="email" required placeholder={df.emailPh} className={inputCls} style={{ fontFamily: "var(--font-lato)" }} />
+                      <input key={`email-${prefillEmail}`} name="email" type="email" required defaultValue={prefillEmail} placeholder={df.emailPh} className={inputCls} style={{ fontFamily: "var(--font-lato)" }} />
                     </Field>
                     <Field label={df.phone} icon={<Phone size={15} />} required>
                       <input name="phone" type="tel" required placeholder={df.phonePh} className={inputCls} style={{ fontFamily: "var(--font-lato)" }} />
