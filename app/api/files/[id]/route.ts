@@ -41,6 +41,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     allowed = true;
   } else if (role === "CLIENT") {
     allowed = doc.uploadedById === user.id || doc.shipment?.clientId === user.id;
+  } else if (role === "PARTNER") {
+    // Documents rattachés à ses échanges (uploadedById = le partenaire).
+    allowed = doc.uploadedById === user.id;
   } else if (role === "AGENCY") {
     allowed =
       doc.uploadedById === user.id ||

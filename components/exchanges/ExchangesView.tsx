@@ -282,8 +282,8 @@ export default function ExchangesView({ isStaff = false, currentUserId }: { isSt
                                 {d.uploaderId === currentUserId ? "Vous" : isStaff ? "Le partenaire" : "EXPAC"} · {new Date(d.createdAt).toLocaleDateString("fr-FR")}
                               </p>
                             </div>
-                            <a href={d.url} target="_blank" rel="noopener noreferrer" className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100"><Eye size={15} /></a>
-                            <a href={d.url} download className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100"><Download size={15} /></a>
+                            <a href={`/api/files/${d.id}`} target="_blank" rel="noopener noreferrer" className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100"><Eye size={15} /></a>
+                            <a href={`/api/files/${d.id}?download=1`} download className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100"><Download size={15} /></a>
                           </div>
                         ))}
                       </div>

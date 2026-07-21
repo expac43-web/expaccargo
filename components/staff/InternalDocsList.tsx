@@ -71,10 +71,10 @@ export default function InternalDocsList({ accent = "#1A3A6B" }: { accent?: stri
                   </p>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
-                  <a href={d.url} target="_blank" rel="noopener noreferrer" title="Ouvrir" className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-[#1A3A6B] transition-colors">
+                  <a href={`/api/files/${d.id}`} target="_blank" rel="noopener noreferrer" title="Ouvrir" className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-[#1A3A6B] transition-colors">
                     <Eye size={16} />
                   </a>
-                  <a href={d.url} download title="Télécharger" className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-[#1A3A6B] transition-colors">
+                  <a href={`/api/files/${d.id}?download=1`} download title="Télécharger" className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-[#1A3A6B] transition-colors">
                     <Download size={16} />
                   </a>
                 </div>
