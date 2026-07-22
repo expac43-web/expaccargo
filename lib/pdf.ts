@@ -511,3 +511,100 @@ export async function exportEstimatePDF(e: EstimatePDF) {
 
   save(doc, "estimation-devis.pdf");
 }
+
+// ───────────────────────────── DEVIS DE TRANSIT (grille EXPAC) ─────────────────────────────
+
+export type DevisTransitPDF = {
+  reference: string;
+  clientLabel?: string;
+  modeDetail: string;
+  prestations: number;
+  fraisOuverture: number;
+  commission: number;
+  debours: { label: string; amount: number }[]; // fixes + à l'identique
+  deboursTotal: number;
+  remuneration: number;
+  baseTaxable: number;
+  tva: number;
+  ca: number;
+  totalHT: number;
+  totalTTC: number;
+  tvaBaseLabel: string;
+};
+
+export async function exportDevisTransitPDF(d: DevisTransitPDF) {
+  const doc = new jsPDF() as Doc;
+  const logo = await getLogo();
+  const w = doc.internal.pageSize.getWidth();
+  const DARK: [number, number, number] = [40, 40, 40];
+  let y = header(doc, "Devis de transit", `Réf : ${d.reference}`, logo);
+
+  y = sectionTitle(doc, "Dossier", y);
+  y = keyValueTable(
+    doc,
+    [
+      ["Client / objet", d.clientLabel || "—"],
+      ["Date", new Date().toLocaleDateString("fr-FR")],
+      ["Nature", d.modeDetail],
+    ],
+    y
+  );
+
+  y = sectionTitle(doc, "Prestations & rémunération EXPAC", y);
+  const presRows: [string, string][] = [["Honoraires de prestation", devisMoney(d.prestations)]];
+  if (d.fraisOuverture > 0) presRows.push(["Frais d'ouverture de dossier", devisMoney(d.fraisOuverture)]);
+  presRows.push(["Commission sur débours (3,5 %)", devisMoney(d.commission)]);
+  autoTable(doc, {
+    startY: y,
+    head: [["Poste", "Montant"]],
+    body: presRows,
+    foot: [["Rémunération EXPAC", devisMoney(d.remuneration)]],
+    headStyles: { fillColor: NAVY, fontSize: 9 },
+    footStyles: { fillColor: DARK, fontSize: 9, textColor: [255, 255, 255] },
+    styles: { fontSize: 9, cellPadding: 2.5 },
+  });
+  y = (doc.lastAutoTable?.finalY ?? y) + 6;
+
+  if (d.debours.length > 0) {
+    y = sectionTitle(doc, "Débours (avances refacturées au coût réel)", y);
+    autoTable(doc, {
+      startY: y,
+      head: [["Poste", "Montant"]],
+      body: d.debours.map((l) => [l.label, devisMoney(l.amount)]),
+      foot: [["Total débours", devisMoney(d.deboursTotal)]],
+      headStyles: { fillColor: NAVY, fontSize: 9 },
+      footStyles: { fillColor: DARK, fontSize: 9, textColor: [255, 255, 255] },
+      styles: { fontSize: 9, cellPadding: 2.5 },
+    });
+    y = (doc.lastAutoTable?.finalY ?? y) + 6;
+  }
+
+  y = sectionTitle(doc, "Récapitulatif", y);
+  autoTable(doc, {
+    startY: y,
+    head: [["Poste", "Montant"]],
+    body: [
+      [`Base taxable (${d.tvaBaseLabel})`, devisMoney(d.baseTaxable)],
+      ["TVA 18 %", devisMoney(d.tva)],
+      ["CA 5 % (sur la TVA)", devisMoney(d.ca)],
+      ["Total débours", devisMoney(d.deboursTotal)],
+      ["Total HT", devisMoney(d.totalHT)],
+    ],
+    foot: [["TOTAL TTC", devisMoney(d.totalTTC)]],
+    headStyles: { fillColor: NAVY, fontSize: 9 },
+    footStyles: { fillColor: ORANGE, fontSize: 12, textColor: [255, 255, 255] },
+    styles: { fontSize: 9, cellPadding: 2.5 },
+  });
+  y = (doc.lastAutoTable?.finalY ?? y) + 8;
+
+  doc.setFont("helvetica", "italic");
+  doc.setFontSize(8);
+  doc.setTextColor(...GREY);
+  const note = doc.splitTextToSize(
+    "Devis établi selon la grille tarifaire EXPAC (Pointe-Noire). Les débours à l'identique — dont les droits de douane — sont des avances refacturées au coût réel et peuvent varier. Estimation non contractuelle sauf accord signé.",
+    w - MARGIN * 2
+  );
+  doc.text(note, MARGIN, y);
+
+  save(doc, `devis-transit-${d.reference}.pdf`);
+}
