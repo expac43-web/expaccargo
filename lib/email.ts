@@ -495,3 +495,48 @@ export async function sendContactMessageEmail(opts: {
   // Reçu sur la boîte support ; « Répondre » écrit directement au visiteur (Reply-To).
   return sendEmail({ to: CONTACT_INBOX, subject: `📬 Contact — ${opts.subject}`, html, replyTo: opts.email });
 }
+
+// ───────────────────────────── Réclamation (service client) ─────────────────────────────
+
+/** Réclamation reçue sur la boîte support, avec toutes les références du dossier. */
+export async function sendClaimEmail(opts: {
+  ref: string; name: string; email: string; phone?: string;
+  service?: string; reference?: string; subject: string; message: string;
+}): Promise<boolean> {
+  const accent = ORANGE;
+  const rows: [string, string][] = [
+    ["Référence réclamation", escapeHtml(opts.ref)],
+    ["Nom / Société", escapeHtml(opts.name)],
+    ["Email", escapeHtml(opts.email)],
+  ];
+  if (opts.phone) rows.push(["Téléphone", escapeHtml(opts.phone)]);
+  if (opts.service) rows.push(["Type de prestation", escapeHtml(opts.service)]);
+  if (opts.reference) rows.push(["N° dossier / expédition", escapeHtml(opts.reference)]);
+  rows.push(["Objet", escapeHtml(opts.subject)]);
+  const inner =
+    heading("Nouvelle réclamation — service client") +
+    infoBox(rows, accent) +
+    paragraph(escapeHtml(opts.message).replace(/\n/g, "<br>"));
+  const html = shell({ accent, preheader: `Réclamation ${opts.ref} — ${escapeHtml(opts.name)}`, inner });
+  // « Répondre » écrit directement au réclamant (Reply-To).
+  return sendEmail({ to: CONTACT_INBOX, subject: `⚠️ Réclamation ${opts.ref} — ${opts.subject}`, html, replyTo: opts.email });
+}
+
+/** Accusé de réception envoyé au réclamant, avec son numéro de suivi unique. */
+export async function sendClaimAckEmail(opts: { ref: string; name: string; email: string }): Promise<boolean> {
+  const accent = ORANGE;
+  const inner =
+    heading("Votre réclamation a bien été reçue") +
+    paragraph(`Bonjour ${escapeHtml(opts.name)},`) +
+    paragraph(
+      `Nous accusons réception de votre réclamation. Votre numéro de suivi unique est ` +
+        `<strong>${escapeHtml(opts.ref)}</strong> — conservez-le pour tout échange avec notre service client.`
+    ) +
+    infoBox([["Numéro de suivi", escapeHtml(opts.ref)]], accent) +
+    paragraph(
+      `Un gestionnaire dédié étudiera votre dossier et reviendra vers vous <strong>sous 48 heures ouvrées</strong> ` +
+        `avec une première analyse ou une demande de complément d'information.`
+    );
+  const html = shell({ accent, preheader: `Accusé de réception — réclamation ${opts.ref}`, inner });
+  return sendEmail({ to: opts.email, subject: `Accusé de réception — réclamation ${opts.ref}`, html });
+}
