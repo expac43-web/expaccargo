@@ -67,7 +67,10 @@ function escapeHtml(s: string): string {
 }
 
 /** Envoi bas-niveau. Renvoie true si parti, false sinon (clé absente ou erreur). */
-async function sendEmail(opts: { to: string; subject: string; html: string; replyTo?: string }): Promise<boolean> {
+async function sendEmail(opts: {
+  to: string; subject: string; html: string; replyTo?: string;
+  attachments?: { filename: string; content: Buffer }[];
+}): Promise<boolean> {
   if (!resend) return false;
   // Liste de suppression (anti-spam) : ne jamais réémettre vers une adresse
   // ayant fait un bounce dur ou une plainte (alimentée par le webhook Resend).
@@ -93,6 +96,7 @@ async function sendEmail(opts: { to: string; subject: string; html: string; repl
       // Reply-To = l'agence concernée → la réponse du client arrive dans sa boîte,
       // l'expéditeur restant support@expaccargo.com.
       ...(opts.replyTo ? { replyTo: opts.replyTo } : {}),
+      ...(opts.attachments?.length ? { attachments: opts.attachments } : {}),
     });
     return true;
   } catch (e) {
@@ -502,6 +506,7 @@ export async function sendContactMessageEmail(opts: {
 export async function sendClaimEmail(opts: {
   ref: string; name: string; email: string; phone?: string;
   service?: string; reference?: string; subject: string; message: string;
+  attachments?: { filename: string; content: Buffer }[];
 }): Promise<boolean> {
   const accent = ORANGE;
   const rows: [string, string][] = [
@@ -513,13 +518,26 @@ export async function sendClaimEmail(opts: {
   if (opts.service) rows.push(["Type de prestation", escapeHtml(opts.service)]);
   if (opts.reference) rows.push(["N° dossier / expédition", escapeHtml(opts.reference)]);
   rows.push(["Objet", escapeHtml(opts.subject)]);
+  const filesNote = opts.attachments?.length
+    ? paragraph(
+        `<strong>${opts.attachments.length} pièce(s) jointe(s) :</strong> ` +
+          opts.attachments.map((a) => escapeHtml(a.filename)).join(", ")
+      )
+    : "";
   const inner =
     heading("Nouvelle réclamation — service client") +
     infoBox(rows, accent) +
-    paragraph(escapeHtml(opts.message).replace(/\n/g, "<br>"));
+    paragraph(escapeHtml(opts.message).replace(/\n/g, "<br>")) +
+    filesNote;
   const html = shell({ accent, preheader: `Réclamation ${opts.ref} — ${escapeHtml(opts.name)}`, inner });
-  // « Répondre » écrit directement au réclamant (Reply-To).
-  return sendEmail({ to: CONTACT_INBOX, subject: `⚠️ Réclamation ${opts.ref} — ${opts.subject}`, html, replyTo: opts.email });
+  // « Répondre » écrit directement au réclamant (Reply-To). Justificatifs joints à l'email.
+  return sendEmail({
+    to: CONTACT_INBOX,
+    subject: `⚠️ Réclamation ${opts.ref} — ${opts.subject}`,
+    html,
+    replyTo: opts.email,
+    attachments: opts.attachments,
+  });
 }
 
 /** Accusé de réception envoyé au réclamant, avec son numéro de suivi unique. */

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
 import ReclamationForm from "./ReclamationForm";
@@ -9,6 +10,8 @@ import {
 
 const NAVY = "#1A3A6B";
 const ORANGE = "#E8520A";
+// Poignée de main / confiance — écho au texte « renforcer la confiance qui nous unit ».
+const HERO_BG = "https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1600&q=55";
 const fontM = { fontFamily: "var(--font-montserrat)" };
 const fontL = { fontFamily: "var(--font-lato)" };
 
@@ -68,7 +71,9 @@ export default function ReclamationPage() {
 
       <main className="flex-1 pt-16">
         {/* ── HERO ─────────────────────────────────────────────── */}
-        <section className="relative overflow-hidden py-24 lg:py-28" style={{ background: "linear-gradient(120deg, #0e2248 0%, #1A3A6B 55%, #24407e 100%)" }}>
+        <section className="relative overflow-hidden py-24 lg:py-28">
+          <Image src={HERO_BG} alt="Service client EXPAC — écoute et confiance" fill priority sizes="100vw" className="object-cover" />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(120deg, rgba(14,34,72,0.95) 0%, rgba(26,58,107,0.9) 55%, rgba(36,64,126,0.8) 100%)" }} />
           <div className="absolute -right-24 -top-24 w-96 h-96 rounded-full opacity-10" style={{ backgroundColor: ORANGE }} />
           <div className="absolute -left-16 bottom-0 w-72 h-72 rounded-full opacity-10" style={{ backgroundColor: ORANGE }} />
           <div className="container-custom relative z-10">

@@ -3,8 +3,12 @@
 import { useState } from "react";
 import {
   User, Mail, Phone, Hash, FileText, MessageSquare, ChevronDown,
-  Send, AlertCircle, CheckCircle, Copy, Check,
+  Send, AlertCircle, CheckCircle, Copy, Check, Paperclip, X,
 } from "lucide-react";
+
+const MAX_FILES = 3;
+const MAX_TOTAL_BYTES = 4 * 1024 * 1024; // 4 Mo au total
+const ALLOWED_EXT = ["jpg", "jpeg", "png", "webp", "gif", "heic", "heif", "pdf"];
 
 const NAVY = "#1A3A6B";
 const ORANGE = "#E8520A";
@@ -28,6 +32,31 @@ export default function ReclamationForm() {
   const [ref, setRef] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [files, setFiles] = useState<File[]>([]);
+  const [fileErr, setFileErr] = useState("");
+
+  function isAllowed(f: File): boolean {
+    const ext = f.name.includes(".") ? f.name.split(".").pop()!.toLowerCase() : "";
+    return f.type.startsWith("image/") || f.type === "application/pdf" || ALLOWED_EXT.includes(ext);
+  }
+  function onPick(e: React.ChangeEvent<HTMLInputElement>) {
+    const picked = Array.from(e.target.files ?? []);
+    e.target.value = ""; // permet de re-sélectionner un fichier retiré
+    if (!picked.length) return;
+    const all = [...files, ...picked];
+    if (all.length > MAX_FILES) { setFileErr(`${MAX_FILES} fichiers maximum.`); return; }
+    if (all.some((f) => !isAllowed(f))) { setFileErr("PDF ou images uniquement."); return; }
+    if (all.reduce((s, f) => s + f.size, 0) > MAX_TOTAL_BYTES) { setFileErr("4 Mo maximum au total."); return; }
+    setFileErr("");
+    setFiles(all);
+  }
+  function removeFile(i: number) {
+    setFiles((fs) => fs.filter((_, idx) => idx !== i));
+    setFileErr("");
+  }
+  function fileSize(bytes: number): string {
+    return bytes < 1024 * 1024 ? `${Math.round(bytes / 1024)} Ko` : `${(bytes / 1024 / 1024).toFixed(1)} Mo`;
+  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -36,15 +65,11 @@ export default function ReclamationForm() {
     const form = e.currentTarget;
     const get = (name: string) =>
       (form.elements.namedItem(name) as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement)?.value ?? "";
-    const payload = {
-      name: get("name"), email: get("email"), phone: get("phone"),
-      service: get("service"), reference: get("reference"),
-      subject: get("subject"), message: get("message"),
-    };
+    const fd = new FormData();
+    for (const k of ["name", "email", "phone", "service", "reference", "subject", "message"]) fd.append(k, get(k));
+    files.forEach((f) => fd.append("files", f));
     try {
-      const res = await fetch("/api/reclamation", {
-        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
-      });
+      const res = await fetch("/api/reclamation", { method: "POST", body: fd });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Erreur serveur");
       setRef(data.ref || "—");
@@ -158,9 +183,33 @@ export default function ReclamationForm() {
               className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#1A3A6B] focus:ring-2 focus:ring-[#1A3A6B]/10 transition-all bg-white resize-none"
               style={fontL} />
           </div>
-          <p className="text-[11px] text-gray-400 mt-2" style={fontL}>
-            Vos justificatifs (photos, réserves, e-mails) vous seront demandés par votre gestionnaire dès l&apos;ouverture du dossier.
+        </div>
+
+        {/* Pièces jointes */}
+        <div>
+          <label className={labelCls} style={fontM}>Pièces jointes</label>
+          <label className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-gray-200 text-sm text-gray-500 cursor-pointer hover:border-[#1A3A6B] hover:text-[#1A3A6B] transition-colors" style={fontL}>
+            <Paperclip size={15} /> Ajouter des fichiers
+            <input type="file" multiple accept="image/*,application/pdf,.pdf,.heic,.heif" className="hidden" onChange={onPick} />
+          </label>
+          <p className="text-[11px] text-gray-400 mt-1.5" style={fontL}>
+            Photos, réserves, justificatifs — PDF ou images, jusqu&apos;à {MAX_FILES} fichiers, 4 Mo au total.
           </p>
+          {fileErr && <p className="text-[11px] text-red-500 mt-1" style={fontL}>{fileErr}</p>}
+          {files.length > 0 && (
+            <div className="space-y-1.5 mt-2">
+              {files.map((f, i) => (
+                <div key={i} className="flex items-center gap-2 p-2 rounded-lg border border-gray-100 bg-gray-50">
+                  <FileText size={14} className="text-gray-400 shrink-0" />
+                  <span className="text-xs text-gray-600 truncate flex-1" style={fontL}>{f.name}</span>
+                  <span className="text-[10px] text-gray-400 shrink-0">{fileSize(f.size)}</span>
+                  <button type="button" onClick={() => removeFile(i)} className="text-gray-300 hover:text-red-500 shrink-0" title="Retirer">
+                    <X size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         <button type="submit" disabled={loading}
           className="w-full flex items-center justify-center gap-3 py-4 rounded-xl font-black text-white uppercase tracking-wide transition-all hover:opacity-90 hover:shadow-lg disabled:opacity-60"
