@@ -6,6 +6,7 @@ import {
   Coins, Send, ShieldCheck, Eye, Calendar, Ship, AlertTriangle, Plus, Trash2, UserCheck,
 } from "lucide-react";
 import { exportDevisPDF } from "@/lib/pdf";
+import GrilleQuoteFill from "@/components/admin/GrilleQuoteFill";
 
 export type QuoteItem = { label: string; amount: number };
 
@@ -100,6 +101,11 @@ export default function DevisProcessPanel({
   }
   function removeItem(i: number) {
     setItems((prev) => (prev.length > 1 ? prev.filter((_, idx) => idx !== i) : prev));
+  }
+  // Remplit les lignes du devis depuis un calcul de grille (postes modifiables ensuite).
+  function injectFromGrille(lines: { label: string; amount: number }[]) {
+    setItems(lines.length ? lines.map((l) => ({ label: l.label, amount: String(l.amount) })) : [{ label: "", amount: "" }]);
+    setCurrency("XAF");
   }
 
   async function updateStatus(status: string) {
@@ -249,6 +255,11 @@ export default function DevisProcessPanel({
         <p className="text-sm font-black uppercase tracking-wider mb-3 flex items-center gap-1.5" style={{ color: "#7c3aed", fontFamily: "var(--font-montserrat)" }}>
           <Coins size={14} /> {quote.quotedPrice != null ? "Mettre à jour le devis" : "Établir le devis"}
         </p>
+
+        {/* Auto-remplissage depuis la grille tarifaire */}
+        <div className="mb-3">
+          <GrilleQuoteFill onInject={injectFromGrille} />
+        </div>
 
         {/* Lignes de coût */}
         <div className="space-y-2 mb-2">
