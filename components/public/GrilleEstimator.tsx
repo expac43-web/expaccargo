@@ -78,8 +78,8 @@ export default function GrilleEstimator() {
 
         {mode === "AERIEN" ? (
           <div>
-            <label className={labelCls} style={fontM}>Poids (kg)</label>
-            <input type="number" min="0" value={weightKg} onChange={(e) => setWeightKg(e.target.value)} placeholder="0" className={inputCls} style={fontL} />
+            <label className={labelCls} style={fontM}>Poids de la marchandise (en kg)</label>
+            <input type="number" min="0" value={weightKg} onChange={(e) => setWeightKg(e.target.value)} placeholder="Ex : 350" className={inputCls} style={fontL} />
           </div>
         ) : (
           <div className="space-y-4">
@@ -93,21 +93,24 @@ export default function GrilleEstimator() {
                 Conventionnel
               </button>
             </div>
+            <p className="text-[11px] text-gray-400" style={fontL}>
+              <strong>Conteneur</strong> : marchandise en conteneurs (facturé à la boîte). <strong>Conventionnel</strong> : marchandise hors conteneur / en vrac (facturé à la tonne).
+            </p>
             {maritimeType === "CONTENEUR" ? (
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className={labelCls} style={fontM}>Conteneurs 40&apos;</label>
-                  <input type="number" min="0" value={tc40} onChange={(e) => setTc40(e.target.value)} placeholder="0" className={inputCls} style={fontL} />
+                  <label className={labelCls} style={fontM}>Nombre de conteneurs 40&apos;</label>
+                  <input type="number" min="0" value={tc40} onChange={(e) => setTc40(e.target.value)} placeholder="Ex : 2" className={inputCls} style={fontL} />
                 </div>
                 <div>
-                  <label className={labelCls} style={fontM}>Conteneurs 20&apos;</label>
-                  <input type="number" min="0" value={tc20} onChange={(e) => setTc20(e.target.value)} placeholder="0" className={inputCls} style={fontL} />
+                  <label className={labelCls} style={fontM}>Nombre de conteneurs 20&apos;</label>
+                  <input type="number" min="0" value={tc20} onChange={(e) => setTc20(e.target.value)} placeholder="Ex : 1" className={inputCls} style={fontL} />
                 </div>
               </div>
             ) : (
               <div>
-                <label className={labelCls} style={fontM}>Tonnage</label>
-                <input type="number" min="0" value={tonnes} onChange={(e) => setTonnes(e.target.value)} placeholder="0" className={inputCls} style={fontL} />
+                <label className={labelCls} style={fontM}>Poids total (en tonnes)</label>
+                <input type="number" min="0" value={tonnes} onChange={(e) => setTonnes(e.target.value)} placeholder="Ex : 5" className={inputCls} style={fontL} />
               </div>
             )}
           </div>
