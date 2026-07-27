@@ -137,7 +137,7 @@ export default function DevisProcessPanel({
   const advanceNext = NEXT_STATUS[quote.status] ?? [];
 
   return (
-    <div className="space-y-5 max-w-2xl">
+    <div className="space-y-5 max-w-5xl">
       {/* Statut + transitions */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <span className="inline-flex items-center px-3 py-1.5 rounded-xl text-sm font-black uppercase"
@@ -224,7 +224,7 @@ export default function DevisProcessPanel({
       </div>
 
       {/* Détails de la demande */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
         {[
           { icon: Package, label: "Service", value: SERVICE_LABELS[quote.serviceType] ?? quote.serviceType },
           { icon: MapPin, label: "Origine", value: quote.origin },
