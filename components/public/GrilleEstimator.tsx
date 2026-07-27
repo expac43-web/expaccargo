@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import { Plane, Ship, Package, FileDown, ArrowRight, AlertTriangle } from "lucide-react";
-import { computeDevis, formatPrice, type Mode, type MaritimeType } from "@/lib/grille";
+import { computeDevis, formatPrice, DEFAULT_GRILLE, type Mode, type MaritimeType, type GrilleConfig } from "@/lib/grille";
 import { exportGrilleEstimatePDF } from "@/lib/pdf";
 
 const NAVY = "#1A3A6B";
@@ -26,6 +26,11 @@ export default function GrilleEstimator() {
   const [tonnes, setTonnes] = useState("");
   const [tc20, setTc20] = useState("");
   const [tc40, setTc40] = useState("");
+  const [config, setConfig] = useState<GrilleConfig>(DEFAULT_GRILLE);
+
+  useEffect(() => {
+    fetch("/api/grille").then((r) => (r.ok ? r.json() : null)).then((c) => { if (c) setConfig(c); }).catch(() => {});
+  }, []);
 
   const hasInput =
     mode === "AERIEN"
@@ -35,8 +40,8 @@ export default function GrilleEstimator() {
         : num(tonnes) > 0;
 
   const result = useMemo(
-    () => computeDevis({ mode, weightKg: num(weightKg), maritimeType, tonnes: num(tonnes), tc20: num(tc20), tc40: num(tc40) }),
-    [mode, weightKg, maritimeType, tonnes, tc20, tc40]
+    () => computeDevis({ mode, weightKg: num(weightKg), maritimeType, tonnes: num(tonnes), tc20: num(tc20), tc40: num(tc40) }, config),
+    [mode, weightKg, maritimeType, tonnes, tc20, tc40, config]
   );
 
   const modeDetail =

@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Plane, Ship, Plus, Trash2, Send, Receipt } from "lucide-react";
 import {
-  computeDevis, prestationAerien, prestationConventionnel, MARITIME_TC_PRICE,
-  DEBOURS_FIXES, DEBOURS_IDENTIQUE_SUGGESTIONS, formatPrice,
-  type Mode, type MaritimeType, type DevisLine,
+  computeDevis, prestationAerien, prestationConventionnel, DEFAULT_GRILLE,
+  DEBOURS_IDENTIQUE_SUGGESTIONS, formatPrice,
+  type Mode, type MaritimeType, type DevisLine, type GrilleConfig,
 } from "@/lib/grille";
 
 const NAVY = "#1A3A6B";
@@ -48,8 +48,13 @@ export default function DevisComposer({
   );
   const [currency, setCurrency] = useState("XAF");
   const [message, setMessage] = useState("");
+  const [config, setConfig] = useState<GrilleConfig>(DEFAULT_GRILLE);
 
-  const catalog = useMemo(() => DEBOURS_FIXES.filter((d) => d.modes.includes(mode)), [mode]);
+  useEffect(() => {
+    fetch("/api/grille").then((r) => (r.ok ? r.json() : null)).then((c) => { if (c) setConfig(c); }).catch(() => {});
+  }, []);
+
+  const catalog = useMemo(() => config.deboursFixes.filter((d) => d.modes.includes(mode)), [config, mode]);
 
   const hasInput =
     mode === "AERIEN" ? num(weightKg) > 0 : maritimeType === "CONTENEUR" ? num(tc20) + num(tc40) > 0 : num(tonnes) > 0;
@@ -74,8 +79,8 @@ export default function DevisComposer({
     () => computeDevis({
       mode, weightKg: num(weightKg), maritimeType, tonnes: num(tonnes), tc20: num(tc20), tc40: num(tc40),
       deboursFixes: deboursFixesLines, deboursIdentique: deboursIdentiqueLines,
-    }),
-    [mode, weightKg, maritimeType, tonnes, tc20, tc40, deboursFixesLines, deboursIdentiqueLines]
+    }, config),
+    [mode, weightKg, maritimeType, tonnes, tc20, tc40, deboursFixesLines, deboursIdentiqueLines, config]
   );
 
   // Postes calculés depuis la grille (seulement si une quantité est saisie).
@@ -125,7 +130,7 @@ export default function DevisComposer({
               <label className="text-xs text-gray-500" style={fontL}>Poids de la marchandise (kg)</label>
               <div className="flex items-center gap-2">
                 <input type="number" min="0" value={weightKg} onChange={(e) => setWeightKg(e.target.value)} placeholder="Ex : 350" className={inputCls} style={fontL} />
-                {hint(num(weightKg) > 0 ? prestationAerien(num(weightKg)) : 0)}
+                {hint(num(weightKg) > 0 ? prestationAerien(num(weightKg), config) : 0)}
               </div>
             </div>
           ) : (
@@ -142,14 +147,14 @@ export default function DevisComposer({
                     <label className="text-xs text-gray-500" style={fontL}>Nombre de conteneurs 40&apos;</label>
                     <div className="flex items-center gap-2">
                       <input type="number" min="0" value={tc40} onChange={(e) => setTc40(e.target.value)} placeholder="Ex : 2" className={inputCls} style={fontL} />
-                      {hint(num(tc40) * MARITIME_TC_PRICE["40"])}
+                      {hint(num(tc40) * config.maritimeTc["40"])}
                     </div>
                   </div>
                   <div>
                     <label className="text-xs text-gray-500" style={fontL}>Nombre de conteneurs 20&apos;</label>
                     <div className="flex items-center gap-2">
                       <input type="number" min="0" value={tc20} onChange={(e) => setTc20(e.target.value)} placeholder="Ex : 1" className={inputCls} style={fontL} />
-                      {hint(num(tc20) * MARITIME_TC_PRICE["20"])}
+                      {hint(num(tc20) * config.maritimeTc["20"])}
                     </div>
                   </div>
                 </>
@@ -158,7 +163,7 @@ export default function DevisComposer({
                   <label className="text-xs text-gray-500" style={fontL}>Poids total (en tonnes)</label>
                   <div className="flex items-center gap-2">
                     <input type="number" min="0" value={tonnes} onChange={(e) => setTonnes(e.target.value)} placeholder="Ex : 5" className={inputCls} style={fontL} />
-                    {hint(num(tonnes) > 0 ? prestationConventionnel(num(tonnes)) : 0)}
+                    {hint(num(tonnes) > 0 ? prestationConventionnel(num(tonnes), config) : 0)}
                   </div>
                 </div>
               )}

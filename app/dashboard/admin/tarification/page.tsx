@@ -1,5 +1,5 @@
-import TarificationView from "@/components/tarification/TarificationView";
+import TarificationEditor from "@/components/tarification/TarificationEditor";
 
 export default function TarificationPage() {
-  return <TarificationView />;
+  return <TarificationEditor />;
 }

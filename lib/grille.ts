@@ -112,33 +112,74 @@ export const DEBOURS_IDENTIQUE_SUGGESTIONS = [
   "Autres débours supplémentaires",
 ];
 
+// ───────────────────────────── Config de la grille (valeurs modifiables) ─────────────────────────────
+
+/** Toutes les valeurs chiffrées de la grille : soit le défaut ci-dessous, soit une version éditée en base. */
+export type GrilleConfig = {
+  fraisOuverture: number;
+  commissionRate: number;
+  tvaRate: number;
+  caRate: number;
+  engagementIm5Rate: number;
+  aerienBrackets: { maxKg: number; price: number; label: string }[];
+  aerienOver2000PerKg: number;
+  maritimeConvPerTonne: number;
+  maritimeConvMin: number;
+  maritimeTc: Record<ContainerSize, number>;
+  manutentionPerTonne: number;
+  manutentionMinTonnes: Record<ContainerSize, number>;
+  deboursFixes: DebourFixe[];
+};
+
+/** Grille par défaut (valeurs code) — utilisée tant qu'aucune version éditée n'est chargée. */
+export const DEFAULT_GRILLE: GrilleConfig = {
+  fraisOuverture: FRAIS_OUVERTURE,
+  commissionRate: COMMISSION_RATE,
+  tvaRate: TVA_RATE,
+  caRate: CA_RATE,
+  engagementIm5Rate: ENGAGEMENT_IM5_RATE,
+  aerienBrackets: AERIEN_BRACKETS,
+  aerienOver2000PerKg: AERIEN_OVER_2000_PER_KG,
+  maritimeConvPerTonne: MARITIME_CONV_PER_TONNE,
+  maritimeConvMin: MARITIME_CONV_MIN,
+  maritimeTc: MARITIME_TC_PRICE,
+  manutentionPerTonne: MANUTENTION_PER_TONNE,
+  manutentionMinTonnes: MANUTENTION_MIN_TONNES,
+  deboursFixes: DEBOURS_FIXES,
+};
+
+/** Fusionne une config (éventuellement partielle, venue de la base) sur les défauts. */
+export function mergeGrille(partial?: Partial<GrilleConfig> | null): GrilleConfig {
+  return partial ? { ...DEFAULT_GRILLE, ...partial } : DEFAULT_GRILLE;
+}
+
 // ───────────────────────────── Prestations (honoraires) ─────────────────────────────
 
 /** Honoraire de prestation en aérien (par tranche de poids ; au-delà de 2 t, au kilo). */
-export function prestationAerien(weightKg: number): number {
+export function prestationAerien(weightKg: number, g: GrilleConfig = DEFAULT_GRILLE): number {
   const w = Number.isFinite(weightKg) && weightKg > 0 ? weightKg : 0;
-  if (w > 2_000) return Math.round(w * AERIEN_OVER_2000_PER_KG);
-  const bracket = AERIEN_BRACKETS.find((b) => w <= b.maxKg);
-  return bracket ? bracket.price : AERIEN_BRACKETS[0].price;
+  if (w > 2_000) return Math.round(w * g.aerienOver2000PerKg);
+  const bracket = g.aerienBrackets.find((b) => w <= b.maxKg);
+  return bracket ? bracket.price : g.aerienBrackets[0].price;
 }
 
 /** Honoraire de prestation en maritime conventionnel (30 000 F/T, min 180 000/dossier). */
-export function prestationConventionnel(tonnes: number): number {
+export function prestationConventionnel(tonnes: number, g: GrilleConfig = DEFAULT_GRILLE): number {
   const t = Number.isFinite(tonnes) && tonnes > 0 ? tonnes : 0;
-  return Math.max(MARITIME_CONV_MIN, Math.round(t * MARITIME_CONV_PER_TONNE));
+  return Math.max(g.maritimeConvMin, Math.round(t * g.maritimeConvPerTonne));
 }
 
 /** Honoraire de prestation en maritime conteneur (40' = 500 000, 20' = 300 000). */
-export function prestationConteneur(tc20: number, tc40: number): number {
+export function prestationConteneur(tc20: number, tc40: number, g: GrilleConfig = DEFAULT_GRILLE): number {
   const n20 = Math.max(0, Math.floor(tc20 || 0));
   const n40 = Math.max(0, Math.floor(tc40 || 0));
-  return n20 * MARITIME_TC_PRICE["20"] + n40 * MARITIME_TC_PRICE["40"];
+  return n20 * g.maritimeTc["20"] + n40 * g.maritimeTc["40"];
 }
 
 /** Coût de manutention / dépotage maritime (12 000 F/T avec minimum selon la taille du TC). */
-export function manutention(size: ContainerSize, tonnes: number): number {
-  const t = Math.max(MANUTENTION_MIN_TONNES[size], Number.isFinite(tonnes) && tonnes > 0 ? tonnes : 0);
-  return Math.round(t * MANUTENTION_PER_TONNE);
+export function manutention(size: ContainerSize, tonnes: number, g: GrilleConfig = DEFAULT_GRILLE): number {
+  const t = Math.max(g.manutentionMinTonnes[size], Number.isFinite(tonnes) && tonnes > 0 ? tonnes : 0);
+  return Math.round(t * g.manutentionPerTonne);
 }
 
 // ───────────────────────────── Calcul complet d'un devis ─────────────────────────────
@@ -185,17 +226,17 @@ export type DevisResult = {
  *    la TVA d'EXPAC ; ils s'ajoutent tels quels au total.
  *  - La commission de 3,5 % porte sur le total des débours préfinancés.
  */
-export function computeDevis(input: DevisInput): DevisResult {
+export function computeDevis(input: DevisInput, g: GrilleConfig = DEFAULT_GRILLE): DevisResult {
   let prestations = 0;
   if (input.mode === "AERIEN") {
-    prestations = prestationAerien(input.weightKg ?? 0);
+    prestations = prestationAerien(input.weightKg ?? 0, g);
   } else if (input.maritimeType === "CONTENEUR") {
-    prestations = prestationConteneur(input.tc20 ?? 0, input.tc40 ?? 0);
+    prestations = prestationConteneur(input.tc20 ?? 0, input.tc40 ?? 0, g);
   } else {
-    prestations = prestationConventionnel(input.tonnes ?? 0);
+    prestations = prestationConventionnel(input.tonnes ?? 0, g);
   }
 
-  const fraisOuverture = input.includeFraisOuverture === false ? 0 : FRAIS_OUVERTURE;
+  const fraisOuverture = input.includeFraisOuverture === false ? 0 : g.fraisOuverture;
 
   const sum = (lines?: DevisLine[]) =>
     (lines ?? []).reduce((acc, l) => acc + (Number.isFinite(l.amount) ? l.amount : 0), 0);
@@ -203,12 +244,12 @@ export function computeDevis(input: DevisInput): DevisResult {
   const deboursIdentiqueTotal = sum(input.deboursIdentique);
   const deboursTotal = deboursFixesTotal + deboursIdentiqueTotal;
 
-  const commission = Math.round(deboursTotal * COMMISSION_RATE);
+  const commission = Math.round(deboursTotal * g.commissionRate);
   const remuneration = prestations + fraisOuverture + commission; // toujours (totaux)
   // L'assiette de la TVA dépend du paramètre choisi ; les débours restent hors champ.
   const baseTaxable = (input.tvaBase ?? DEFAULT_TVA_BASE) === "PRESTATIONS" ? prestations : remuneration;
-  const tva = Math.round(baseTaxable * TVA_RATE);
-  const ca = Math.round(tva * CA_RATE);
+  const tva = Math.round(baseTaxable * g.tvaRate);
+  const ca = Math.round(tva * g.caRate);
   const totalHT = remuneration + deboursTotal;
   const totalTTC = totalHT + tva + ca;
 
