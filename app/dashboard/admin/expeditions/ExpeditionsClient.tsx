@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import Modal from "@/components/admin/Modal";
 import Pagination from "@/components/admin/Pagination";
+import ShipmentTracking from "@/components/admin/ShipmentTracking";
 import {
   Package, Plus, Pencil, Trash2, Search, MapPin,
   Calendar, AlertCircle, ExternalLink, Clock,
@@ -734,6 +735,9 @@ export default function ExpeditionsClient({ canSeeAudit = false }: { canSeeAudit
                 <span className="text-xs font-black uppercase text-gray-500" style={{ fontFamily: "var(--font-montserrat)" }}>Statut actuel</span>
                 <StatusBadge status={milestonesItem.status} />
               </div>
+
+              {/* Suivi automatique (Terminal49) */}
+              <ShipmentTracking shipmentId={milestonesItem.id} />
 
               {/* Add milestone button */}
               <button
