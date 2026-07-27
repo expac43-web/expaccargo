@@ -24,7 +24,7 @@ const navItems = [
   { label: "Devis",           href: "/dashboard/gerant/devis",       icon: FileText },
   { label: "Actualités",      href: "/dashboard/gerant/actualites",  icon: Newspaper },
   { label: "Commentaires",    href: "/dashboard/gerant/commentaires", icon: MessageSquareQuote },
-  { label: "Tarifs",          href: "/dashboard/gerant/tarifs",      icon: Calculator },
+  { label: "Tarification",    href: "/dashboard/gerant/tarification", icon: Calculator },
   { label: "Devis transit",   href: "/dashboard/gerant/devis-transit", icon: Receipt },
   { label: "Messages",        href: "/dashboard/gerant/messages",    icon: MessageSquare },
   { label: "Échanges",        href: "/dashboard/gerant/echanges",    icon: Handshake },

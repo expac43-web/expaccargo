@@ -39,7 +39,7 @@ const navItems = [
   { label: "Comptes",         href: "/dashboard/admin/comptes", icon: UserPlus },
   { label: "Documents internes", href: "/dashboard/admin/documents-internes", icon: FolderLock },
   { label: "Devis",           href: "/dashboard/admin/devis", icon: FileText },
-  { label: "Tarifs",          href: "/dashboard/admin/tarifs", icon: Calculator },
+  { label: "Tarification",    href: "/dashboard/admin/tarification", icon: Calculator },
   { label: "Devis transit",   href: "/dashboard/admin/devis-transit", icon: Receipt },
   { label: "Actualités",      href: "/dashboard/admin/actualites", icon: Newspaper },
   { label: "Commentaires",    href: "/dashboard/admin/commentaires", icon: MessageSquareQuote },
