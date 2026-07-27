@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import Navbar from "@/components/public/Navbar";
 import Footer from "@/components/public/Footer";
 import Image from "next/image";
-import DevisCalculator from "@/components/public/DevisCalculator";
-import { sbGet } from "@/lib/supabase-admin";
-import type { Tariff } from "@/lib/tariffs";
+import GrilleEstimator from "@/components/public/GrilleEstimator";
 import { Calculator } from "lucide-react";
 import { getServerDict } from "@/lib/i18n/server";
 
@@ -17,12 +15,7 @@ export const metadata: Metadata = {
 
 const CALC_HEADER = "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=1600&q=55";
 
-async function getActiveTariffs(): Promise<Tariff[]> {
-  return sbGet<Tariff>("Tariff", "isActive=eq.true&select=*&order=serviceType.asc");
-}
-
 export default async function CalculateurPage() {
-  const tariffs = await getActiveTariffs();
   const t = await getServerDict();
   const c = t.calculator;
 
@@ -52,7 +45,7 @@ export default async function CalculateurPage() {
 
         <div className="bg-gray-50 py-12">
           <div className="container-custom">
-            <DevisCalculator tariffs={tariffs} />
+            <GrilleEstimator />
           </div>
         </div>
       </main>

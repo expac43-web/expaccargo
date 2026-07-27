@@ -608,3 +608,58 @@ export async function exportDevisTransitPDF(d: DevisTransitPDF) {
 
   save(doc, `devis-transit-${d.reference}.pdf`);
 }
+
+// ───────────────────────────── ESTIMATION PUBLIQUE (grille) ─────────────────────────────
+
+export type GrilleEstimatePDF = {
+  modeDetail: string;
+  prestations: number;
+  fraisOuverture: number;
+  tva: number;
+  ca: number;
+  total: number;
+};
+
+export async function exportGrilleEstimatePDF(e: GrilleEstimatePDF) {
+  const doc = new jsPDF() as Doc;
+  const logo = await getLogo();
+  const w = doc.internal.pageSize.getWidth();
+  let y = header(doc, "Estimation de devis", new Date().toLocaleDateString("fr-FR"), logo);
+
+  y = sectionTitle(doc, "Votre expédition", y);
+  y = keyValueTable(doc, [["Nature", e.modeDetail]], y);
+
+  y = sectionTitle(doc, "Estimation de nos honoraires", y);
+  autoTable(doc, {
+    startY: y,
+    head: [["Poste", "Montant"]],
+    body: [
+      ["Honoraires de prestation", devisMoney(e.prestations)],
+      ["Frais d'ouverture de dossier", devisMoney(e.fraisOuverture)],
+      ["TVA 18 %", devisMoney(e.tva)],
+      ["CA 5 % (sur la TVA)", devisMoney(e.ca)],
+    ],
+    foot: [["Total estimé", devisMoney(e.total)]],
+    headStyles: { fillColor: NAVY, fontSize: 9 },
+    footStyles: { fillColor: ORANGE, fontSize: 12, textColor: [255, 255, 255] },
+    styles: { fontSize: 9, cellPadding: 2.5 },
+  });
+  y = (doc.lastAutoTable?.finalY ?? y) + 8;
+
+  doc.setFillColor(255, 247, 237);
+  doc.setDrawColor(251, 191, 36);
+  doc.roundedRect(MARGIN, y, w - MARGIN * 2, 24, 2, 2, "FD");
+  doc.setTextColor(180, 83, 9);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.text("ESTIMATION — NON CONTRACTUELLE", MARGIN + 4, y + 7);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  const disc = doc.splitTextToSize(
+    "Estimation de nos honoraires de prestation. Les droits de douane et débours (assurance, acconage, magasinage…) dépendent de votre dossier et s'ajoutent. Pour un devis ferme, contactez Express Africa Cargo.",
+    w - MARGIN * 2 - 8
+  );
+  doc.text(disc, MARGIN + 4, y + 12);
+
+  save(doc, "estimation-devis.pdf");
+}
