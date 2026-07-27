@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 import {
   Package, MapPin, Weight, Phone, Mail, StickyNote, Download,
-  Coins, Send, ShieldCheck, Eye, Calendar, Ship, AlertTriangle, Plus, Trash2, UserCheck,
+  Coins, ShieldCheck, Eye, Calendar, Ship, AlertTriangle, UserCheck,
 } from "lucide-react";
 import { exportDevisPDF } from "@/lib/pdf";
-import GrilleQuoteFill from "@/components/admin/GrilleQuoteFill";
+import DevisComposer from "@/components/admin/DevisComposer";
 
 export type QuoteItem = { label: string; amount: number };
 
@@ -44,10 +44,6 @@ const NEXT_STATUS: Record<string, string[]> = {
   REJECTED:  ["IN_REVIEW"],
 };
 
-const CURRENCIES = ["XAF", "EUR", "USD"];
-// Postes de coût fréquents (un clic ajoute une ligne pré-nommée).
-const PRESET_LABELS = ["Transport / Fret", "Douane", "Manutention", "Assurance", "Autres frais"];
-
 function fmtMoney(amount: number, currency: string): string {
   const n = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 0 }).format(Math.round(amount));
   return `${n} ${currency === "XAF" ? "FCFA" : currency}`;
@@ -63,50 +59,7 @@ export default function DevisProcessPanel({
   onUpdated: (patch: Partial<DevisQuote> & { id: string }) => void;
 }) {
   const [saving, setSaving] = useState(false);
-  const [items, setItems] = useState<{ label: string; amount: string }[]>([]);
-  const [currency, setCurrency] = useState("XAF");
-  const [message, setMessage] = useState("");
   const [sigOpen, setSigOpen] = useState(false);
-
-  // Pré-remplir le détail du devis à l'ouverture d'une demande.
-  useEffect(() => {
-    const seed: { label: string; amount: string }[] =
-      quote.quoteItems && quote.quoteItems.length
-        ? quote.quoteItems.map((it) => ({ label: it.label, amount: String(it.amount) }))
-        : quote.quotedPrice != null
-          ? [{ label: "Montant total", amount: String(quote.quotedPrice) }]
-          : [{ label: "", amount: "" }];
-    setItems(seed);
-    setCurrency(quote.quotedCurrency || "XAF");
-    setMessage(quote.quoteMessage || "");
-    setSigOpen(false);
-  }, [quote.id]);
-
-  // Lignes valides (libellé + montant) et total.
-  const clean = useMemo(
-    () =>
-      items
-        .filter((it) => it.label.trim() !== "" && it.amount !== "" && Number.isFinite(Number(it.amount)) && Number(it.amount) >= 0)
-        .map((it) => ({ label: it.label.trim(), amount: Number(it.amount) })),
-    [items]
-  );
-  const total = useMemo(() => clean.reduce((s, it) => s + it.amount, 0), [clean]);
-  const priceValid = clean.length > 0 && total > 0;
-
-  function setItem(i: number, key: "label" | "amount", val: string) {
-    setItems((prev) => prev.map((it, idx) => (idx === i ? { ...it, [key]: val } : it)));
-  }
-  function addItem(label = "") {
-    setItems((prev) => [...prev, { label, amount: "" }]);
-  }
-  function removeItem(i: number) {
-    setItems((prev) => (prev.length > 1 ? prev.filter((_, idx) => idx !== i) : prev));
-  }
-  // Remplit les lignes du devis depuis un calcul de grille (postes modifiables ensuite).
-  function injectFromGrille(lines: { label: string; amount: number }[]) {
-    setItems(lines.length ? lines.map((l) => ({ label: l.label, amount: String(l.amount) })) : [{ label: "", amount: "" }]);
-    setCurrency("XAF");
-  }
 
   async function updateStatus(status: string) {
     setSaving(true);
@@ -123,8 +76,8 @@ export default function DevisProcessPanel({
   }
 
   // Établir / mettre à jour le devis chiffré → passe en QUOTED + envoie l'offre par email.
-  async function submitQuotePrice() {
-    if (!priceValid) return;
+  async function handleQuoteSubmit(lines: QuoteItem[], total: number, currency: string, message: string) {
+    if (!lines.length || total <= 0) return;
     setSaving(true);
     const r = await fetch(`/api/admin/devis/${quote.id}`, {
       method: "PATCH",
@@ -133,8 +86,8 @@ export default function DevisProcessPanel({
         status: "QUOTED",
         quotedPrice: total,
         quotedCurrency: currency,
-        quoteMessage: message.trim() || null,
-        quoteItems: clean,
+        quoteMessage: message || null,
+        quoteItems: lines,
       }),
     });
     if (r.ok) {
@@ -142,8 +95,8 @@ export default function DevisProcessPanel({
       onUpdated({
         id: quote.id, status: "QUOTED",
         quotedPrice: total, quotedCurrency: currency,
-        quoteMessage: message.trim() || null, quotedAt: new Date().toISOString(),
-        quoteItems: clean,
+        quoteMessage: message || null, quotedAt: new Date().toISOString(),
+        quoteItems: lines,
         handledByName: d.handledByName ?? null, handledAt: d.handledAt ?? null,
       });
     }
@@ -250,103 +203,17 @@ export default function DevisProcessPanel({
         </div>
       )}
 
-      {/* Établir / mettre à jour le devis chiffré (détail par poste) */}
-      <div className="rounded-xl p-4 border-2 bg-white" style={{ borderColor: "rgba(124,58,237,0.35)" }}>
-        <p className="text-sm font-black uppercase tracking-wider mb-3 flex items-center gap-1.5" style={{ color: "#7c3aed", fontFamily: "var(--font-montserrat)" }}>
-          <Coins size={14} /> {quote.quotedPrice != null ? "Mettre à jour le devis" : "Établir le devis"}
-        </p>
-
-        {/* Auto-remplissage depuis la grille tarifaire */}
-        <div className="mb-3">
-          <GrilleQuoteFill onInject={injectFromGrille} />
-        </div>
-
-        {/* Lignes de coût */}
-        <div className="space-y-2 mb-2">
-          {items.map((it, i) => (
-            <div key={i} className="flex gap-2 items-center">
-              <input
-                type="text"
-                value={it.label}
-                onChange={(e) => setItem(i, "label", e.target.value)}
-                placeholder="Poste (ex : Douane)"
-                className="flex-1 min-w-0 px-3 py-2 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#1A3A6B] focus:ring-2 focus:ring-[#1A3A6B]/10"
-                style={{ fontFamily: "var(--font-lato)" }}
-              />
-              <input
-                type="number" min="0" step="any" inputMode="decimal"
-                value={it.amount}
-                onChange={(e) => setItem(i, "amount", e.target.value)}
-                placeholder="Montant"
-                className="w-32 px-3 py-2 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#1A3A6B] focus:ring-2 focus:ring-[#1A3A6B]/10"
-                style={{ fontFamily: "var(--font-lato)" }}
-              />
-              <button
-                onClick={() => removeItem(i)}
-                disabled={items.length <= 1}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 disabled:opacity-30 shrink-0"
-                title="Retirer la ligne"
-              >
-                <Trash2 size={14} />
-              </button>
-            </div>
-          ))}
-        </div>
-
-        {/* Ajout de lignes */}
-        <div className="flex flex-wrap gap-1.5 mb-3">
-          <button onClick={() => addItem()} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-black border border-gray-200 text-gray-600 hover:bg-gray-50" style={{ fontFamily: "var(--font-montserrat)" }}>
-            <Plus size={12} /> Ligne
-          </button>
-          {PRESET_LABELS.map((p) => (
-            <button key={p} onClick={() => addItem(p)} className="px-2.5 py-1.5 rounded-lg text-xs font-black border border-gray-200 text-gray-500 hover:bg-gray-50" style={{ fontFamily: "var(--font-montserrat)" }}>
-              + {p}
-            </button>
-          ))}
-        </div>
-
-        {/* Devise + total */}
-        <div className="flex items-center justify-between gap-3 mb-3">
-          <div className="flex items-center gap-2">
-            <label className="text-[11px] font-black uppercase tracking-wider text-gray-400" style={{ fontFamily: "var(--font-montserrat)" }}>Devise</label>
-            <select
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-              className="px-3 py-2 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#1A3A6B] bg-white"
-              style={{ fontFamily: "var(--font-lato)" }}
-            >
-              {CURRENCIES.map((c) => <option key={c} value={c}>{c === "XAF" ? "FCFA" : c}</option>)}
-            </select>
-          </div>
-          <div className="text-right">
-            <p className="text-[11px] font-black uppercase tracking-wider text-gray-400" style={{ fontFamily: "var(--font-montserrat)" }}>Total</p>
-            <p className="text-lg font-black" style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>{fmtMoney(total, currency)}</p>
-          </div>
-        </div>
-
-        <div className="mb-3">
-          <label className="block text-[11px] font-black uppercase tracking-wider text-gray-400 mb-1" style={{ fontFamily: "var(--font-montserrat)" }}>Message au client (facultatif)</label>
-          <textarea
-            rows={3}
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Conditions, délais, validité de l'offre…"
-            className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#1A3A6B] focus:ring-2 focus:ring-[#1A3A6B]/10 resize-none"
-            style={{ fontFamily: "var(--font-lato)" }}
-          />
-        </div>
-        <button
-          onClick={submitQuotePrice}
-          disabled={saving || !priceValid}
-          className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-black uppercase text-white hover:opacity-90 transition-opacity disabled:opacity-50"
-          style={{ backgroundColor: "#7c3aed", fontFamily: "var(--font-montserrat)" }}
-        >
-          <Send size={14} /> {saving ? "Envoi…" : quote.quotedPrice != null ? "Renvoyer le devis au client" : "Envoyer le devis au client"}
-        </button>
-        <p className="text-[11px] text-gray-400 mt-2 text-center" style={{ fontFamily: "var(--font-lato)" }}>
-          Le client recevra le devis détaillé par email et le verra dans son espace.
-        </p>
-      </div>
+      {/* Établir / mettre à jour le devis — composeur grille (saisie ↔ calcul en direct) */}
+      <DevisComposer
+        key={quote.id}
+        initialItems={quote.quoteItems ?? []}
+        quotedBefore={quote.quotedPrice != null}
+        saving={saving}
+        onSubmit={handleQuoteSubmit}
+      />
+      <p className="text-[11px] text-gray-400 text-center" style={{ fontFamily: "var(--font-lato)" }}>
+        Le client recevra le devis détaillé par email et le verra dans son espace.
+      </p>
 
       {/* Contact */}
       <div className="bg-gray-50 rounded-xl p-4 space-y-2">
