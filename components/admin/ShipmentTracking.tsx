@@ -78,22 +78,22 @@ export default function ShipmentTracking({ shipmentId }: { shipmentId: string })
       </div>
 
       <div className="space-y-2">
-        <div>
-          <label className="text-[11px] text-gray-500" style={fontL}>N° de BL / booking</label>
-          <input value={bl} onChange={(e) => setBl(e.target.value)} placeholder="Ex : MAEU123456789" className={inputCls} style={fontL} />
-        </div>
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="text-[11px] text-gray-500" style={fontL}>Compagnie</label>
+            <label className="text-[11px] text-gray-500" style={fontL}>N° de conteneur <span className="text-red-400">*</span></label>
+            <input value={container} onChange={(e) => setContainer(e.target.value)} placeholder="Ex : MAEU1234567" className={inputCls} style={fontL} />
+          </div>
+          <div>
+            <label className="text-[11px] text-gray-500" style={fontL}>Compagnie <span className="text-red-400">*</span></label>
             <select value={scac} onChange={(e) => setScac(e.target.value)} className={inputCls} style={fontL}>
               <option value="">—</option>
               {CARRIERS.map((c) => <option key={c.scac} value={c.scac}>{c.name}</option>)}
             </select>
           </div>
-          <div>
-            <label className="text-[11px] text-gray-500" style={fontL}>N° conteneur</label>
-            <input value={container} onChange={(e) => setContainer(e.target.value)} placeholder="Facultatif" className={inputCls} style={fontL} />
-          </div>
+        </div>
+        <div>
+          <label className="text-[11px] text-gray-500" style={fontL}>N° de BL / booking (facultatif)</label>
+          <input value={bl} onChange={(e) => setBl(e.target.value)} placeholder="Facultatif" className={inputCls} style={fontL} />
         </div>
       </div>
 
@@ -107,7 +107,7 @@ export default function ShipmentTracking({ shipmentId }: { shipmentId: string })
           Enregistrer
         </button>
         {carrier?.t49 && (
-          <button onClick={() => save(true)} disabled={saving || !bl.trim()} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-white text-xs font-black uppercase hover:opacity-90 disabled:opacity-50" style={{ backgroundColor: NAVY, ...fontM }}>
+          <button onClick={() => save(true)} disabled={saving || !container.trim()} className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-white text-xs font-black uppercase hover:opacity-90 disabled:opacity-50" style={{ backgroundColor: NAVY, ...fontM }}>
             {saving ? <Loader2 size={12} className="animate-spin" /> : <Satellite size={12} />} Activer le suivi
           </button>
         )}

@@ -63,9 +63,10 @@ const ORDERED_STEPS = [
   "DELIVERED",
 ];
 
-async function fetchShipment(reference: string) {
+async function fetchShipment(value: string, byContainer: boolean) {
   if (!SUPABASE_URL || !SERVICE_KEY) return null;
-  const url = `${SUPABASE_URL}/rest/v1/Shipment?reference=eq.${encodeURIComponent(reference)}&select=*&limit=1`;
+  const field = byContainer ? "containerNumber" : "reference";
+  const url = `${SUPABASE_URL}/rest/v1/Shipment?${field}=eq.${encodeURIComponent(value)}&select=*&limit=1`;
   const r = await fetch(url, {
     headers: {
       apikey: SERVICE_KEY,
@@ -92,8 +93,11 @@ async function fetchMilestones(shipmentId: string) {
   return await r.json();
 }
 
-export default async function TrackingPage(props: { searchParams: Promise<{ ref?: string }> }) {
-  const { ref: reference } = await props.searchParams;
+export default async function TrackingPage(props: { searchParams: Promise<{ container?: string; ref?: string }> }) {
+  const sp = await props.searchParams;
+  // Recherche publique par n° de conteneur ; `ref` reste accepté pour les liens internes.
+  const byContainer = Boolean(sp.container);
+  const reference = (sp.container ?? sp.ref ?? "").trim();
   const locale = await getServerLocale();
   const t = getDictionary(locale);
   const tp = t.trackingPage;
@@ -101,7 +105,7 @@ export default async function TrackingPage(props: { searchParams: Promise<{ ref?
   const sStatus = (s: string) => (t.shipmentStatus as Record<string, string>)[s] ?? s;
   const sService = (s: string) => (t.serviceTypes as Record<string, string>)[s] ?? s;
 
-  const shipment = reference ? await fetchShipment(reference.trim().toUpperCase()) : null;
+  const shipment = reference ? await fetchShipment(reference.toUpperCase(), byContainer) : null;
   const milestones = shipment ? await fetchMilestones(shipment.id) : [];
 
   const style = shipment ? (STATUS_STYLE[shipment.status] ?? STATUS_STYLE.PENDING) : null;

@@ -34,7 +34,11 @@ export function carrierByScac(scac?: string | null): Carrier | undefined {
  * Enregistre une demande de suivi auprès de Terminal49 (par n° de BL/booking + SCAC).
  * Renvoie l'id de la tracking_request, ou null (non configuré / erreur).
  */
-export async function createTrackingRequest(opts: { requestNumber: string; scac: string }): Promise<{ id: string } | null> {
+export async function createTrackingRequest(opts: {
+  requestNumber: string;
+  scac: string;
+  requestType?: "container" | "bill_of_lading" | "booking_number";
+}): Promise<{ id: string } | null> {
   if (!KEY) return null;
   try {
     const res = await fetch(`${API_BASE}/tracking_requests`, {
@@ -48,7 +52,7 @@ export async function createTrackingRequest(opts: { requestNumber: string; scac:
         data: {
           type: "tracking_request",
           attributes: {
-            request_type: "bill_of_lading",
+            request_type: opts.requestType ?? "container",
             request_number: opts.requestNumber.trim(),
             scac: opts.scac,
           },

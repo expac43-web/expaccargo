@@ -6,7 +6,7 @@ import { Search } from "lucide-react";
 
 export default function TrackingSearch({
   defaultValue,
-  placeholder = "Ex : EXP-2025-00123",
+  placeholder = "Ex : MAEU1234567",
   submitLabel = "Suivre",
 }: {
   defaultValue: string;
@@ -18,9 +18,9 @@ export default function TrackingSearch({
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const ref = value.trim().toUpperCase();
-    if (!ref) return;
-    router.push(`/tracking?ref=${encodeURIComponent(ref)}`);
+    const container = value.trim().toUpperCase();
+    if (!container) return;
+    router.push(`/tracking?container=${encodeURIComponent(container)}`);
   }
 
   return (

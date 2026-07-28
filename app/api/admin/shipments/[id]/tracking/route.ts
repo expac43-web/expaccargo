@@ -44,8 +44,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
   };
 
   if (activate) {
-    if (!blNumber || !carrier) {
-      return NextResponse.json({ error: "N° de BL et compagnie requis pour activer le suivi." }, { status: 400 });
+    if (!containerNumber || !carrier) {
+      return NextResponse.json({ error: "N° de conteneur et compagnie requis pour activer le suivi." }, { status: 400 });
     }
     if (!carrier.t49) {
       return NextResponse.json(
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     if (!isTrackingConfigured()) {
       return NextResponse.json({ error: "Suivi automatique non configuré (clé Terminal49 absente)." }, { status: 503 });
     }
-    const tr = await createTrackingRequest({ requestNumber: blNumber, scac: carrier.scac });
+    const tr = await createTrackingRequest({ requestNumber: containerNumber, scac: carrier.scac, requestType: "container" });
     if (!tr) {
       await sbPatch("Shipment", `id=eq.${enc(id)}`, { ...patch, trackingStatus: "failed" });
       return NextResponse.json({ error: "Terminal49 a refusé la demande. Vérifiez le BL et la compagnie." }, { status: 502 });
