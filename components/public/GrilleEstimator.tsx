@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Plane, Ship, Package, FileDown, ArrowRight, AlertTriangle } from "lucide-react";
 import { computeDevis, formatPrice, DEFAULT_GRILLE, type Mode, type MaritimeType, type GrilleConfig } from "@/lib/grille";
 import { exportGrilleEstimatePDF } from "@/lib/pdf";
+import { useT } from "@/components/i18n/LanguageProvider";
 
 const NAVY = "#1A3A6B";
 const ORANGE = "#E8520A";
@@ -20,6 +21,8 @@ function num(v: string): number {
 
 /** Estimateur public basé sur la grille EXPAC (honoraires + taxes, hors débours & douane). */
 export default function GrilleEstimator() {
+  const { t } = useT();
+  const c = t.calculator;
   const [mode, setMode] = useState<Mode>("MARITIME");
   const [weightKg, setWeightKg] = useState("");
   const [maritimeType, setMaritimeType] = useState<MaritimeType>("CONTENEUR");
@@ -29,7 +32,7 @@ export default function GrilleEstimator() {
   const [config, setConfig] = useState<GrilleConfig>(DEFAULT_GRILLE);
 
   useEffect(() => {
-    fetch("/api/grille").then((r) => (r.ok ? r.json() : null)).then((c) => { if (c) setConfig(c); }).catch(() => {});
+    fetch("/api/grille").then((r) => (r.ok ? r.json() : null)).then((cf) => { if (cf) setConfig(cf); }).catch(() => {});
   }, []);
 
   const hasInput =
@@ -77,45 +80,43 @@ export default function GrilleEstimator() {
       {/* Formulaire */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
         <div className="flex gap-2 mb-5">
-          {modeBtn("AERIEN", Plane, "Aérien")}
-          {modeBtn("MARITIME", Ship, "Maritime")}
+          {modeBtn("AERIEN", Plane, c.gAerien)}
+          {modeBtn("MARITIME", Ship, c.gMaritime)}
         </div>
 
         {mode === "AERIEN" ? (
           <div>
-            <label className={labelCls} style={fontM}>Poids de la marchandise (en kg)</label>
-            <input type="number" min="0" value={weightKg} onChange={(e) => setWeightKg(e.target.value)} placeholder="Ex : 350" className={inputCls} style={fontL} />
+            <label className={labelCls} style={fontM}>{c.gWeightLabel}</label>
+            <input type="number" min="0" value={weightKg} onChange={(e) => setWeightKg(e.target.value)} placeholder={c.gWeightPh} className={inputCls} style={fontL} />
           </div>
         ) : (
           <div className="space-y-4">
             <div className="flex gap-2">
               <button onClick={() => setMaritimeType("CONTENEUR")} className="flex-1 py-2 rounded-xl text-xs font-black uppercase border-2 transition-all"
                 style={maritimeType === "CONTENEUR" ? { borderColor: ORANGE, backgroundColor: `${ORANGE}0d`, color: ORANGE, ...fontM } : { borderColor: "#e5e7eb", color: "#9ca3af", ...fontM }}>
-                Conteneur
+                {c.gConteneur}
               </button>
               <button onClick={() => setMaritimeType("CONVENTIONNEL")} className="flex-1 py-2 rounded-xl text-xs font-black uppercase border-2 transition-all"
                 style={maritimeType === "CONVENTIONNEL" ? { borderColor: ORANGE, backgroundColor: `${ORANGE}0d`, color: ORANGE, ...fontM } : { borderColor: "#e5e7eb", color: "#9ca3af", ...fontM }}>
-                Conventionnel
+                {c.gConventionnel}
               </button>
             </div>
-            <p className="text-[11px] text-gray-400" style={fontL}>
-              <strong>Conteneur</strong> : marchandise en conteneurs (facturé à la boîte). <strong>Conventionnel</strong> : marchandise hors conteneur / en vrac (facturé à la tonne).
-            </p>
+            <p className="text-[11px] text-gray-400" style={fontL}>{c.gTypeHint}</p>
             {maritimeType === "CONTENEUR" ? (
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className={labelCls} style={fontM}>Nombre de conteneurs 40&apos;</label>
-                  <input type="number" min="0" value={tc40} onChange={(e) => setTc40(e.target.value)} placeholder="Ex : 2" className={inputCls} style={fontL} />
+                  <label className={labelCls} style={fontM}>{c.gC40}</label>
+                  <input type="number" min="0" value={tc40} onChange={(e) => setTc40(e.target.value)} placeholder={c.gC40Ph} className={inputCls} style={fontL} />
                 </div>
                 <div>
-                  <label className={labelCls} style={fontM}>Nombre de conteneurs 20&apos;</label>
-                  <input type="number" min="0" value={tc20} onChange={(e) => setTc20(e.target.value)} placeholder="Ex : 1" className={inputCls} style={fontL} />
+                  <label className={labelCls} style={fontM}>{c.gC20}</label>
+                  <input type="number" min="0" value={tc20} onChange={(e) => setTc20(e.target.value)} placeholder={c.gC20Ph} className={inputCls} style={fontL} />
                 </div>
               </div>
             ) : (
               <div>
-                <label className={labelCls} style={fontM}>Poids total (en tonnes)</label>
-                <input type="number" min="0" value={tonnes} onChange={(e) => setTonnes(e.target.value)} placeholder="Ex : 5" className={inputCls} style={fontL} />
+                <label className={labelCls} style={fontM}>{c.gTonnage}</label>
+                <input type="number" min="0" value={tonnes} onChange={(e) => setTonnes(e.target.value)} placeholder={c.gTonnagePh} className={inputCls} style={fontL} />
               </div>
             )}
           </div>
@@ -126,40 +127,40 @@ export default function GrilleEstimator() {
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 flex flex-col">
         <div className="flex items-center gap-2 mb-5">
           <Package size={18} style={{ color: NAVY }} />
-          <h2 className="font-black uppercase text-sm" style={{ color: NAVY, ...fontM }}>Estimation</h2>
+          <h2 className="font-black uppercase text-sm" style={{ color: NAVY, ...fontM }}>{c.estimateTitle}</h2>
         </div>
 
         {!hasInput ? (
           <div className="flex-1 flex items-center justify-center text-center py-10">
-            <p className="text-sm text-gray-400" style={fontL}>Renseignez votre expédition pour afficher l&apos;estimation.</p>
+            <p className="text-sm text-gray-400" style={fontL}>{c.gEmpty}</p>
           </div>
         ) : (
           <>
             <div className="space-y-2 text-sm mb-4" style={fontL}>
-              <div className="flex justify-between"><span className="text-gray-500">Honoraires de prestation</span><span className="text-gray-700">{formatPrice(result.prestations)}</span></div>
-              <div className="flex justify-between"><span className="text-gray-500">Frais d&apos;ouverture de dossier</span><span className="text-gray-700">{formatPrice(result.fraisOuverture)}</span></div>
-              <div className="flex justify-between"><span className="text-gray-500">TVA 18 %</span><span className="text-gray-700">{formatPrice(result.tva)}</span></div>
-              <div className="flex justify-between"><span className="text-gray-500">CA 5 % (sur la TVA)</span><span className="text-gray-700">{formatPrice(result.ca)}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">{c.gHonoraires}</span><span className="text-gray-700">{formatPrice(result.prestations)}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">{c.gFraisOuv}</span><span className="text-gray-700">{formatPrice(result.fraisOuverture)}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">{c.gTva}</span><span className="text-gray-700">{formatPrice(result.tva)}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">{c.gCa}</span><span className="text-gray-700">{formatPrice(result.ca)}</span></div>
             </div>
 
             <div className="rounded-xl p-4 mb-4" style={{ background: "linear-gradient(135deg,#0e2248,#1A3A6B)" }}>
-              <p className="text-xs uppercase tracking-wider text-blue-200" style={fontM}>Total estimé</p>
+              <p className="text-xs uppercase tracking-wider text-blue-200" style={fontM}>{c.gTotal}</p>
               <p className="text-3xl font-black text-white" style={fontM}>{formatPrice(result.totalTTC)}</p>
             </div>
 
             <div className="flex items-start gap-2 p-3 rounded-xl bg-amber-50 border border-amber-100 mb-4">
               <AlertTriangle size={14} className="text-amber-500 shrink-0 mt-0.5" />
               <p className="text-xs text-amber-700" style={fontL}>
-                <strong>Estimation de nos honoraires.</strong> Les <strong>droits de douane</strong> et les débours (assurance, acconage, magasinage…) dépendent de votre dossier et s&apos;ajoutent. Prix indicatif, non contractuel.
+                <strong>{c.gDisclaimerStrong}</strong>{c.gDisclaimerRest}
               </p>
             </div>
 
             <div className="flex gap-2 mt-auto">
               <button onClick={exportPdf} className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-gray-200 text-xs font-black uppercase text-gray-600 hover:bg-gray-50 transition-colors" style={fontM}>
-                <FileDown size={14} /> PDF
+                <FileDown size={14} /> {c.pdf}
               </button>
               <Link href="/devis" className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-white text-xs font-black uppercase hover:opacity-90 transition-opacity" style={{ backgroundColor: ORANGE, ...fontM }}>
-                Devis ferme <ArrowRight size={13} />
+                {c.firmQuote} <ArrowRight size={13} />
               </Link>
             </div>
           </>
