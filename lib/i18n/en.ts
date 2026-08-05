@@ -319,6 +319,8 @@ const en: Dict = {
     notFoundTitle: "No result",
     notFoundPre: "No shipment found for container",
     notFoundPost: ". Check your number and try again.",
+    positionHint: "Your container is at sea. Track its live position with the carrier:",
+    positionBtn: "View position at sea",
     reference: "Reference",
     progressStart: "Pickup",
     progressEnd: "Delivery",

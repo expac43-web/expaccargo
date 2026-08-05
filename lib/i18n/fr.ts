@@ -321,6 +321,8 @@ const fr = {
     notFoundTitle: "Aucun résultat",
     notFoundPre: "Aucune expédition trouvée pour le conteneur",
     notFoundPost: ". Vérifiez votre numéro et réessayez.",
+    positionHint: "Votre conteneur est en mer. Suivez sa position en temps réel chez la compagnie :",
+    positionBtn: "Voir la position en mer",
     reference: "Référence",
     progressStart: "Collecte",
     progressEnd: "Livraison",

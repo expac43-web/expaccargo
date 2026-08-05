@@ -35,7 +35,9 @@ import {
   Ship,
   FileCheck,
   MapPin,
+  ExternalLink,
 } from "lucide-react";
+import { carrierByScac } from "@/lib/terminal49";
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -106,6 +108,7 @@ export default async function TrackingPage(props: { searchParams: Promise<{ cont
   const sService = (s: string) => (t.serviceTypes as Record<string, string>)[s] ?? s;
 
   const shipment = reference ? await fetchShipment(reference.toUpperCase(), byContainer) : null;
+  const carrier = shipment ? carrierByScac((shipment as { carrierScac?: string | null }).carrierScac) : null;
   const milestones = shipment ? await fetchMilestones(shipment.id) : [];
 
   const style = shipment ? (STATUS_STYLE[shipment.status] ?? STATUS_STYLE.PENDING) : null;
@@ -222,6 +225,24 @@ export default async function TrackingPage(props: { searchParams: Promise<{ cont
                         <p className="text-right text-xs text-gray-400 mt-1" style={{ fontFamily: "var(--font-lato)" }}>
                           {Math.round((currentStepIndex / (ORDERED_STEPS.length - 1)) * 100)}%
                         </p>
+                      </div>
+                    )}
+
+                    {/* En transit : lien vers le suivi (position) de la compagnie */}
+                    {shipment.status === "IN_TRANSIT" && carrier && (
+                      <div className="mt-6 pt-5 border-t border-gray-100">
+                        <p className="text-xs text-gray-500 mb-2.5" style={{ fontFamily: "var(--font-lato)" }}>
+                          {tp.positionHint}
+                        </p>
+                        <a
+                          href={carrier.trackUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-white text-sm font-black uppercase tracking-wide hover:opacity-90 transition-opacity"
+                          style={{ backgroundColor: "#E8520A", fontFamily: "var(--font-montserrat)" }}
+                        >
+                          <Ship size={16} /> {tp.positionBtn} ({carrier.name}) <ExternalLink size={14} />
+                        </a>
                       </div>
                     )}
                   </div>
