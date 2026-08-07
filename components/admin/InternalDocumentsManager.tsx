@@ -3,10 +3,11 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import Pagination from "@/components/admin/Pagination";
+import FileViewButton from "@/components/files/FileViewButton";
 
 const PAGE_SIZE = 12;
 import {
-  Users, Search, FileText, Upload, Trash2, Eye, Download,
+  Users, Search, FileText, Upload, Trash2, Download,
   X, AlertCircle, CheckCircle2, Loader2, FolderLock,
 } from "lucide-react";
 
@@ -223,8 +224,8 @@ export default function InternalDocumentsManager() {
                           <p className="text-sm font-bold truncate" style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>{d.name}</p>
                           <p className="text-xs text-gray-400" style={{ fontFamily: "var(--font-lato)" }}>{DOC_LABELS[d.type] ?? d.type} · {new Date(d.createdAt).toLocaleDateString("fr-FR")}</p>
                         </div>
-                        <a href={d.url} target="_blank" rel="noopener noreferrer" title="Ouvrir" className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-[#1A3A6B]"><Eye size={16} /></a>
-                        <a href={d.url} download title="Télécharger" className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-[#1A3A6B]"><Download size={16} /></a>
+                        <FileViewButton docId={d.id} name={d.name} className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-[#1A3A6B] cursor-pointer" iconSize={16} iconColor="currentColor" />
+                        <a href={`/api/files/${d.id}?download=1`} title="Télécharger" className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-[#1A3A6B]"><Download size={16} /></a>
                         <button onClick={() => handleDelete(d.id)} title="Supprimer" className="w-9 h-9 flex items-center justify-center rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-500"><Trash2 size={16} /></button>
                       </div>
                     ))}
