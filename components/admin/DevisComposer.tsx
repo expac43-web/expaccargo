@@ -41,6 +41,7 @@ export default function DevisComposer({
   const [tc40, setTc40] = useState("");
   const [valeurDouane, setValeurDouane] = useState("");
   const [fixesQty, setFixesQty] = useState<Record<string, number>>({});
+  const [fixesAmount, setFixesAmount] = useState<Record<string, string>>({});
   const [identique, setIdentique] = useState<{ label: string; amount: string }[]>([{ label: "Droits de douane", amount: "" }]);
   // Lignes libres : ajustements manuels + reprise éventuelle d'un devis précédent.
   const [freeLines, setFreeLines] = useState<{ label: string; amount: string }[]>(
@@ -62,13 +63,15 @@ export default function DevisComposer({
   const deboursFixesLines = useMemo<DevisLine[]>(() => {
     const out: DevisLine[] = [];
     for (const d of catalog) {
-      const qty = fixesQty[d.code] ?? 0;
-      if (qty <= 0) continue;
-      if (d.percentValeurDouane) out.push({ label: d.label, amount: Math.round(num(valeurDouane) * d.percentValeurDouane) });
-      else out.push({ label: qty > 1 ? `${d.label} ×${qty}` : d.label, amount: d.amount * qty });
+      if ((fixesQty[d.code] ?? 0) <= 0) continue;
+      if (d.percentValeurDouane) { out.push({ label: d.label, amount: Math.round(num(valeurDouane) * d.percentValeurDouane) }); continue; }
+      // Montant modifiable : la valeur saisie prime sur le montant par défaut de la grille.
+      const edited = fixesAmount[d.code];
+      const amount = edited !== undefined && edited.trim() !== "" ? num(edited) : d.amount;
+      out.push({ label: d.label, amount });
     }
     return out;
-  }, [catalog, fixesQty, valeurDouane]);
+  }, [catalog, fixesQty, fixesAmount, valeurDouane]);
 
   const deboursIdentiqueLines = useMemo<DevisLine[]>(
     () => identique.map((l) => ({ label: l.label.trim() || "Débours", amount: num(l.amount) })).filter((l) => l.amount > 0),
@@ -178,11 +181,17 @@ export default function DevisComposer({
                 const on = (fixesQty[d.code] ?? 0) > 0;
                 return (
                   <div key={d.code} className="text-xs">
-                    <label className="flex items-center gap-2 py-0.5 cursor-pointer">
-                      <input type="checkbox" checked={on} onChange={(e) => setFixesQty((m) => ({ ...m, [d.code]: e.target.checked ? 1 : 0 }))} className="w-3.5 h-3.5 accent-[#1A3A6B] shrink-0" />
-                      <span className="text-gray-600 truncate flex-1" style={fontL}>{d.label}</span>
-                      <span className="text-gray-400 shrink-0">{d.percentValeurDouane ? "1 % val." : formatPrice(d.amount)}</span>
-                    </label>
+                    <div className="flex items-center gap-2 py-0.5">
+                      <label className="flex items-center gap-2 flex-1 min-w-0 cursor-pointer">
+                        <input type="checkbox" checked={on} onChange={(e) => setFixesQty((m) => ({ ...m, [d.code]: e.target.checked ? 1 : 0 }))} className="w-3.5 h-3.5 accent-[#1A3A6B] shrink-0" />
+                        <span className="text-gray-600 truncate" style={fontL}>{d.label}</span>
+                      </label>
+                      {on && !d.percentValeurDouane ? (
+                        <input type="number" min="0" value={fixesAmount[d.code] ?? String(d.amount)} onChange={(e) => setFixesAmount((m) => ({ ...m, [d.code]: e.target.value }))} title="Montant modifiable" className="w-24 px-2 py-1 rounded-lg border border-gray-200 text-xs text-right outline-none focus:border-[#1A3A6B] shrink-0" style={fontL} />
+                      ) : (
+                        <span className="text-gray-400 shrink-0">{d.percentValeurDouane ? "1 % val." : formatPrice(d.amount)}</span>
+                      )}
+                    </div>
                     {on && d.percentValeurDouane && (
                       <input type="number" min="0" value={valeurDouane} onChange={(e) => setValeurDouane(e.target.value)} placeholder="Valeur en douane" className="w-full mt-1 px-2 py-1.5 rounded-lg border border-gray-200 text-xs outline-none focus:border-[#1A3A6B]" style={fontL} />
                     )}
