@@ -6,7 +6,7 @@ import AdminHeader from "@/components/admin/AdminHeader";
 import Modal from "@/components/admin/Modal";
 import Pagination from "@/components/admin/Pagination";
 import { DevisQuote } from "@/components/admin/DevisProcessPanel";
-import { FileText, Trash2, ShieldCheck } from "lucide-react";
+import { FileText, Trash2, ShieldCheck, Search } from "lucide-react";
 
 const PAGE_SIZE = 15;
 
@@ -27,6 +27,7 @@ export default function DevisPage() {
   const [quotes, setQuotes] = useState<DevisQuote[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [page, setPage] = useState(1);
@@ -38,13 +39,18 @@ export default function DevisPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filtered = useMemo(
-    () => quotes.filter(q => filterStatus === "all" || q.status === filterStatus),
-    [quotes, filterStatus]
-  );
+  const filtered = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    return quotes.filter((q) => {
+      if (filterStatus !== "all" && q.status !== filterStatus) return false;
+      if (!term) return true;
+      return [q.name, q.email, q.origin, q.destination, SERVICE_LABELS[q.serviceType] ?? q.serviceType, q.handledByName]
+        .some((v) => v && String(v).toLowerCase().includes(term));
+    });
+  }, [quotes, filterStatus, search]);
 
-  // Revenir en page 1 quand le filtre change.
-  useEffect(() => { setPage(1); }, [filterStatus]);
+  // Revenir en page 1 quand le filtre ou la recherche change.
+  useEffect(() => { setPage(1); }, [filterStatus, search]);
   const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   async function deleteQuote() {
@@ -70,6 +76,17 @@ export default function DevisPage() {
       />
 
       <div className="flex-1 overflow-y-auto p-6">
+        {/* Recherche */}
+        <div className="relative max-w-sm mb-5">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Rechercher (client, email, trajet…)"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#1A3A6B] focus:ring-2 focus:ring-[#1A3A6B]/10 bg-white"
+            style={{ fontFamily: "var(--font-lato)" }}
+          />
+        </div>
         {/* Status counters */}
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
           {Object.entries(STATUS_META).map(([key, m]) => (

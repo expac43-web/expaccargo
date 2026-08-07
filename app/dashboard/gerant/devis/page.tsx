@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import AdminHeader from "@/components/admin/AdminHeader";
-import { FileText, Loader2, Download, ShieldCheck, Eye, X, FileSignature } from "lucide-react";
+import { FileText, Loader2, Download, ShieldCheck, Eye, X, FileSignature, Search } from "lucide-react";
 import { exportDevisPDF } from "@/lib/pdf";
 import Pagination from "@/components/admin/Pagination";
 import { DevisQuote } from "@/components/admin/DevisProcessPanel";
@@ -29,9 +29,10 @@ export default function GerantDevisPage() {
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("ALL");
+  const [search, setSearch] = useState("");
   const [sigView, setSigView] = useState<Quote | null>(null);
   const [page, setPage] = useState(1);
-  useEffect(() => { setPage(1); }, [filter]);
+  useEffect(() => { setPage(1); }, [filter, search]);
 
   useEffect(() => {
     fetch("/api/admin/devis", { cache: "no-store" })
@@ -73,7 +74,12 @@ export default function GerantDevisPage() {
   }
 
   const signedCount = quotes.filter((q) => q.signature).length;
-  const shown = filter === "ALL" ? quotes : filter === "SIGNED" ? quotes.filter((q) => q.signature) : quotes.filter((q) => q.status === filter);
+  const term = search.trim().toLowerCase();
+  const matchesTerm = (q: Quote) =>
+    !term || [q.name, q.email, q.origin, q.destination, q.phone, SERVICE_LABEL[q.serviceType] ?? q.serviceType, q.handledByName]
+      .some((v) => v && String(v).toLowerCase().includes(term));
+  const byFilter = filter === "ALL" ? quotes : filter === "SIGNED" ? quotes.filter((q) => q.signature) : quotes.filter((q) => q.status === filter);
+  const shown = byFilter.filter(matchesTerm);
   const paged = shown.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
@@ -81,6 +87,17 @@ export default function GerantDevisPage() {
       <AdminHeader title="Devis" subtitle={`${quotes.length} demande${quotes.length > 1 ? "s" : ""} · ${signedCount} signé${signedCount > 1 ? "s" : ""}`} />
 
       <div className="flex-1 p-6">
+        {/* Recherche */}
+        <div className="relative max-w-sm mb-4">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Rechercher (client, email, trajet…)"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#1A3A6B] focus:ring-2 focus:ring-[#1A3A6B]/10 bg-white"
+            style={{ fontFamily: "var(--font-lato)" }}
+          />
+        </div>
         {/* Filtres */}
         <div className="flex flex-wrap gap-2 mb-5">
           {[

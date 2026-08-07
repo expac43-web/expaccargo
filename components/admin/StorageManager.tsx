@@ -8,7 +8,7 @@ import Pagination from "@/components/admin/Pagination";
 const PAGE_SIZE = 15;
 import {
   Warehouse, Plus, Pencil, Trash2, AlertCircle, MapPin,
-  CalendarDays, CalendarClock, Eye,
+  CalendarDays, CalendarClock, Eye, Search,
 } from "lucide-react";
 
 type StorageStatus = "AWAITING" | "RELEASED";
@@ -75,6 +75,7 @@ export default function StorageManager({
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"ALL" | "AWAITING" | "OVERDUE" | "RELEASED">("ALL");
+  const [search, setSearch] = useState("");
 
   const [modal, setModal] = useState<"create" | "edit" | null>(null);
   const [editing, setEditing] = useState<StorageItem | null>(null);
@@ -90,14 +91,22 @@ export default function StorageManager({
   }
   useEffect(() => { load().finally(() => setLoading(false)); }, []);
 
+  // Recherche texte : référence, client, description, agence, lieu, remarques.
+  const q = search.trim().toLowerCase();
+  const searched = q
+    ? items.filter((i) =>
+        [i.reference, i.clientName, i.description, i.agencyName, i.notes, LOCATION_LABEL[i.location]]
+          .some((v) => v && v.toLowerCase().includes(q))
+      )
+    : items;
   const counts = {
-    AWAITING: items.filter((i) => effectiveStatus(i) === "AWAITING").length,
-    OVERDUE: items.filter((i) => effectiveStatus(i) === "OVERDUE").length,
-    RELEASED: items.filter((i) => effectiveStatus(i) === "RELEASED").length,
+    AWAITING: searched.filter((i) => effectiveStatus(i) === "AWAITING").length,
+    OVERDUE: searched.filter((i) => effectiveStatus(i) === "OVERDUE").length,
+    RELEASED: searched.filter((i) => effectiveStatus(i) === "RELEASED").length,
   };
-  const shown = filter === "ALL" ? items : items.filter((i) => effectiveStatus(i) === filter);
-  // Pagination (revient en page 1 dès que l'onglet change).
-  useEffect(() => { setPage(1); }, [filter]);
+  const shown = filter === "ALL" ? searched : searched.filter((i) => effectiveStatus(i) === filter);
+  // Pagination (revient en page 1 dès que l'onglet ou la recherche change).
+  useEffect(() => { setPage(1); }, [filter, search]);
   const pagedItems = shown.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   // Droit d'écriture : admin/gérant partout ; un agent seulement sur les colis de son agence.
@@ -166,6 +175,16 @@ export default function StorageManager({
       />
 
       <div className="flex-1 p-4 sm:p-6">
+        <div className="relative max-w-sm mb-4">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Rechercher (référence, client, description…)"
+            className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#1A3A6B] focus:ring-2 focus:ring-[#1A3A6B]/10 bg-white"
+            style={{ fontFamily: "var(--font-lato)" }}
+          />
+        </div>
         <div className="flex flex-wrap gap-2 mb-6">
           {tabs.map((t) => {
             const active = filter === t.key;
