@@ -42,6 +42,9 @@ export default function DevisComposer({
   const [valeurDouane, setValeurDouane] = useState("");
   const [fixesQty, setFixesQty] = useState<Record<string, number>>({});
   const [fixesAmount, setFixesAmount] = useState<Record<string, string>>({});
+  // Montants du devis réajustables à la main (priment sur la grille) : honoraires,
+  // frais d'ouverture, commission, TVA, CA. Champ vide = on retombe sur la grille.
+  const [overrides, setOverrides] = useState<Record<string, string>>({});
   const [identique, setIdentique] = useState<{ label: string; amount: string }[]>([{ label: "Droits de douane", amount: "" }]);
   // Lignes libres : ajustements manuels + reprise éventuelle d'un devis précédent.
   // `taxable` : la ligne entre (true) ou non (false) dans l'assiette de la TVA.
@@ -101,23 +104,46 @@ export default function DevisComposer({
     [mode, weightKg, maritimeType, tonnes, tc20, tc40, deboursFixesLines, deboursIdentiqueLines, hasInput, prestationsExtra, config]
   );
 
-  // Postes calculés : grille + lignes libres taxables ; TVA/CA sur l'assiette complète.
-  const grilleLines = useMemo<DevisLine[]>(() => {
-    const hasComputed = hasInput || freeTaxableLines.length > 0 || deboursFixesLines.length > 0 || deboursIdentiqueLines.length > 0;
-    if (!hasComputed) return [];
-    const lines: DevisLine[] = [];
-    if (hasInput) lines.push({ label: "Honoraires de prestation", amount: result.prestations });
-    lines.push(...freeTaxableLines);
-    if (result.fraisOuverture > 0) lines.push({ label: "Frais d'ouverture de dossier", amount: result.fraisOuverture });
-    lines.push(...deboursFixesLines, ...deboursIdentiqueLines);
-    if (result.commission > 0) lines.push({ label: "Commission sur débours (3,5 %)", amount: result.commission });
-    lines.push({ label: "TVA 18 %", amount: result.tva }, { label: "CA 5 % (sur la TVA)", amount: result.ca });
-    return lines;
-  }, [hasInput, result, deboursFixesLines, deboursIdentiqueLines, freeTaxableLines]);
+  // Montant effectif = override manuel s'il est renseigné, sinon la valeur de la grille.
+  // La TVA/CA se recalculent sur les montants effectifs tant qu'elles ne sont pas
+  // forcées → réajuster un honoraire met la TVA et le total à jour automatiquement.
+  const effOf = (key: string, computed: number) => {
+    const ov = overrides[key];
+    return ov !== undefined && ov.trim() !== "" ? num(ov) : computed;
+  };
+  const effHonoraires = effOf("honoraires", result.prestations);
+  const effOuverture = effOf("ouverture", result.fraisOuverture);
+  const effCommission = effOf("commission", result.commission);
+  const taxableBase = effHonoraires + prestationsExtra + effOuverture + effCommission;
+  const tvaComputed = Math.round(taxableBase * config.tvaRate);
+  const effTva = effOf("tva", tvaComputed);
+  const caComputed = Math.round(effTva * config.caRate);
+  const effCa = effOf("ca", caComputed);
+  const hasOverride = Object.values(overrides).some((v) => (v ?? "").trim() !== "");
 
-  // Total = postes calculés (grille + taxables + TVA/CA) puis lignes hors TVA ajoutées telles quelles.
-  const allLines = useMemo(() => [...grilleLines, ...freeNonTaxableLines], [grilleLines, freeNonTaxableLines]);
-  const total = useMemo(() => allLines.reduce((s, l) => s + l.amount, 0), [allLines]);
+  const hasComputed =
+    hasInput || freeTaxableLines.length > 0 || deboursFixesLines.length > 0 ||
+    deboursIdentiqueLines.length > 0 || hasOverride;
+
+  // Postes du devis. `ovKey` défini = ligne modifiable (input) ; `computed` = valeur
+  // grille par défaut. Sans `ovKey` = lecture seule (édité ailleurs : débours à gauche,
+  // lignes libres dans leur section).
+  type Row = { key: string; label: string; amount: number; ovKey?: string; computed?: number };
+  const rows: Row[] = [];
+  if (hasComputed) {
+    if (hasInput) rows.push({ key: "honoraires", label: "Honoraires de prestation", amount: effHonoraires, ovKey: "honoraires", computed: result.prestations });
+    freeTaxableLines.forEach((l, i) => rows.push({ key: `tf${i}`, label: l.label, amount: l.amount }));
+    if (hasInput || effOuverture > 0) rows.push({ key: "ouverture", label: "Frais d'ouverture de dossier", amount: effOuverture, ovKey: "ouverture", computed: result.fraisOuverture });
+    deboursFixesLines.forEach((l, i) => rows.push({ key: `df${i}`, label: l.label, amount: l.amount }));
+    deboursIdentiqueLines.forEach((l, i) => rows.push({ key: `di${i}`, label: l.label, amount: l.amount }));
+    if (result.deboursTotal > 0 || (overrides.commission ?? "").trim() !== "") rows.push({ key: "commission", label: "Commission sur débours (3,5 %)", amount: effCommission, ovKey: "commission", computed: result.commission });
+    rows.push({ key: "tva", label: "TVA 18 %", amount: effTva, ovKey: "tva", computed: tvaComputed });
+    rows.push({ key: "ca", label: "CA 5 % (sur la TVA)", amount: effCa, ovKey: "ca", computed: caComputed });
+  }
+
+  // Total = tous les postes (montants effectifs) + lignes hors TVA ajoutées telles quelles.
+  const allLines: DevisLine[] = [...rows.map((r) => ({ label: r.label, amount: r.amount })), ...freeNonTaxableLines];
+  const total = allLines.reduce((s, l) => s + l.amount, 0);
   const canSend = allLines.length > 0 && total > 0;
 
   // Aperçu du montant à côté de chaque champ de quantité.
@@ -234,23 +260,43 @@ export default function DevisComposer({
           </div>
         </div>
 
-        {/* ── Droite : devis en direct ── */}
+        {/* ── Droite : devis en direct (montants modifiables) ── */}
         <div className="space-y-3">
-          <p className="text-[11px] font-black uppercase tracking-wider text-gray-400" style={fontM}>Devis (calculé en direct)</p>
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-[11px] font-black uppercase tracking-wider text-gray-400" style={fontM}>Devis (montants modifiables)</p>
+            {hasOverride && (
+              <button type="button" onClick={() => setOverrides({})} className="text-[10px] font-black uppercase shrink-0" style={{ color: ORANGE, ...fontM }}>Réinitialiser la grille</button>
+            )}
+          </div>
           <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 min-h-[3rem]">
-            {grilleLines.length === 0 ? (
+            {rows.length === 0 ? (
               <p className="text-xs text-gray-400 text-center py-3" style={fontL}>Saisissez une quantité à gauche pour calculer.</p>
             ) : (
               <div className="space-y-1">
-                {grilleLines.map((l, i) => (
-                  <div key={i} className="flex justify-between text-xs" style={fontL}>
-                    <span className="text-gray-500 truncate pr-2">{l.label}</span>
-                    <span className="text-gray-700 shrink-0">{formatPrice(l.amount)}</span>
-                  </div>
-                ))}
+                {rows.map((r) => {
+                  const ov = r.ovKey;
+                  return (
+                    <div key={r.key} className="flex items-center justify-between gap-2 text-xs" style={fontL}>
+                      <span className="text-gray-500 truncate pr-2">{r.label}</span>
+                      {ov ? (
+                        <input
+                          type="number"
+                          value={overrides[ov] ?? String(Math.round(r.computed ?? 0))}
+                          onChange={(e) => setOverrides((o) => ({ ...o, [ov]: e.target.value }))}
+                          title="Montant modifiable"
+                          className="w-28 px-2 py-1 rounded-lg border border-gray-200 text-xs text-right outline-none focus:border-[#1A3A6B] shrink-0 bg-white"
+                          style={fontL}
+                        />
+                      ) : (
+                        <span className="text-gray-700 shrink-0">{formatPrice(r.amount)}</span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
+          <p className="text-[10px] text-gray-400" style={fontL}>Honoraires, frais, commission, TVA et CA sont modifiables ; la TVA et le total se recalculent tout seuls. Les débours se modifient à gauche.</p>
 
           {/* Lignes libres : TVA au choix (taxable / hors TVA) */}
           <div>
