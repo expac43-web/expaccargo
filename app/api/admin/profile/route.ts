@@ -11,8 +11,9 @@ export async function GET() {
 
   const [user] = await sbGet<{
     id: string; name: string; email: string;
-    phone: string | null; whatsapp: string | null; role: string; createdAt: string;
-  }>("User", `id=eq.${id}&select=id,name,email,phone,whatsapp,role,createdAt`);
+    phone: string | null; whatsapp: string | null; niu: string | null;
+    jobTitle: string | null; idPhotoUrl: string | null; role: string; createdAt: string;
+  }>("User", `id=eq.${id}&select=id,name,email,phone,whatsapp,niu,jobTitle,idPhotoUrl,role,createdAt`);
 
   if (!user) return NextResponse.json({ error: "Utilisateur introuvable" }, { status: 404 });
   return NextResponse.json(user);

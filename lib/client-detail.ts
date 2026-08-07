@@ -6,7 +6,7 @@ import { sbGet, enc } from "@/lib/supabase-admin";
 
 export type ClientProfile = {
   id: string; name: string; email: string; phone: string | null;
-  whatsapp: string | null; isActive: boolean; createdAt: string;
+  whatsapp: string | null; niu: string | null; isActive: boolean; createdAt: string;
 };
 export type ClientShipment = {
   id: string; reference: string; status: string; serviceType: string;
@@ -27,7 +27,7 @@ export type ClientBundle = {
 export async function getClientBundle(id: string): Promise<ClientBundle | null> {
   const [client] = await sbGet<ClientProfile>(
     "User",
-    `id=eq.${enc(id)}&role=eq.CLIENT&select=id,name,email,phone,whatsapp,isActive,createdAt&limit=1`
+    `id=eq.${enc(id)}&role=eq.CLIENT&select=id,name,email,phone,whatsapp,niu,isActive,createdAt&limit=1`
   );
   if (!client) return null;
 

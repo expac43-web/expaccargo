@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { sbGet, sbPost, enc } from "@/lib/supabase-admin";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
-import { isValidEmail } from "@/lib/validation";
+import { isValidEmail, isValidNiu, normalizeNiu } from "@/lib/validation";
 import { sendClientWelcomeEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { name, email, password, phone, whatsapp, accountType, companyName } = body;
+    const { name, email, password, phone, whatsapp, accountType, companyName, niu } = body;
 
     if (!name || !email || !password) {
       return NextResponse.json({ error: "Champs obligatoires manquants." }, { status: 400 });
@@ -26,6 +26,14 @@ export async function POST(req: NextRequest) {
 
     if (!isValidEmail(email)) {
       return NextResponse.json({ error: "Adresse email invalide." }, { status: 400 });
+    }
+
+    // NIU obligatoire pour tout compte client (particulier ou société).
+    if (!niu || !String(niu).trim()) {
+      return NextResponse.json({ error: "Le NIU est obligatoire." }, { status: 400 });
+    }
+    if (!isValidNiu(niu)) {
+      return NextResponse.json({ error: "NIU invalide (ex : P23000000492456J)." }, { status: 400 });
     }
 
     if (typeof password !== "string" || password.length < 8) {
@@ -58,6 +66,7 @@ export async function POST(req: NextRequest) {
       password: hashedPassword,
       phone: phone?.trim() || null,
       whatsapp: whatsapp?.trim() || null,
+      niu: normalizeNiu(String(niu)),
       role: "CLIENT",
       isActive: true,
       createdAt: now,

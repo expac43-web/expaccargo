@@ -4,13 +4,13 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import {
   ArrowLeft, Mail, Phone, MessageCircle, Package, FileText, Eye, Download,
-  Upload, Loader2, CheckCircle2, AlertCircle, Calendar, MapPin,
+  Upload, Loader2, CheckCircle2, AlertCircle, Calendar, MapPin, Hash,
 } from "lucide-react";
 import FileViewButton from "@/components/files/FileViewButton";
 
 type ClientProfile = {
   id: string; name: string; email: string; phone: string | null;
-  whatsapp: string | null; isActive: boolean; createdAt: string;
+  whatsapp: string | null; niu: string | null; isActive: boolean; createdAt: string;
 };
 type Shipment = {
   id: string; reference: string; status: string; serviceType: string;
@@ -141,6 +141,7 @@ export default function ClientDetailView({
               <a href={`mailto:${client.email}`} className="flex items-center gap-2 text-gray-600 hover:text-[#1A3A6B] break-all"><Mail size={14} className="shrink-0 text-gray-400" />{client.email}</a>
               {client.phone && <a href={`tel:${client.phone}`} className="flex items-center gap-2 text-gray-600 hover:text-[#1A3A6B]"><Phone size={14} className="shrink-0 text-gray-400" />{client.phone}</a>}
               {client.whatsapp && <p className="flex items-center gap-2 text-gray-600"><MessageCircle size={14} className="shrink-0 text-gray-400" />{client.whatsapp}</p>}
+              {client.niu && <p className="flex items-center gap-2 text-gray-600" title="Numéro d'Identification Unique"><Hash size={14} className="shrink-0 text-gray-400" /><span className="font-black tracking-wide" style={{ color: "#1A3A6B" }}>NIU</span> {client.niu}</p>}
               <p className="flex items-center gap-2 text-gray-400"><Calendar size={14} className="shrink-0" />Inscrit le {new Date(client.createdAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}</p>
             </div>
           </div>

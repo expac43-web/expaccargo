@@ -3,13 +3,13 @@
 import { useState, useEffect } from "react";
 import {
   User, Mail, Phone, MessageSquare, Lock, Eye, EyeOff,
-  Save, CheckCircle2, AlertCircle, UserCircle, Loader2,
+  Save, CheckCircle2, AlertCircle, UserCircle, Loader2, Hash,
 } from "lucide-react";
 import { useT } from "@/components/i18n/LanguageProvider";
 
 type Profile = {
   id: string; name: string; email: string;
-  phone: string | null; whatsapp: string | null; role: string; createdAt: string;
+  phone: string | null; whatsapp: string | null; niu: string | null; role: string; createdAt: string;
 };
 
 const labelCls = "block text-xs font-black uppercase tracking-wider mb-1.5 text-gray-600";
@@ -183,6 +183,23 @@ export default function ClientProfilPage() {
               </div>
               <p className="text-xs text-gray-400 mt-1" style={{ fontFamily: "var(--font-lato)" }}>
                 {pr.emailLocked}
+              </p>
+            </div>
+
+            <div>
+              <label className={labelCls} style={{ fontFamily: "var(--font-montserrat)" }}>{pr.niu}</label>
+              <div className="relative">
+                <Hash size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  value={profile?.niu ?? "—"}
+                  disabled
+                  className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-100 text-sm bg-gray-50 text-gray-500 cursor-not-allowed uppercase"
+                  style={{ fontFamily: "var(--font-lato)" }}
+                />
+              </div>
+              <p className="text-xs text-gray-400 mt-1" style={{ fontFamily: "var(--font-lato)" }}>
+                {pr.niuLocked}
               </p>
             </div>
 

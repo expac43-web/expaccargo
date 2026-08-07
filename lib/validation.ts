@@ -15,3 +15,20 @@ export function isNonEmptyStr(v: unknown, max = 5000): v is string {
 export function isValidPhone(v: unknown): v is string {
   return typeof v === "string" && /^[+\d][\d\s().-]{6,19}$/.test(v.trim());
 }
+
+/**
+ * NIU (Numéro d'Identification Unique) — ex : P23000000492456J.
+ * Normalisation : suppression des espaces + majuscules.
+ */
+export function normalizeNiu(v: string): string {
+  return v.replace(/\s+/g, "").toUpperCase();
+}
+
+/**
+ * Validation souple du NIU : une lettre initiale puis 9 à 19 caractères
+ * alphanumériques (le préfixe « P23… » du modèle n'est pas imposé en dur pour
+ * ne pas rejeter un NIU société ou d'un autre millésime).
+ */
+export function isValidNiu(v: unknown): v is string {
+  return typeof v === "string" && /^[A-Za-z][A-Za-z0-9]{9,19}$/.test(normalizeNiu(v));
+}

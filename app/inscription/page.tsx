@@ -3,11 +3,12 @@
 import Link from "next/link";
 import Logo from "@/components/ui/Logo";
 import { useState } from "react";
-import { Eye, EyeOff, ArrowRight, Lock, Mail, User, Phone, Building2, UserCircle, AlertCircle, CheckCircle } from "lucide-react";
+import { Eye, EyeOff, ArrowRight, Lock, Mail, User, Phone, Building2, UserCircle, AlertCircle, CheckCircle, Hash } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useT } from "@/components/i18n/LanguageProvider";
 import LanguageSwitcher from "@/components/i18n/LanguageSwitcher";
+import { isValidNiu } from "@/lib/validation";
 
 type AccountType = "particulier" | "entreprise";
 
@@ -46,6 +47,10 @@ export default function InscriptionPage() {
       setError(R.errPwdShort);
       return;
     }
+    if (!isValidNiu(get("niu"))) {
+      setError(R.errNiu);
+      return;
+    }
 
     setLoading(true);
 
@@ -60,6 +65,7 @@ export default function InscriptionPage() {
         whatsapp: get("whatsapp") || undefined,
         accountType,
         companyName: get("companyName") || undefined,
+        niu: get("niu"),
       }),
     });
 
@@ -292,6 +298,29 @@ export default function InscriptionPage() {
                       style={{ fontFamily: "var(--font-lato)" }}
                     />
                   </div>
+                </div>
+
+                {/* NIU (obligatoire particulier + société) */}
+                <div>
+                  <label
+                    htmlFor="niu"
+                    className="block text-xs font-black uppercase tracking-wider mb-2"
+                    style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}
+                  >
+                    {R.niu}
+                  </label>
+                  <div className="relative">
+                    <Hash size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input
+                      id="niu"
+                      type="text"
+                      required
+                      placeholder={R.niuPh}
+                      className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-[#1A3A6B] focus:ring-2 focus:ring-[#1A3A6B]/10 transition-all bg-white uppercase placeholder:normal-case"
+                      style={{ fontFamily: "var(--font-lato)" }}
+                    />
+                  </div>
+                  <p className="text-[11px] text-gray-400 mt-1.5" style={{ fontFamily: "var(--font-lato)" }}>{R.niuHint}</p>
                 </div>
 
                 {/* Email */}
