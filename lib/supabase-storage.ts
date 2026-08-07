@@ -84,6 +84,30 @@ export async function uploadPartnerLogo(
 }
 
 /**
+ * Upload de la pièce d'identité (staff) dans le bucket PRIVÉ expac-documents.
+ * Path : id-photos/{userId}.{ext} — upsert écrase l'ancienne.
+ * Retourne le CHEMIN de l'objet (le bucket étant privé, il est servi par le
+ * proxy authentifié /api/staff/id-photo/[id], jamais par URL publique).
+ */
+export async function uploadIdPhoto(
+  userId: string,
+  buffer: Buffer,
+  contentType: string,
+  ext: string
+): Promise<string | null> {
+  const path = `id-photos/${userId}.${ext}`;
+  const { error } = await supabase.storage
+    .from(BUCKET)
+    .upload(path, buffer, { contentType, upsert: true });
+
+  if (error) {
+    console.error("[storage] id photo upload error:", error.message);
+    return null;
+  }
+  return path;
+}
+
+/**
  * Télécharge un fichier du bucket documents via la clé service (côté serveur).
  * Permet de servir le fichier sans exposer l'URL Supabase au navigateur.
  */

@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { User, Mail, Phone, Lock, Building2, Save, Eye, EyeOff, AlertCircle, CheckCircle2 } from "lucide-react";
+import { User, Mail, Phone, Lock, Building2, Save, Eye, EyeOff, AlertCircle, CheckCircle2, Briefcase, IdCard } from "lucide-react";
 import AvatarUpload from "@/components/ui/AvatarUpload";
+import IdPhotoUpload from "@/components/ui/IdPhotoUpload";
 
 type Profile = {
   id: string; name: string; email: string; phone: string | null; whatsapp: string | null;
-  agencyId: string | null; avatarUrl: string | null;
+  agencyId: string | null; avatarUrl: string | null; jobTitle: string | null; idPhotoUrl: string | null;
   agency: { id: string; name: string; city: string; country: string } | null;
 };
 
@@ -22,7 +23,7 @@ export default function AgenceProfilPage() {
   const [success, setSuccess] = useState(false);
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
-  const [form, setForm] = useState({ name: "", phone: "", whatsapp: "", currentPassword: "", newPassword: "", confirmPassword: "" });
+  const [form, setForm] = useState({ name: "", phone: "", whatsapp: "", jobTitle: "", currentPassword: "", newPassword: "", confirmPassword: "" });
 
   useEffect(() => {
     fetch("/api/agence/profile")
@@ -31,7 +32,7 @@ export default function AgenceProfilPage() {
         if (data) {
           setProfile(data);
           setAvatarUrl(data.avatarUrl ?? null);
-          setForm((f) => ({ ...f, name: data.name ?? "", phone: data.phone ?? "", whatsapp: data.whatsapp ?? "" }));
+          setForm((f) => ({ ...f, name: data.name ?? "", phone: data.phone ?? "", whatsapp: data.whatsapp ?? "", jobTitle: data.jobTitle ?? "" }));
         }
       })
       .finally(() => setLoading(false));
@@ -50,6 +51,7 @@ export default function AgenceProfilPage() {
         name: form.name,
         phone: form.phone,
         whatsapp: form.whatsapp,
+        jobTitle: form.jobTitle,
         currentPassword: form.currentPassword || undefined,
         newPassword: form.newPassword || undefined,
       }),
@@ -131,6 +133,13 @@ export default function AgenceProfilPage() {
             </div>
           </div>
           <div>
+            <label className={labelCls} style={{ fontFamily: "var(--font-montserrat)" }}>Poste / fonction</label>
+            <div className="relative">
+              <Briefcase size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input type="text" value={form.jobTitle} onChange={(e) => setForm((f) => ({ ...f, jobTitle: e.target.value }))} placeholder="Ex : Agent de transit" className={inputCls} style={{ fontFamily: "var(--font-lato)" }} />
+            </div>
+          </div>
+          <div>
             <label className={labelCls} style={{ fontFamily: "var(--font-montserrat)" }}>Email (non modifiable)</label>
             <div className="relative">
               <Mail size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -154,6 +163,24 @@ export default function AgenceProfilPage() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Pièce d'identité */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm mb-5">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ backgroundColor: "rgba(14,95,114,0.1)" }}>
+            <IdCard size={18} style={{ color: "#0e5f72" }} />
+          </div>
+          <h2 className="text-sm font-black uppercase" style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>Pièce d&apos;identité</h2>
+        </div>
+        {profile && (
+          <IdPhotoUpload
+            viewUrl={`/api/staff/id-photo/${profile.id}`}
+            hasPhoto={!!profile.idPhotoUrl}
+            uploadEndpoint="/api/agence/profile/id-photo"
+            accentColor="#0e5f72"
+          />
+        )}
       </div>
 
       {/* Mot de passe */}

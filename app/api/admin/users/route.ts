@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
 
   const qs = agencyId
     ? `agencyId=eq.${enc(agencyId)}&select=id,name,email,role,phone,whatsapp,isActive,createdAt,agencyId&order=name.asc`
-    : `role=in.(MANAGER,AGENCY,SUPER_ADMIN,PARTNER)&select=id,name,email,role,phone,isActive,createdAt,agencyId&order=name.asc`;
+    : `role=in.(MANAGER,AGENCY,SUPER_ADMIN,PARTNER)&select=id,name,email,role,phone,jobTitle,idPhotoUrl,isActive,createdAt,agencyId&order=name.asc`;
 
   const users = await sbGet("User", qs);
   return NextResponse.json(users);

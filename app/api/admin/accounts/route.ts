@@ -26,7 +26,8 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json();
   // contactName / address ne concernent que les comptes partenaires (société).
-  const { name, email, userRole, agencyId, phone, contactName, address } = body;
+  // poste (jobTitle) concerne le staff (gérant / agent), pas les partenaires.
+  const { name, email, userRole, agencyId, phone, contactName, address, poste } = body;
   let { password } = body;
 
   if (!name?.trim() || !email?.trim() || !userRole) {
@@ -85,6 +86,7 @@ export async function POST(req: NextRequest) {
     whatsapp: null,
     contactName: userRole === "PARTNER" ? contactName?.trim() || null : null,
     address: userRole === "PARTNER" ? address?.trim() || null : null,
+    jobTitle: userRole === "PARTNER" ? null : (poste?.trim() || null),
     isActive: true,
     createdAt: now,
     updatedAt: now,
@@ -113,6 +115,8 @@ export async function POST(req: NextRequest) {
         email: normalizedEmail,
         role: userRole,
         phone: phone?.trim() || null,
+        jobTitle: userRole === "PARTNER" ? null : (poste?.trim() || null),
+        idPhotoUrl: null,
         agencyId: agencyId || null,
         agencyName,
         isActive: true,

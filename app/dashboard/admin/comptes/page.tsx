@@ -9,13 +9,14 @@ const PAGE_SIZE = 15;
 import { generatePassword } from "@/lib/password";
 import {
   UserPlus, Users, Building2, Mail, KeyRound, Copy, Check,
-  RefreshCw, Eye, EyeOff, AlertCircle, CheckCircle2, Search, Shield, X, Trash2,
+  RefreshCw, Eye, EyeOff, AlertCircle, CheckCircle2, Search, Shield, X, Trash2, ExternalLink,
 } from "lucide-react";
 
 type Agency = { id: string; name: string; city: string; country: string };
 type Staff = {
   id: string; name: string; email: string; role: string;
-  phone: string | null; isActive: boolean; agencyId: string | null; createdAt: string;
+  phone: string | null; jobTitle: string | null; idPhotoUrl: string | null;
+  isActive: boolean; agencyId: string | null; createdAt: string;
 };
 
 const ROLE_OPTIONS = [
@@ -41,7 +42,7 @@ export default function ComptesPage() {
 
   // Form
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ userRole: "MANAGER", agencyId: "", name: "", email: "", phone: "", password: "", contactName: "", address: "" });
+  const [form, setForm] = useState({ userRole: "MANAGER", agencyId: "", name: "", email: "", phone: "", password: "", contactName: "", address: "", poste: "" });
   const [showPwd, setShowPwd] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -94,7 +95,7 @@ export default function ComptesPage() {
   useEffect(() => { loadData(); }, []);
 
   function openForm() {
-    setForm({ userRole: "MANAGER", agencyId: "", name: "", email: "", phone: "", password: generatePassword(12), contactName: "", address: "" });
+    setForm({ userRole: "MANAGER", agencyId: "", name: "", email: "", phone: "", password: generatePassword(12), contactName: "", address: "", poste: "" });
     setError("");
     setShowPwd(true);
     setShowForm(true);
@@ -118,7 +119,7 @@ export default function ComptesPage() {
         body: JSON.stringify({
           name: form.name, email: form.email, userRole: form.userRole,
           agencyId: form.agencyId || null, phone: form.phone, password: form.password,
-          contactName: form.contactName, address: form.address,
+          contactName: form.contactName, address: form.address, poste: form.poste,
         }),
       });
       const data = await r.json();
@@ -292,6 +293,7 @@ export default function ComptesPage() {
               {[
                 ["Email", detail.email],
                 ["Téléphone", detail.phone || "—"],
+                ...(detail.role !== "PARTNER" ? [["Poste", detail.jobTitle || "—"] as [string, string]] : []),
                 ["Agence", agencyName(detail.agencyId) ?? "—"],
                 ["Statut", detail.isActive ? "Actif" : "Désactivé"],
                 ["Créé le", new Date(detail.createdAt).toLocaleDateString("fr-FR")],
@@ -302,6 +304,24 @@ export default function ComptesPage() {
                 </div>
               ))}
             </div>
+
+            {/* Pièce d'identité (staff) */}
+            {detail.role !== "PARTNER" && (
+              <div className="mb-6">
+                <p className="text-xs font-black uppercase tracking-wider text-gray-400 mb-2" style={{ fontFamily: "var(--font-montserrat)" }}>Pièce d&apos;identité</p>
+                {detail.idPhotoUrl ? (
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={`/api/staff/id-photo/${detail.id}`} alt="Pièce d'identité" className="w-full max-h-56 object-contain rounded-xl border border-gray-100 bg-gray-50 mb-2" onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                    <a href={`/api/staff/id-photo/${detail.id}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-black" style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>
+                      <ExternalLink size={12} /> Ouvrir la pièce d&apos;identité
+                    </a>
+                  </>
+                ) : (
+                  <p className="text-sm text-gray-400" style={{ fontFamily: "var(--font-lato)" }}>Aucune pièce d&apos;identité fournie.</p>
+                )}
+              </div>
+            )}
 
             <button
               onClick={async () => {
@@ -378,6 +398,14 @@ export default function ComptesPage() {
             <label className={labelCls} style={{ fontFamily: "var(--font-montserrat)" }}>Téléphone</label>
             <input className={inputCls} value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} placeholder="+242 00 000 00 00" style={{ fontFamily: "var(--font-lato)" }} />
           </div>
+
+          {form.userRole !== "PARTNER" && (
+            <div>
+              <label className={labelCls} style={{ fontFamily: "var(--font-montserrat)" }}>Poste / fonction</label>
+              <input className={inputCls} value={form.poste} onChange={(e) => setForm((f) => ({ ...f, poste: e.target.value }))} placeholder="Ex : Agent de transit, Gérant d'exploitation…" style={{ fontFamily: "var(--font-lato)" }} />
+              <p className="text-[11px] text-gray-400 mt-1" style={{ fontFamily: "var(--font-lato)" }}>Modifiable ensuite par l&apos;intéressé depuis son profil.</p>
+            </div>
+          )}
 
           <div>
             <label className={labelCls} style={{ fontFamily: "var(--font-montserrat)" }}>Mot de passe (généré automatiquement)</label>
