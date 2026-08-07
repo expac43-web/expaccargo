@@ -200,10 +200,12 @@ export type DevisInput = {
   deboursIdentique?: DevisLine[]; // inclut les droits de douane (manuel, pour l'instant)
   includeFraisOuverture?: boolean; // défaut : true
   tvaBase?: TvaBase;               // défaut : DEFAULT_TVA_BASE
+  prestationsExtra?: number;       // prestations supplémentaires TAXABLES (lignes libres soumises à TVA)
 };
 
 export type DevisResult = {
   prestations: number;         // honoraires de prestation (hors ouverture & commission)
+  prestationsExtra: number;    // prestations supplémentaires taxables (lignes libres soumises à TVA)
   fraisOuverture: number;
   deboursFixesTotal: number;
   deboursIdentiqueTotal: number;
@@ -245,16 +247,19 @@ export function computeDevis(input: DevisInput, g: GrilleConfig = DEFAULT_GRILLE
   const deboursTotal = deboursFixesTotal + deboursIdentiqueTotal;
 
   const commission = Math.round(deboursTotal * g.commissionRate);
-  const remuneration = prestations + fraisOuverture + commission; // toujours (totaux)
+  // Prestations supplémentaires taxables (lignes libres « soumises à TVA ») : elles
+  // s'ajoutent aux prestations dans l'assiette de la TVA comme dans les totaux.
+  const prestationsExtra = input.prestationsExtra ?? 0;
+  const remuneration = prestations + prestationsExtra + fraisOuverture + commission; // toujours (totaux)
   // L'assiette de la TVA dépend du paramètre choisi ; les débours restent hors champ.
-  const baseTaxable = (input.tvaBase ?? DEFAULT_TVA_BASE) === "PRESTATIONS" ? prestations : remuneration;
+  const baseTaxable = (input.tvaBase ?? DEFAULT_TVA_BASE) === "PRESTATIONS" ? prestations + prestationsExtra : remuneration;
   const tva = Math.round(baseTaxable * g.tvaRate);
   const ca = Math.round(tva * g.caRate);
   const totalHT = remuneration + deboursTotal;
   const totalTTC = totalHT + tva + ca;
 
   return {
-    prestations, fraisOuverture,
+    prestations, prestationsExtra, fraisOuverture,
     deboursFixesTotal, deboursIdentiqueTotal, deboursTotal,
     commission, remuneration, baseTaxable, tva, ca, totalHT, totalTTC,
   };

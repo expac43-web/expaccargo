@@ -44,8 +44,10 @@ export default function DevisComposer({
   const [fixesAmount, setFixesAmount] = useState<Record<string, string>>({});
   const [identique, setIdentique] = useState<{ label: string; amount: string }[]>([{ label: "Droits de douane", amount: "" }]);
   // Lignes libres : ajustements manuels + reprise éventuelle d'un devis précédent.
-  const [freeLines, setFreeLines] = useState<{ label: string; amount: string }[]>(
-    () => (quotedBefore ? initialItems.map((it) => ({ label: it.label, amount: String(it.amount) })) : [])
+  // `taxable` : la ligne entre (true) ou non (false) dans l'assiette de la TVA.
+  // Les lignes reprises d'un devis précédent restent hors TVA (total déjà établi).
+  const [freeLines, setFreeLines] = useState<{ label: string; amount: string; taxable: boolean }[]>(
+    () => (quotedBefore ? initialItems.map((it) => ({ label: it.label, amount: String(it.amount), taxable: false })) : [])
   );
   const [currency, setCurrency] = useState("XAF");
   const [message, setMessage] = useState("");
@@ -78,31 +80,43 @@ export default function DevisComposer({
     [identique]
   );
 
+  // Lignes libres réparties selon la TVA : « taxable » entre dans l'assiette (prestations
+  // supplémentaires → TVA/CA appliquées) ; « hors TVA » s'ajoute tel quel au total.
+  const freeTaxableLines = useMemo<DevisLine[]>(
+    () => freeLines.filter((l) => l.taxable).map((l) => ({ label: l.label.trim() || "Ligne", amount: Number(l.amount) })).filter((l) => Number.isFinite(l.amount) && l.amount !== 0),
+    [freeLines]
+  );
+  const freeNonTaxableLines = useMemo<DevisLine[]>(
+    () => freeLines.filter((l) => !l.taxable).map((l) => ({ label: l.label.trim() || "Ligne", amount: Number(l.amount) })).filter((l) => Number.isFinite(l.amount) && l.amount !== 0),
+    [freeLines]
+  );
+  const prestationsExtra = useMemo(() => freeTaxableLines.reduce((s, l) => s + l.amount, 0), [freeTaxableLines]);
+
   const result = useMemo(
     () => computeDevis({
       mode, weightKg: num(weightKg), maritimeType, tonnes: num(tonnes), tc20: num(tc20), tc40: num(tc40),
       deboursFixes: deboursFixesLines, deboursIdentique: deboursIdentiqueLines,
+      includeFraisOuverture: hasInput, prestationsExtra,
     }, config),
-    [mode, weightKg, maritimeType, tonnes, tc20, tc40, deboursFixesLines, deboursIdentiqueLines, config]
+    [mode, weightKg, maritimeType, tonnes, tc20, tc40, deboursFixesLines, deboursIdentiqueLines, hasInput, prestationsExtra, config]
   );
 
-  // Postes calculés depuis la grille (seulement si une quantité est saisie).
+  // Postes calculés : grille + lignes libres taxables ; TVA/CA sur l'assiette complète.
   const grilleLines = useMemo<DevisLine[]>(() => {
-    if (!hasInput) return [];
-    const lines: DevisLine[] = [{ label: "Honoraires de prestation", amount: result.prestations }];
+    const hasComputed = hasInput || freeTaxableLines.length > 0 || deboursFixesLines.length > 0 || deboursIdentiqueLines.length > 0;
+    if (!hasComputed) return [];
+    const lines: DevisLine[] = [];
+    if (hasInput) lines.push({ label: "Honoraires de prestation", amount: result.prestations });
+    lines.push(...freeTaxableLines);
     if (result.fraisOuverture > 0) lines.push({ label: "Frais d'ouverture de dossier", amount: result.fraisOuverture });
     lines.push(...deboursFixesLines, ...deboursIdentiqueLines);
     if (result.commission > 0) lines.push({ label: "Commission sur débours (3,5 %)", amount: result.commission });
     lines.push({ label: "TVA 18 %", amount: result.tva }, { label: "CA 5 % (sur la TVA)", amount: result.ca });
     return lines;
-  }, [hasInput, result, deboursFixesLines, deboursIdentiqueLines]);
+  }, [hasInput, result, deboursFixesLines, deboursIdentiqueLines, freeTaxableLines]);
 
-  const freeClean = useMemo<DevisLine[]>(
-    () => freeLines.map((l) => ({ label: l.label.trim() || "Ligne", amount: Number(l.amount) })).filter((l) => Number.isFinite(l.amount) && l.amount !== 0),
-    [freeLines]
-  );
-
-  const allLines = useMemo(() => [...grilleLines, ...freeClean], [grilleLines, freeClean]);
+  // Total = postes calculés (grille + taxables + TVA/CA) puis lignes hors TVA ajoutées telles quelles.
+  const allLines = useMemo(() => [...grilleLines, ...freeNonTaxableLines], [grilleLines, freeNonTaxableLines]);
   const total = useMemo(() => allLines.reduce((s, l) => s + l.amount, 0), [allLines]);
   const canSend = allLines.length > 0 && total > 0;
 
@@ -238,17 +252,22 @@ export default function DevisComposer({
             )}
           </div>
 
-          {/* Lignes libres */}
+          {/* Lignes libres : TVA au choix (taxable / hors TVA) */}
           <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <p className="text-[11px] font-black uppercase tracking-wider text-gray-400" style={fontM}>Lignes libres (remise, fret…)</p>
-              <button type="button" onClick={() => setFreeLines((r) => [...r, { label: "", amount: "" }])} className="flex items-center gap-1 text-[11px] font-black uppercase" style={{ color: ORANGE, ...fontM }}><Plus size={12} /> Ligne</button>
+            <div className="flex items-center justify-between mb-1">
+              <p className="text-[11px] font-black uppercase tracking-wider text-gray-400" style={fontM}>Lignes libres (TVA au choix)</p>
+              <div className="flex items-center gap-2">
+                <button type="button" onClick={() => setFreeLines((r) => [...r, { label: "", amount: "", taxable: true }])} className="flex items-center gap-1 text-[11px] font-black uppercase" style={{ color: NAVY, ...fontM }}><Plus size={12} /> Taxable</button>
+                <button type="button" onClick={() => setFreeLines((r) => [...r, { label: "", amount: "", taxable: false }])} className="flex items-center gap-1 text-[11px] font-black uppercase" style={{ color: ORANGE, ...fontM }}><Plus size={12} /> Hors TVA</button>
+              </div>
             </div>
+            <p className="text-[10px] text-gray-400 mb-1.5" style={fontL}>« Taxable » entre dans l&apos;assiette TVA (prestation, remise…). « Hors TVA » s&apos;ajoute tel quel (fret, débours…).</p>
             <div className="space-y-1.5">
               {freeLines.map((l, i) => (
                 <div key={i} className="flex items-center gap-1.5">
                   <input value={l.label} onChange={(e) => setFreeLines((rows) => rows.map((r, idx) => idx === i ? { ...r, label: e.target.value } : r))} placeholder="Libellé (ex : Remise)" className="flex-1 min-w-0 px-2 py-1.5 rounded-lg border border-gray-200 text-xs outline-none focus:border-[#1A3A6B]" style={fontL} />
-                  <input type="number" step="any" value={l.amount} onChange={(e) => setFreeLines((rows) => rows.map((r, idx) => idx === i ? { ...r, amount: e.target.value } : r))} placeholder="± Montant" className="w-24 px-2 py-1.5 rounded-lg border border-gray-200 text-xs outline-none focus:border-[#1A3A6B]" style={fontL} />
+                  <input type="number" step="any" value={l.amount} onChange={(e) => setFreeLines((rows) => rows.map((r, idx) => idx === i ? { ...r, amount: e.target.value } : r))} placeholder="± Montant" className="w-20 px-2 py-1.5 rounded-lg border border-gray-200 text-xs outline-none focus:border-[#1A3A6B]" style={fontL} />
+                  <button type="button" onClick={() => setFreeLines((rows) => rows.map((r, idx) => idx === i ? { ...r, taxable: !r.taxable } : r))} title={l.taxable ? "Soumis à la TVA — cliquer pour exclure" : "Hors TVA — cliquer pour soumettre à la TVA"} className="shrink-0 px-2 py-1.5 rounded-lg text-[10px] font-black uppercase border-2 transition-all" style={l.taxable ? { borderColor: NAVY, backgroundColor: `${NAVY}0d`, color: NAVY, ...fontM } : { borderColor: "#e5e7eb", color: "#9ca3af", ...fontM }}>{l.taxable ? "TVA" : "Hors TVA"}</button>
                   <button type="button" onClick={() => setFreeLines((r) => r.filter((_, idx) => idx !== i))} className="text-gray-300 hover:text-red-500 shrink-0"><Trash2 size={13} /></button>
                 </div>
               ))}
