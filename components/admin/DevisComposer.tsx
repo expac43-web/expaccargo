@@ -65,15 +65,16 @@ export default function DevisComposer({
   const hasInput =
     mode === "AERIEN" ? num(weightKg) > 0 : maritimeType === "CONTENEUR" ? num(tc20) + num(tc40) > 0 : num(tonnes) > 0;
 
-  const deboursFixesLines = useMemo<DevisLine[]>(() => {
-    const out: DevisLine[] = [];
+  const deboursFixesLines = useMemo<{ code: string; label: string; amount: number; def: number }[]>(() => {
+    const out: { code: string; label: string; amount: number; def: number }[] = [];
     for (const d of catalog) {
       if ((fixesQty[d.code] ?? 0) <= 0) continue;
-      if (d.percentValeurDouane) { out.push({ label: d.label, amount: Math.round(num(valeurDouane) * d.percentValeurDouane) }); continue; }
-      // Montant modifiable : la valeur saisie prime sur le montant par défaut de la grille.
+      // Défaut = grille (ou 1 % de la valeur en douane). La saisie du récap devis
+      // (fixesAmount) prime — la case à cocher ne sert qu'à sélectionner.
+      const def = d.percentValeurDouane ? Math.round(num(valeurDouane) * d.percentValeurDouane) : d.amount;
       const edited = fixesAmount[d.code];
-      const amount = edited !== undefined && edited.trim() !== "" ? num(edited) : d.amount;
-      out.push({ label: d.label, amount });
+      const amount = edited !== undefined && edited.trim() !== "" ? num(edited) : def;
+      out.push({ code: d.code, label: d.label, amount, def });
     }
     return out;
   }, [catalog, fixesQty, fixesAmount, valeurDouane]);
@@ -119,26 +120,36 @@ export default function DevisComposer({
   const effTva = effOf("tva", tvaComputed);
   const caComputed = Math.round(effTva * config.caRate);
   const effCa = effOf("ca", caComputed);
-  const hasOverride = Object.values(overrides).some((v) => (v ?? "").trim() !== "");
+  const hasOverride =
+    Object.values(overrides).some((v) => (v ?? "").trim() !== "") ||
+    Object.values(fixesAmount).some((v) => (v ?? "").trim() !== "");
 
   const hasComputed =
     hasInput || freeTaxableLines.length > 0 || deboursFixesLines.length > 0 ||
     deboursIdentiqueLines.length > 0 || hasOverride;
 
-  // Postes du devis. `ovKey` défini = ligne modifiable (input) ; `computed` = valeur
-  // grille par défaut. Sans `ovKey` = lecture seule (édité ailleurs : débours à gauche,
-  // lignes libres dans leur section).
-  type Row = { key: string; label: string; amount: number; ovKey?: string; computed?: number };
+  // Postes du devis. `edit` défini = ligne modifiable ICI (input) ; sinon lecture seule
+  // (lignes libres = éditées dans leur section). `raw` = valeur saisie, `def` = défaut
+  // grille, `set` = enregistrement (overrides pour la grille, fixesAmount pour un débours).
+  type RowEdit = { raw: string | undefined; def: number; set: (v: string) => void };
+  type Row = { key: string; label: string; amount: number; edit?: RowEdit };
+  const ovEdit = (key: string, def: number): RowEdit => ({
+    raw: overrides[key], def, set: (v) => setOverrides((o) => ({ ...o, [key]: v })),
+  });
   const rows: Row[] = [];
   if (hasComputed) {
-    if (hasInput) rows.push({ key: "honoraires", label: "Honoraires de prestation", amount: effHonoraires, ovKey: "honoraires", computed: result.prestations });
+    if (hasInput) rows.push({ key: "honoraires", label: "Honoraires de prestation", amount: effHonoraires, edit: ovEdit("honoraires", result.prestations) });
     freeTaxableLines.forEach((l, i) => rows.push({ key: `tf${i}`, label: l.label, amount: l.amount }));
-    if (hasInput || effOuverture > 0) rows.push({ key: "ouverture", label: "Frais d'ouverture de dossier", amount: effOuverture, ovKey: "ouverture", computed: result.fraisOuverture });
-    deboursFixesLines.forEach((l, i) => rows.push({ key: `df${i}`, label: l.label, amount: l.amount }));
+    if (hasInput || effOuverture > 0) rows.push({ key: "ouverture", label: "Frais d'ouverture de dossier", amount: effOuverture, edit: ovEdit("ouverture", result.fraisOuverture) });
+    // Débours fixes : montant modifiable ICI (la case à cocher = sélection seule).
+    deboursFixesLines.forEach((l) => rows.push({
+      key: `df${l.code}`, label: l.label, amount: l.amount,
+      edit: { raw: fixesAmount[l.code], def: l.def, set: (v) => setFixesAmount((m) => ({ ...m, [l.code]: v })) },
+    }));
     deboursIdentiqueLines.forEach((l, i) => rows.push({ key: `di${i}`, label: l.label, amount: l.amount }));
-    if (result.deboursTotal > 0 || (overrides.commission ?? "").trim() !== "") rows.push({ key: "commission", label: "Commission sur débours (3,5 %)", amount: effCommission, ovKey: "commission", computed: result.commission });
-    rows.push({ key: "tva", label: "TVA 18 %", amount: effTva, ovKey: "tva", computed: tvaComputed });
-    rows.push({ key: "ca", label: "CA 5 % (sur la TVA)", amount: effCa, ovKey: "ca", computed: caComputed });
+    if (result.deboursTotal > 0 || (overrides.commission ?? "").trim() !== "") rows.push({ key: "commission", label: "Commission sur débours (3,5 %)", amount: effCommission, edit: ovEdit("commission", result.commission) });
+    rows.push({ key: "tva", label: "TVA 18 %", amount: effTva, edit: ovEdit("tva", tvaComputed) });
+    rows.push({ key: "ca", label: "CA 5 % (sur la TVA)", amount: effCa, edit: ovEdit("ca", caComputed) });
   }
 
   // Total = tous les postes (montants effectifs) + lignes hors TVA ajoutées telles quelles.
@@ -213,24 +224,26 @@ export default function DevisComposer({
             </div>
           )}
 
-          {/* Débours fixes */}
+          {/* Débours fixes : cases à cocher = sélection seule (montants grisés) */}
           <div>
-            <p className="text-[11px] font-black uppercase tracking-wider text-gray-400 mb-1.5 border-t border-gray-100 pt-2.5" style={fontM}>Débours (cocher)</p>
+            <p className="text-[11px] font-black uppercase tracking-wider text-gray-400 mb-0.5 border-t border-gray-100 pt-2.5" style={fontM}>Débours (cocher)</p>
+            <p className="text-[10px] text-gray-400 mb-1.5" style={fontL}>Cochez les débours applicables ; les montants se modifient dans le devis, à droite.</p>
             <div className="space-y-1 max-h-40 overflow-y-auto pr-1">
               {catalog.map((d) => {
                 const on = (fixesQty[d.code] ?? 0) > 0;
+                const def = d.percentValeurDouane ? Math.round(num(valeurDouane) * d.percentValeurDouane) : d.amount;
+                const raw = fixesAmount[d.code];
+                const eff = raw !== undefined && raw.trim() !== "" ? num(raw) : def;
                 return (
                   <div key={d.code} className="text-xs">
                     <div className="flex items-center gap-2 py-0.5">
                       <label className="flex items-center gap-2 flex-1 min-w-0 cursor-pointer">
                         <input type="checkbox" checked={on} onChange={(e) => setFixesQty((m) => ({ ...m, [d.code]: e.target.checked ? 1 : 0 }))} className="w-3.5 h-3.5 accent-[#1A3A6B] shrink-0" />
-                        <span className="text-gray-600 truncate" style={fontL}>{d.label}</span>
+                        <span className={`truncate ${on ? "text-gray-600" : "text-gray-400"}`} style={fontL}>{d.label}</span>
                       </label>
-                      {on && !d.percentValeurDouane ? (
-                        <input type="number" min="0" value={fixesAmount[d.code] ?? String(d.amount)} onChange={(e) => setFixesAmount((m) => ({ ...m, [d.code]: e.target.value }))} title="Montant modifiable" className="w-24 px-2 py-1 rounded-lg border border-gray-200 text-xs text-right outline-none focus:border-[#1A3A6B] shrink-0" style={fontL} />
-                      ) : (
-                        <span className="text-gray-400 shrink-0">{d.percentValeurDouane ? "1 % val." : formatPrice(d.amount)}</span>
-                      )}
+                      <span className={`shrink-0 ${on ? "text-gray-400" : "text-gray-300"}`} title={on ? "Montant modifiable dans le devis (à droite)" : undefined}>
+                        {d.percentValeurDouane && eff === 0 ? "1 % val." : formatPrice(on ? eff : def)}
+                      </span>
                     </div>
                     {on && d.percentValeurDouane && (
                       <input type="number" min="0" value={valeurDouane} onChange={(e) => setValeurDouane(e.target.value)} placeholder="Valeur en douane" className="w-full mt-1 px-2 py-1.5 rounded-lg border border-gray-200 text-xs outline-none focus:border-[#1A3A6B]" style={fontL} />
@@ -265,7 +278,7 @@ export default function DevisComposer({
           <div className="flex items-center justify-between gap-2">
             <p className="text-[11px] font-black uppercase tracking-wider text-gray-400" style={fontM}>Devis (montants modifiables)</p>
             {hasOverride && (
-              <button type="button" onClick={() => setOverrides({})} className="text-[10px] font-black uppercase shrink-0" style={{ color: ORANGE, ...fontM }}>Réinitialiser la grille</button>
+              <button type="button" onClick={() => { setOverrides({}); setFixesAmount({}); }} className="text-[10px] font-black uppercase shrink-0" style={{ color: ORANGE, ...fontM }}>Réinitialiser la grille</button>
             )}
           </div>
           <div className="rounded-xl border border-gray-100 bg-gray-50 p-3 min-h-[3rem]">
@@ -274,15 +287,15 @@ export default function DevisComposer({
             ) : (
               <div className="space-y-1">
                 {rows.map((r) => {
-                  const ov = r.ovKey;
+                  const ed = r.edit;
                   return (
                     <div key={r.key} className="flex items-center justify-between gap-2 text-xs" style={fontL}>
                       <span className="text-gray-500 truncate pr-2">{r.label}</span>
-                      {ov ? (
+                      {ed ? (
                         <input
                           type="number"
-                          value={overrides[ov] ?? String(Math.round(r.computed ?? 0))}
-                          onChange={(e) => setOverrides((o) => ({ ...o, [ov]: e.target.value }))}
+                          value={ed.raw ?? String(Math.round(ed.def))}
+                          onChange={(e) => ed.set(e.target.value)}
                           title="Montant modifiable"
                           className="w-28 px-2 py-1 rounded-lg border border-gray-200 text-xs text-right outline-none focus:border-[#1A3A6B] shrink-0 bg-white"
                           style={fontL}
@@ -296,7 +309,7 @@ export default function DevisComposer({
               </div>
             )}
           </div>
-          <p className="text-[10px] text-gray-400" style={fontL}>Honoraires, frais, commission, TVA et CA sont modifiables ; la TVA et le total se recalculent tout seuls. Les débours se modifient à gauche.</p>
+          <p className="text-[10px] text-gray-400" style={fontL}>Tous les montants se modifient ici (honoraires, frais, débours, commission, TVA, CA) ; la TVA et le total se recalculent tout seuls. À gauche, on coche seulement les débours applicables.</p>
 
           {/* Lignes libres : TVA au choix (taxable / hors TVA) */}
           <div>
