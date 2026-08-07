@@ -25,6 +25,20 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
+        // En-têtes de sécurité appliqués à TOUTES les routes.
+        // (Sous-ensemble sans risque : pas de CSP script-src/style-src stricte
+        //  qui pourrait casser Next.js ; `frame-ancestors 'self'` = anti-clickjacking.)
+        source: "/(.*)",
+        headers: [
+          { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
+          { key: "Content-Security-Policy", value: "frame-ancestors 'self'" },
+        ],
+      },
+      {
         source: "/(.*\\.(?:jpg|jpeg|png|gif|webp|avif|svg|ico|woff|woff2))",
         headers: [
           {
