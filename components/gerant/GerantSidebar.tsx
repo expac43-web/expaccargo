@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import {
-  LayoutDashboard, Users, Package, FolderOpen, FolderLock, Handshake, MessagesSquare,
+  LayoutDashboard, Users, Package, FolderOpen, FolderLock, FolderUp, Handshake, MessagesSquare,
   MessageSquare, MessageSquareQuote, UserCircle, LogOut, Menu, X, Gauge, Newspaper, Calculator, FileText, Warehouse,
 } from "lucide-react";
 import NotificationBell from "@/components/NotificationBell";
@@ -21,6 +21,7 @@ const navItems = [
   { label: "Expéditions",     href: "/dashboard/gerant/expeditions", icon: Package },
   { label: "Stockage",        href: "/dashboard/gerant/stockage",    icon: Warehouse },
   { label: "Documents",       href: "/dashboard/gerant/documents",   icon: FolderOpen },
+  { label: "Documents internes", href: "/dashboard/gerant/documents-internes", icon: FolderUp },
   { label: "Devis",           href: "/dashboard/gerant/devis",       icon: FileText },
   { label: "Actualités",      href: "/dashboard/gerant/actualites",  icon: Newspaper },
   { label: "Commentaires",    href: "/dashboard/gerant/commentaires", icon: MessageSquareQuote },
