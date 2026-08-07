@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import AdminHeader from "@/components/admin/AdminHeader";
 import Modal from "@/components/admin/Modal";
 import Pagination from "@/components/admin/Pagination";
+import PrivateFileView, { isImageName } from "@/components/files/PrivateFileView";
 
 const PAGE_SIZE = 15;
 import { generatePassword } from "@/lib/password";
@@ -310,13 +311,17 @@ export default function ComptesPage() {
               <div className="mb-6">
                 <p className="text-xs font-black uppercase tracking-wider text-gray-400 mb-2" style={{ fontFamily: "var(--font-montserrat)" }}>Pièce d&apos;identité</p>
                 {detail.idPhotoUrl ? (
-                  <>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={`/api/staff/id-photo/${detail.id}`} alt="Pièce d'identité" className="w-full max-h-56 object-contain rounded-xl border border-gray-100 bg-gray-50 mb-2" onError={(e) => { e.currentTarget.style.display = "none"; }} />
+                  isImageName(detail.idPhotoUrl) ? (
+                    <PrivateFileView url={`/api/staff/id-photo/${detail.id}`} name={detail.idPhotoUrl} title="Agrandir" className="block w-full cursor-pointer">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={`/api/staff/id-photo/${detail.id}`} alt="Pièce d'identité" className="w-full max-h-56 object-contain rounded-xl border border-gray-100 bg-gray-50" />
+                      <span className="mt-1 inline-flex items-center gap-1 text-xs font-black" style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}><Eye size={12} /> Agrandir</span>
+                    </PrivateFileView>
+                  ) : (
                     <a href={`/api/staff/id-photo/${detail.id}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-xs font-black" style={{ color: "#1A3A6B", fontFamily: "var(--font-montserrat)" }}>
-                      <ExternalLink size={12} /> Ouvrir la pièce d&apos;identité
+                      <ExternalLink size={12} /> Ouvrir la pièce d&apos;identité (PDF)
                     </a>
-                  </>
+                  )
                 ) : (
                   <p className="text-sm text-gray-400" style={{ fontFamily: "var(--font-lato)" }}>Aucune pièce d&apos;identité fournie.</p>
                 )}

@@ -166,6 +166,7 @@ export default function GerantProfilPage() {
           <IdPhotoUpload
             viewUrl={`/api/staff/id-photo/${profile.id}`}
             hasPhoto={!!profile.idPhotoUrl}
+            fileName={profile.idPhotoUrl}
             uploadEndpoint="/api/gerant/profile/id-photo"
             accentColor="#1A3A6B"
           />

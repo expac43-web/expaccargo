@@ -177,6 +177,7 @@ export default function AgenceProfilPage() {
           <IdPhotoUpload
             viewUrl={`/api/staff/id-photo/${profile.id}`}
             hasPhoto={!!profile.idPhotoUrl}
+            fileName={profile.idPhotoUrl}
             uploadEndpoint="/api/agence/profile/id-photo"
             accentColor="#0e5f72"
           />
